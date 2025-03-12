@@ -1,0 +1,23 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+webapp/easeat/node_modules
+webapp/easeat/.pnp
+webapp/easeat/.pnp.js
+
+# testing
+webapp/easeat//coverage
+
+# production
+webapp/easeat/build
+
+# misc
+webapp/easeat/.DS_Store
+webapp/easeat/.env.local
+webapp/easeat/.env.development.local
+webapp/easeat/.env.test.local
+webapp/easeat/.env.production.local
+
+webapp/easeat/npm-debug.log*
+webapp/easeat/yarn-debug.log*
+webapp/easeat/yarn-error.log*
