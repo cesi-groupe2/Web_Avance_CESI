@@ -21,3 +21,6 @@ webapp/easeat/.env.production.local
 webapp/easeat/npm-debug.log*
 webapp/easeat/yarn-debug.log*
 webapp/easeat/yarn-error.log*
+
+backend/node_modules
+backend/.env
