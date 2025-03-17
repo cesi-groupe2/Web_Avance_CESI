@@ -43,34 +43,4 @@ jobs:
 
          - name: Run lint
            run: golangci-lint run ./...
-  sonarqube:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.21"
-
-      - name: Install SonarQube Scanner
-        run: |
-          curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner-cli.zip
-          echo "$(pwd)/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
-
-      - name: Run SonarQube analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: "https://sonarcloud.io"  # Remplacez par votre URL SonarQube si auto-hébergé
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=Web_Avance_CESI \
-            -Dsonar.organization=cesi-groupe2 \
-            -Dsonar.sources=. \
-            -Dsonar.language=go \
-            -Dsonar.tests=. \
-            -Dsonar.test.inclusions="**/*_test.go" \
-            -Dsonar.go.coverage.reportPaths=coverage.out
+ 
