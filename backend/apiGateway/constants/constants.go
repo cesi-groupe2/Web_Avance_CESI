@@ -1,0 +1,6 @@
+package constants
+
+const (
+	API_GATEWAY_PORT_ENV = "API_GATEWAY_PORT"
+	API_GATEWAY_ADDR_ENV = "API_GATEWAY_ADDR"
+)

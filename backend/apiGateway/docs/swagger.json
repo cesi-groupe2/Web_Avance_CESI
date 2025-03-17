@@ -1,0 +1,29 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the API for application Easeat. It's for commande food in the restaurant.",
+        "title": "Swagger Easeat API",
+        "contact": {
+            "name": "Groupe 2 FISA INFO A4 CESI (2025)",
+            "url": "https://contact.easeat.fr",
+            "email": "benjamin.guerre@viacesi.fr"
+        },
+        "version": "2.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "paths": {
+        "/test": {
+            "get": {
+                "description": "Testing route isn't use",
+                "summary": "Testing route",
+                "responses": {}
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
+        }
+    }
+}
