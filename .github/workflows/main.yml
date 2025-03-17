@@ -43,6 +43,6 @@ jobs:
 
          - name: Run lint
            run: |
-               cd Web_Avance_CESI/backend/apiGateway/
+               cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
                golangci-lint run ./...
  
