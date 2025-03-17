@@ -67,8 +67,8 @@ jobs:
           SONAR_HOST_URL: "https://sonarcloud.io"  # Remplacez par votre URL SonarQube si auto-hébergé
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=VotreProjet \
-            -Dsonar.organization=VotreOrganisation \
+            -Dsonar.projectKey=Web_Avance_CESI \
+            -Dsonar.organization=cesi-groupe2 \
             -Dsonar.sources=. \
             -Dsonar.language=go \
             -Dsonar.tests=. \
