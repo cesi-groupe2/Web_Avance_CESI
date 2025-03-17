@@ -45,12 +45,13 @@ jobs:
 
          - name: Install dependencies
            run: |
-              cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
-              go mod tidy
-              go get github.com/swaggo/gin-swagger
-              go get github.com/swaggo/files
-              go mod tidy  # Nettoyer à nouveau
-
+                  cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+                  go mod tidy
+                  go get -u github.com/swaggo/gin-swagger
+                  go get -u github.com/swaggo/files
+                  go mod tidy  # Nettoyer à nouveau
+                  go mod vendor  # Ajouter le dossier vendor pour éviter les problèmes
+              
 
          - name: Run lint
            run: |
