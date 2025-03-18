@@ -51,7 +51,7 @@ jobs:
                 # Installer swag (commande pour générer la doc Swagger)
                 go install github.com/swaggo/swag/cmd/swag@latest
                 # Générer la documentation Swagger
-                swag init -g /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/main.go
+                swag init -g /main.go
 
                 # Vérifier si les dépendances swaggo sont bien installées
                 go list -m all | grep swaggo || echo "Swaggo non trouvé"
