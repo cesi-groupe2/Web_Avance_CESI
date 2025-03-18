@@ -9,9 +9,10 @@ import (
 func HandleApiRoads(ctx context.Context, router *gin.Engine) {
 	
 	api := router.Group("/api")
-
-
 	api.GET("/test", TestRoad(ctx))
+
+	HandleUsersRoads(ctx, api)
+	
 }
 
 // TestRoad godoc
