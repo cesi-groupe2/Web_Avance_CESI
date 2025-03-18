@@ -9,8 +9,8 @@ import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/gin-swagger"
-	"github.com/swaggo/files"
+    	ginSwagger "github.com/swaggo/gin-swagger"
+    	swaggerFiles "github.com/swaggo/files"
 )
 
 func InitServer() {
