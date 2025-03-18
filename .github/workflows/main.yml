@@ -45,7 +45,7 @@ jobs:
 
          - name: Install dependencies
            run: |
-                cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/rest/
+                cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
             
                 # S'assurer d'avoir les dépendances propres
                 go mod tidy
