@@ -45,13 +45,27 @@ jobs:
 
          - name: Install dependencies
            run: |
-                  cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/rest/
-                  go mod tidy
-                  go get -u github.com/swaggo/gin-swagger
-                  go get -u github.com/swaggo/files
-                  go mod tidy  # Nettoyer à nouveau
-                  go mod vendor  # Ajouter le dossier vendor pour éviter les problèmes
-              
+                cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/rest/
+            
+                # S'assurer d'avoir les dépendances propres
+                go mod tidy
+            
+                # Installer swag (commande pour générer la doc Swagger)
+                go install github.com/swaggo/swag/cmd/swag@latest
+            
+                # Générer la documentation Swagger
+                swag init
+            
+                # Vérifier si les dépendances swaggo sont bien installées
+                go list -m all | grep swaggo || echo "Swaggo non trouvé"
+            
+                # Installer gin-swagger et ses fichiers
+                go get -u github.com/swaggo/gin-swagger
+                go get -u github.com/swaggo/files
+            
+                # Nettoyage et vendorisation des dépendances
+                go mod tidy
+                go mod vendor
 
          - name: Run lint
            run: |
