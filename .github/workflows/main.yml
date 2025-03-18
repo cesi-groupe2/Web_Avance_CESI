@@ -35,16 +35,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.23"  # Version stable de Go
+          go-version: "1.19"
   
-      - name: Clean Go environment
+      - name: Set GOROOT
         run: |
-          go clean -modcache
-          rm -rf $GOPATH/pkg
+          export GOROOT=$(go env GOROOT)
+          echo "GOROOT is set to $GOROOT"
   
       - name: Install golangci-lint
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/bin v1.53.0
+          golangci-lint --version  # Vérifier l'installation
   
       - name: Install dependencies
         run: |
