@@ -41,28 +41,23 @@ jobs:
 
          - name: Install golangci-lint
            run: |
-             curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+                curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
 
          - name: Install dependencies
            run: |
                 cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
-            
                 # S'assurer d'avoir les dépendances propres
                 go mod tidy
-            
                 # Installer swag (commande pour générer la doc Swagger)
                 go install github.com/swaggo/swag/cmd/swag@latest
-            
                 # Générer la documentation Swagger
-                swag init
-            
+                swag init -g /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/main.go
+
                 # Vérifier si les dépendances swaggo sont bien installées
                 go list -m all | grep swaggo || echo "Swaggo non trouvé"
-            
                 # Installer gin-swagger et ses fichiers
                 go get -u github.com/swaggo/gin-swagger
                 go get -u github.com/swaggo/files
-            
                 # Nettoyage et vendorisation des dépendances
                 go mod tidy
                 go mod vendor
