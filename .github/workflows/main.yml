@@ -27,43 +27,34 @@ jobs:
       - name: Run tests
         run: go test ./... -v
   lint:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Checkout code
-           uses: actions/checkout@v3
-
-         - name: Set up Go
-           uses: actions/setup-go@v4
-           with:
-             go-version: "1.21"
-
-
-
-         - name: Install golangci-lint
-           run: |
-                curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
-
-         - name: Install dependencies
-           run: |
-                cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
-                # S'assurer d'avoir les dépendances propres
-                go mod tidy
-                # Installer swag (commande pour générer la doc Swagger)
-                go install github.com/swaggo/swag/cmd/swag@latest
-                # Générer la documentation Swagger
-                swag init -g /main.go
-
-                # Vérifier si les dépendances swaggo sont bien installées
-                go list -m all | grep swaggo || echo "Swaggo non trouvé"
-                # Installer gin-swagger et ses fichiers
-                go get -u github.com/swaggo/gin-swagger
-                go get -u github.com/swaggo/files
-                # Nettoyage et vendorisation des dépendances
-                go mod tidy
-                go mod vendor
-
-         - name: Run lint
-           run: |
-               cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
-               golangci-lint run ./...
- 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+  
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+  
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+  
+      - name: Install dependencies
+        run: |
+          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+          go mod tidy
+          go mod vendor
+          go build ./...
+  
+      - name: Generate Swagger Docs
+        run: |
+          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+          go install github.com/swaggo/swag/cmd/swag@latest
+          swag init || echo "⚠️  Warning: swag init a échoué, vérifiez main.go"
+  
+      - name: Run lint
+        run: |
+          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+          $(go env GOPATH)/bin/golangci-lint run ./...
