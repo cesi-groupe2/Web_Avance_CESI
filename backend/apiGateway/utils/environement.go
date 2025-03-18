@@ -9,7 +9,3 @@ func GetEnvValueOrDefaultStr(key string, defaultValue string) string {
 	}
 	return value
 }
-
-
-
-
