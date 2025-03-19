@@ -27,7 +27,10 @@ jobs:
                 go mod tidy
 
       - name: Run tests
-        run: go test ./... -v
+        run: |
+          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+          go test ./... -v
+
   lint:
     runs-on: ubuntu-latest
     steps:
