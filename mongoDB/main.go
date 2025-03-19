@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -51,109 +50,43 @@ func createMongoDb(url string, port string, user string, password string) {
     }
     defer client.Disconnect(context.TODO())
 
-    database := client.Database("easeat")
+    _, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-    ordersCollection := database.Collection("orders")
-    orderHistoryCollection := database.Collection("order_history")
-    deliveriesCollection := database.Collection("deliveries")
+	fmt.Println("Connected to MongoDB successfully!")
 
-    order := bson.M{
-        "id_user":       123,
-        "id_restaurant": 45,
-        "items": []bson.M{
-            {"id_menu_item": 12, "quantity": 2, "price": 9.99},
-            {"id_menu_item": 18, "quantity": 1, "price": 12.50},
-        },
-        "total_price":  32.48,
-        "status":       "pending",
-        "id_payment":   "TXN123456",
-        "created_at":   time.Date(2025, 3, 11, 12, 0, 0, 0, time.UTC),
-        "updated_at":   time.Date(2025, 3, 11, 12, 5, 0, 0, time.UTC),
-    }
-    _, err = ordersCollection.InsertOne(context.TODO(), order)
-    if err != nil {
-        log.Fatal(err)
-    }
+	db := client.Database("easeat")
+	ordersCollection := db.Collection("order")
+	orderHistoryCollection := db.Collection("order_position_history")
 
-    orderHistory := bson.M{
-        "id_user":       123,
-        "id_restaurant": 45,
-        "items": []bson.M{
-            {"id_menu_item": 12, "quantity": 2, "price": 9.99},
-        },
-        "total_price":    19.98,
-        "status":        "completed",
-        "created_at":    time.Date(2025, 3, 10, 19, 0, 0, 0, time.UTC),
-        "completed_at":  time.Date(2025, 3, 10, 19, 30, 0, 0, time.UTC),
-        "delivery_time": 30,
-        "payment_method": "Stripe",
-        "feedback": bson.M{
-            "rating":  5,
-            "comment": "Livraison rapide, super burger !",
-        },
-    }
-    _, err = orderHistoryCollection.InsertOne(context.TODO(), orderHistory)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    delivery := bson.M{
-        "id_order":        primitive.NewObjectID(),
-        "id_livreur":      87,
-        "status":         "on the way",
-        "current_location": bson.M{"lat": 48.8566, "lng": 2.3522},
-        "estimated_arrival": time.Date(2025, 3, 11, 12, 30, 0, 0, time.UTC),
-        "created_at":        time.Date(2025, 3, 11, 12, 10, 0, 0, time.UTC),
-        "updated_at":        time.Date(2025, 3, 11, 12, 20, 0, 0, time.UTC),
-    }
-    _, err = deliveriesCollection.InsertOne(context.TODO(), delivery)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    fmt.Println("Données insérées avec succès dans MongoDB")
-}
-
-func createExampleCollection(mongoClient *mongo.Client, ctx context.Context) {
-		// database and collection
-	database := mongoClient.Database("demo")
-	sampleCollection := database.Collection("sampleCollection")
-	sampleCollection.Drop(ctx)
-}
-
-func insertExempleData(sampleCollection *mongo.Collection, ctx context.Context) {
-	// insert one
-	insertedDocument := bson.M{
-		"name":       "axel",
-		"content":    "test content",
-		"bank_money": 1000,
-		"create_at":  time.Now(),
+	// Insertion d'un document exemple dans "Commande"
+	order := bson.D{
+		{Key: "order_id", Value: 1},
+		{"delivery_person_id", 101},
+		{"customer_id", 202},
+		{"restaurant_id", 303},
+		{"items", bson.A{"Pizza", "Salade"}},
+		{"created_at", time.Now()},
+		{"delivery_at", time.Now().Add(30 * time.Minute)},
+		{"status", "En cours"},
 	}
-	insertedResult, err := sampleCollection.InsertOne(ctx, insertedDocument)
-
+	_, err = ordersCollection.InsertOne(context.TODO(), order)
 	if err != nil {
-		log.Fatalf("inserted error : %v", err)
-		return
+		log.Fatal(err)
 	}
-	fmt.Println("======= inserted id ================")
-	log.Printf("inserted ID is : %v", insertedResult.InsertedID)
+	fmt.Println("Commande insérée avec succès")
 
-	// query all data
-	fmt.Println("== query all data ==")
-	cursor, err := sampleCollection.Find(ctx, options.Find())
+	// Insertion d'un document exemple dans "order_position_history"
+	orderPosition := bson.D{
+		{"order_id", 1},
+		{"datetime", time.Now()},
+		{"position", "Restaurant"},
+	}
+	_, err = orderHistoryCollection.InsertOne(context.TODO(), orderPosition)
 	if err != nil {
-		log.Fatalf("find collection err : %v", err)
-		return
+		log.Fatal(err)
 	}
-	var queryResult []bson.M
-	if err := cursor.All(ctx, &queryResult); err != nil {
-		log.Fatalf("query mongodb result")
-		return
-	}
-
-	for _, doc := range queryResult {
-		fmt.Println(doc)
-	}
+	fmt.Println("Historique de position inséré avec succès")
 }
 
 func deleteOnMongoDb(sampleCollection *mongo.Collection, ctx context.Context) {

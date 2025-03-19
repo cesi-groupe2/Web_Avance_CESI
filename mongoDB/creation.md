@@ -13,3 +13,9 @@ To connect to the web interface of MongoDB, you can use the following URL: [http
 Use credentials below to connect:
 - Username: admin
 - Password: pass
+
+## Generate ORM objects
+To generate ORM objects, you can use the following command:
+```bash
+mgodatagen -h mongodb://localhost:27017 -d easeat -o models
+```
