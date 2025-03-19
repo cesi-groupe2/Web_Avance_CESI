@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -39,11 +40,88 @@ func main() {
 	}
 	fmt.Println("ping success")
 
-	// database and collection
+	createMongoDb("localhost", "27017", "root", "root")	
+
+}
+
+func createMongoDb(url string, port string, user string, password string) {
+    client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s", user, password, url, port)))
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer client.Disconnect(context.TODO())
+
+    database := client.Database("easeat")
+
+    ordersCollection := database.Collection("orders")
+    orderHistoryCollection := database.Collection("order_history")
+    deliveriesCollection := database.Collection("deliveries")
+
+    order := bson.M{
+        "id_user":       123,
+        "id_restaurant": 45,
+        "items": []bson.M{
+            {"id_menu_item": 12, "quantity": 2, "price": 9.99},
+            {"id_menu_item": 18, "quantity": 1, "price": 12.50},
+        },
+        "total_price":  32.48,
+        "status":       "pending",
+        "id_payment":   "TXN123456",
+        "created_at":   time.Date(2025, 3, 11, 12, 0, 0, 0, time.UTC),
+        "updated_at":   time.Date(2025, 3, 11, 12, 5, 0, 0, time.UTC),
+    }
+    _, err = ordersCollection.InsertOne(context.TODO(), order)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    orderHistory := bson.M{
+        "id_user":       123,
+        "id_restaurant": 45,
+        "items": []bson.M{
+            {"id_menu_item": 12, "quantity": 2, "price": 9.99},
+        },
+        "total_price":    19.98,
+        "status":        "completed",
+        "created_at":    time.Date(2025, 3, 10, 19, 0, 0, 0, time.UTC),
+        "completed_at":  time.Date(2025, 3, 10, 19, 30, 0, 0, time.UTC),
+        "delivery_time": 30,
+        "payment_method": "Stripe",
+        "feedback": bson.M{
+            "rating":  5,
+            "comment": "Livraison rapide, super burger !",
+        },
+    }
+    _, err = orderHistoryCollection.InsertOne(context.TODO(), orderHistory)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    delivery := bson.M{
+        "id_order":        primitive.NewObjectID(),
+        "id_livreur":      87,
+        "status":         "on the way",
+        "current_location": bson.M{"lat": 48.8566, "lng": 2.3522},
+        "estimated_arrival": time.Date(2025, 3, 11, 12, 30, 0, 0, time.UTC),
+        "created_at":        time.Date(2025, 3, 11, 12, 10, 0, 0, time.UTC),
+        "updated_at":        time.Date(2025, 3, 11, 12, 20, 0, 0, time.UTC),
+    }
+    _, err = deliveriesCollection.InsertOne(context.TODO(), delivery)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Println("Données insérées avec succès dans MongoDB")
+}
+
+func createExampleCollection(mongoClient *mongo.Client, ctx context.Context) {
+		// database and collection
 	database := mongoClient.Database("demo")
 	sampleCollection := database.Collection("sampleCollection")
 	sampleCollection.Drop(ctx)
+}
 
+func insertExempleData(sampleCollection *mongo.Collection, ctx context.Context) {
 	// insert one
 	insertedDocument := bson.M{
 		"name":       "axel",
@@ -76,66 +154,34 @@ func main() {
 	for _, doc := range queryResult {
 		fmt.Println(doc)
 	}
-	// insert many data
-	fmt.Println("=========== inserted many data ===============")
-	insertedManyDocument := []interface{}{
-		bson.M{
-			"name":       "Andy",
-			"content":    "new test content",
-			"bank_money": 1500,
-			"create_at":  time.Now().Add(36 * time.Hour),
-		},
-		bson.M{
-			"name":       "Jack",
-			"content":    "jack content",
-			"bank_money": 800,
-			"create_at":  time.Now().Add(12 * time.Hour),
-		},
-	}
+}
 
-	insertedManyResult, err := sampleCollection.InsertMany(ctx, insertedManyDocument)
-	if err != nil {
-		log.Fatalf("inserted many error : %v", err)
-		return
-	}
+func deleteOnMongoDb(sampleCollection *mongo.Collection, ctx context.Context) {
+		// delete Many
 
-	for _, doc := range insertedManyResult.InsertedIDs {
-		fmt.Println(doc)
-	}
-
-	fmt.Println("=========== query specific data =====================")
-	// query specific data
-	filter := bson.D{
-		bson.E{
-			Key: "bank_money",
-			Value: bson.D{
-				bson.E{
-					Key:   "$gt",
-					Value: 900,
+	deleteManyResult, err := sampleCollection.DeleteMany(
+		ctx,
+		bson.D{
+			bson.E{
+				Key: "bank_money",
+				Value: bson.D{
+					bson.E{
+						Key:   "$lt",
+						Value: 1000,
+					},
 				},
 			},
 		},
-	}
-
-	filterCursor, err := sampleCollection.Find(
-		ctx,
-		filter,
 	)
 	if err != nil {
-		log.Fatalf("filter query data error : %v", err)
+		log.Fatalf("delete many data error : %v", err)
 		return
 	}
-	var filterResult []bson.M
-	err = filterCursor.All(ctx, &filterResult)
-	if err != nil {
-		log.Fatalf("filter result %v", err)
-		return
-	}
+	fmt.Println("===== delete many data modified count =====")
+	fmt.Println(deleteManyResult.DeletedCount)
+}
 
-	for _, filterDoc := range filterResult {
-		fmt.Println(filterDoc)
-	}
-
+func updateOnMongoDb(sampleCollection *mongo.Collection, ctx context.Context) {
 	updateManyFilter := bson.D{
 		bson.E{
 			Key:   "name",
@@ -193,26 +239,68 @@ func main() {
 		fmt.Println(checkedDoc)
 	}
 	fmt.Println("===============================")
-	// delete Many
+}
 
-	deleteManyResult, err := sampleCollection.DeleteMany(
-		ctx,
-		bson.D{
-			bson.E{
-				Key: "bank_money",
-				Value: bson.D{
-					bson.E{
-						Key:   "$lt",
-						Value: 1000,
-					},
+func querySpecificData(sampleCollection *mongo.Collection, ctx context.Context) {
+	fmt.Println("=========== query specific data =====================")
+	// query specific data
+	filter := bson.D{
+		bson.E{
+			Key: "bank_money",
+			Value: bson.D{
+				bson.E{
+					Key:   "$gt",
+					Value: 900,
 				},
 			},
 		},
+	}
+
+	filterCursor, err := sampleCollection.Find(
+		ctx,
+		filter,
 	)
 	if err != nil {
-		log.Fatalf("delete many data error : %v", err)
+		log.Fatalf("filter query data error : %v", err)
 		return
 	}
-	fmt.Println("===== delete many data modified count =====")
-	fmt.Println(deleteManyResult.DeletedCount)
+	var filterResult []bson.M
+	err = filterCursor.All(ctx, &filterResult)
+	if err != nil {
+		log.Fatalf("filter result %v", err)
+		return
+	}
+
+	for _, filterDoc := range filterResult {
+		fmt.Println(filterDoc)
+	}
+}
+
+func insertData(sampleCollection *mongo.Collection, ctx context.Context) {
+	// insert many data
+	fmt.Println("=========== inserted many data ===============")
+	insertedManyDocument := []interface{}{
+		bson.M{
+			"name":       "Andy",
+			"content":    "new test content",
+			"bank_money": 1500,
+			"create_at":  time.Now().Add(36 * time.Hour),
+		},
+		bson.M{
+			"name":       "Jack",
+			"content":    "jack content",
+			"bank_money": 800,
+			"create_at":  time.Now().Add(12 * time.Hour),
+		},
+	}
+
+	insertedManyResult, err := sampleCollection.InsertMany(ctx, insertedManyDocument)
+	if err != nil {
+		log.Fatalf("inserted many error : %v", err)
+		return
+	}
+
+	for _, doc := range insertedManyResult.InsertedIDs {
+		fmt.Println(doc)
+	}
 }
