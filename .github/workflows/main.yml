@@ -22,7 +22,9 @@ jobs:
           go-version: "1.21"
 
       - name: Install dependencies
-        run: go mod tidy
+        run:  |
+                cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+                go mod tidy
 
       - name: Run tests
         run: go test ./... -v
