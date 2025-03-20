@@ -29,15 +29,12 @@ func InitServer() {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// run router
-	router.Run(fmt.Sprintf("%s:%s",
+	err := router.Run(fmt.Sprintf("%s:%s", 
 		utils.GetEnvValueOrDefaultStr(constants.API_GATEWAY_ADDR_ENV, "localhost"),
 		utils.GetEnvValueOrDefaultStr(constants.API_GATEWAY_PORT_ENV, "8080")))
 
-
-
-	err := router.Run(fmt.Sprintf("%s:%s", host, port))
+	// Vérification de l'erreur
 	if err != nil {
-	    log.Fatalf("Failed to start the server: %v", err)
+		log.Fatalf("Failed to start the server: %v", err)
 	}
-
 }
