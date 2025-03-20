@@ -35,7 +35,7 @@ func InitServer() {
 
 
 
-	err := router.Run(fmt.Sprintf("%s:%s", host, port))
+	err := router.Run(fmt.Sprintf("%s:%s", "localhost", "8080"))
 if err != nil {
     log.Fatalf("Failed to start server: %v", err)
 }
