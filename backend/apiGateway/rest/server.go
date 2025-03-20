@@ -1,4 +1,5 @@
 package rest
+
 import (
 	"context"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 )
 
 func InitServer() {
+
 	// server gin 
 	router := gin.Default()
 
@@ -26,13 +28,8 @@ func InitServer() {
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// run router with error handling
-	addr := fmt.Sprintf("%s:%s",
+	// run router
+	router.Run(fmt.Sprintf("%s:%s",
 		utils.GetEnvValueOrDefaultStr(constants.API_GATEWAY_ADDR_ENV, "localhost"),
-		utils.GetEnvValueOrDefaultStr(constants.API_GATEWAY_PORT_ENV, "8080"),
-	)
-
-	if err := router.Run(addr); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+		utils.GetEnvValueOrDefaultStr(constants.API_GATEWAY_PORT_ENV, "8080")))
 }
