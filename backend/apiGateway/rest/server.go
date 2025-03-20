@@ -3,7 +3,7 @@ package rest
 import (
 	"context"
 	"fmt"
-
+	"log"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/rest/roads"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
