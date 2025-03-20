@@ -61,3 +61,14 @@ jobs:
         run: |
           cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
           golangci-lint run --verbose --timeout=5m ./...
+
+  build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        - name: Run k6 local test
+          uses: grafana/k6-action@v0.3.1
+          with:
+            filename: my-load-test.js
+            flags: --vus 50 --duration 10s
