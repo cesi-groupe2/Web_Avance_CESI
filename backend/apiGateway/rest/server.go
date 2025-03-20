@@ -32,4 +32,11 @@ func InitServer() {
 	router.Run(fmt.Sprintf("%s:%s",
 		utils.GetEnvValueOrDefaultStr(constants.API_GATEWAY_ADDR_ENV, "localhost"),
 		utils.GetEnvValueOrDefaultStr(constants.API_GATEWAY_PORT_ENV, "8080")))
+
+
+
+	err := router.Run(fmt.Sprintf("%s:%s", host, port))
+if err != nil {
+    log.Fatalf("Failed to start server: %v", err)
+}
 }
