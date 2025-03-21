@@ -1,0 +1,137 @@
+definitions:
+  mongoModels.OrderPositionHistory:
+    properties:
+      datetime:
+        type: string
+      id:
+        type: string
+      order_id:
+        type: integer
+      position:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /:
+    post:
+      consumes:
+      - application/json
+      description: Create an order position
+      parameters:
+      - description: Order Position
+        in: body
+        name: orderPositionHistory
+        required: true
+        schema:
+          $ref: '#/definitions/mongoModels.OrderPositionHistory'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create an order position
+      tags:
+      - OrderPosition
+  /createLite:
+    post:
+      consumes:
+      - application/json
+      description: Create an order position with less order position informations,
+        only the order id, and the position are required
+      parameters:
+      - description: Order Position
+        in: body
+        name: orderPositionHistory
+        required: true
+        schema:
+          $ref: '#/definitions/mongoModels.OrderPositionHistory'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create an order position with less order position informations
+      tags:
+      - OrderPosition
+  /journey/{orderID}:
+    get:
+      consumes:
+      - application/json
+      description: Get the journey of an order by its id
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/mongoModels.OrderPositionHistory'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get the journey of an order by its id
+      tags:
+      - OrderPosition
+  /lastPosition/{orderID}:
+    get:
+      consumes:
+      - application/json
+      description: Get the last position of an order by its id
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongoModels.OrderPositionHistory'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get the last position of an order by its id
+      tags:
+      - OrderPosition
+swagger: "2.0"

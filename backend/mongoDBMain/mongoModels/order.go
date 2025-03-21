@@ -1,14 +1,14 @@
 package mongoModels
 
 import (
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type Order struct {
@@ -26,9 +26,9 @@ type Order struct {
 func (order *Order) GetOrderById(ctx *gin.Context, database *mongo.Database) error {
 	// get order by id
 	filter := bson.D{{Key: "_id", Value: order.OrderID}}
-	err := database.Collection(constants.MONGO_ORDER_COLLECTION).FindOne(ctx, filter).Decode(&order)
+	err := database.Collection(constants.MONGO_ORDERS_COLLECTION).FindOne(ctx, filter).Decode(&order)
 	if err != nil {
-		log.Printf("[GetOrderById]; Error getting order: %v", err)
+		err = fmt.Errorf("[GetOrderById]; Error getting order: %v", err)
 		return err
 	}
 	return nil
@@ -36,9 +36,9 @@ func (order *Order) GetOrderById(ctx *gin.Context, database *mongo.Database) err
 
 func (order *Order) InsertOrder(ctx *gin.Context, database *mongo.Database) error {
 	// create order
-	_, err := database.Collection(constants.MONGO_ORDER_COLLECTION).InsertOne(ctx, order)
+	_, err := database.Collection(constants.MONGO_ORDERS_COLLECTION).InsertOne(ctx, order)
 	if err != nil {
-		log.Printf("Error creating order: %v", err)
+		err = fmt.Errorf("Error creating order: %v", err)
 		return err
 	}
 	return nil
@@ -48,9 +48,9 @@ func (order *Order) UpdateOrder(ctx *gin.Context, database *mongo.Database) erro
 	// update order
 	filter := bson.D{{Key: "_id", Value: order.OrderID}}
 	update := bson.D{{Key: "$set", Value: bson.D{{Key: "status", Value: order.Status}}}}
-	_, err := database.Collection(constants.MONGO_ORDER_COLLECTION).UpdateOne(ctx, filter, update)
+	_, err := database.Collection(constants.MONGO_ORDERS_COLLECTION).UpdateOne(ctx, filter, update)
 	if err != nil {
-		log.Printf("Error updating order: %v", err)
+		err = fmt.Errorf("Error updating order: %v", err)
 		return err
 	}
 	return nil
@@ -59,9 +59,9 @@ func (order *Order) UpdateOrder(ctx *gin.Context, database *mongo.Database) erro
 func (order *Order) DeleteOrder(ctx *gin.Context, database *mongo.Database) error {
 	// delete order
 	filter := bson.D{{Key: "_id", Value: order.OrderID}}
-	_, err := database.Collection(constants.MONGO_ORDER_COLLECTION).DeleteOne(ctx, filter)
+	_, err := database.Collection(constants.MONGO_ORDERS_COLLECTION).DeleteOne(ctx, filter)
 	if err != nil {
-		log.Printf("Error deleting order: %v", err)
+		err = fmt.Errorf("Error deleting order: %v", err)
 		return err
 	}
 	return nil
@@ -70,9 +70,9 @@ func (order *Order) DeleteOrder(ctx *gin.Context, database *mongo.Database) erro
 func GetAllOrder(ctx *gin.Context, database *mongo.Database, limit int) ([]Order, error) {
 	// get all orders
 	opts := options.Find().SetLimit(int64(limit))
-	cursor, err := database.Collection(constants.MONGO_ORDER_COLLECTION).Find(ctx, bson.D{}, opts)
+	cursor, err := database.Collection(constants.MONGO_ORDERS_COLLECTION).Find(ctx, bson.D{}, opts)
 	if err != nil {
-		log.Printf("Error finding documents: %v", err)
+		err = fmt.Errorf("Error finding documents: %v", err)
 		return nil, err
 	}
 	defer cursor.Close(ctx)
@@ -82,7 +82,7 @@ func GetAllOrder(ctx *gin.Context, database *mongo.Database, limit int) ([]Order
 	for cursor.Next(ctx) {
 		var order Order
 		if err := cursor.Decode(&order); err != nil {
-			log.Printf("Error decoding document: %v", err)
+			err = fmt.Errorf("Error decoding document: %v", err)
 			return nil, err
 		}
 		orders = append(orders, order)
