@@ -1,24 +1,30 @@
-package main
+package mongoDBMain
 
 import (
 	"context"
+	"demo/mongoModels"
 	"fmt"
 	"log"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
-	mongoClient, err := mongo.Connect(
-		ctx,
-		options.Client().ApplyURI("mongodb://root:root@localhost:27017/"),
-	)
+	mongoClient, err := mongo.Connect(options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s",
+		"root",
+		"root",
+		"localhost",
+		"27017")))
+	if err != nil {
+		log.Fatalf("new client error : %v", err)
+		return
+	}
 
 	defer func() {
 		cancel()
@@ -39,19 +45,27 @@ func main() {
 	}
 	fmt.Println("ping success")
 
-	createMongoDb("localhost", "27017", "root", "root")	
+	createMongoDb(ctx, "localhost", "27017", "root", "root")
 
 }
 
-func createMongoDb(url string, port string, user string, password string) {
-    client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s", user, password, url, port)))
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer client.Disconnect(context.TODO())
-
-    _, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+func createMongoDb(ctx context.Context, url string, port string, user string, password string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	client, err := mongo.Connect(options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s",
+		user,
+		password,
+		url,
+		port)))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
 
 	fmt.Println("Connected to MongoDB successfully!")
 
@@ -61,14 +75,13 @@ func createMongoDb(url string, port string, user string, password string) {
 
 	// Insertion d'un document exemple dans "Commande"
 	order := bson.D{
-		{Key: "order_id", Value: 1},
 		{"delivery_person_id", 101},
 		{"customer_id", 202},
 		{"restaurant_id", 303},
 		{"items", bson.A{"Pizza", "Salade"}},
 		{"created_at", time.Now()},
 		{"delivery_at", time.Now().Add(30 * time.Minute)},
-		{"status", "En cours"},
+		{"status", mongoModels.OrderStatusAwaitingValidation},
 	}
 	_, err = ordersCollection.InsertOne(context.TODO(), order)
 	if err != nil {
@@ -90,7 +103,7 @@ func createMongoDb(url string, port string, user string, password string) {
 }
 
 func deleteOnMongoDb(sampleCollection *mongo.Collection, ctx context.Context) {
-		// delete Many
+	// delete Many
 
 	deleteManyResult, err := sampleCollection.DeleteMany(
 		ctx,

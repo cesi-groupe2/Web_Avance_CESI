@@ -1,4 +1,4 @@
-package MongoModels
+package mongoModels
 
 import "time"
 
