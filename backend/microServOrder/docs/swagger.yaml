@@ -1,0 +1,145 @@
+definitions:
+  mongoModels.Order:
+    properties:
+      _id:
+        type: string
+      created_at:
+        type: string
+      customer_id:
+        type: integer
+      delivery_at:
+        type: string
+      delivery_person_id:
+        type: integer
+      restaurant_id:
+        type: integer
+      status:
+        $ref: '#/definitions/mongoModels.OrderStatus'
+    type: object
+  mongoModels.OrderStatus:
+    enum:
+    - AwaitingValidation
+    - InPreparation
+    - AwaitingCourier
+    - InDelivery
+    - Delivered
+    - Closed
+    type: string
+    x-enum-varnames:
+    - OrderStatusAwaitingValidation
+    - OrderStatusInPreparation
+    - OrderStatusAwaitingCourier
+    - OrderStatusInDelivery
+    - OrderStatusDelivered
+    - OrderStatusClosed
+info:
+  contact: {}
+paths:
+  /:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order object
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/mongoModels.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongoModels.Order'
+      summary: Update an order
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order object
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/mongoModels.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongoModels.Order'
+      summary: Create an order
+  /{orderId}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete an order
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongoModels.Order'
+      summary: Get order by id
+  /all:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/mongoModels.Order'
+              type: array
+            type: array
+      summary: Get all orders
+  /nextStatus/{orderId}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update an order to the next status
+swagger: "2.0"
