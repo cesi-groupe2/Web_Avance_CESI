@@ -19,6 +19,7 @@ jobs:
 
       - name: Generate Documentation
         run: |
+          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway
           mkdir -p docs
           go doc -all > docs/documentation.txt
 
