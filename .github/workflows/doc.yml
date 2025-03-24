@@ -17,11 +17,14 @@ jobs:
         with:
           go-version: '1.21'
 
-      - name: Generate Documentation
+      - name: Install Godocdown
+        run: go install github.com/robertkrimen/godocdown/godocdown@latest
+      
+      - name: Generate Markdown Documentation
         run: |
-          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway
           mkdir -p docs
-          go doc -all > docs/documentation.txt
+          godocdown . > docs/README.md
+
 
 
       - name: Upload Documentation Artifact
