@@ -1,18 +1,28 @@
-module github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase
+module github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition
+
+replace github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway => ../apiGateway
+
+replace github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase => ../microServBase
+
+replace github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain => ../mongoDBMain
 
 go 1.24.1
 
-require github.com/gin-gonic/gin v1.10.0
+require (
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway v0.0.0-20250320150048-d4656c7d783a
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-00010101000000-000000000000
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain v0.0.0-00010101000000-000000000000
+	github.com/gin-gonic/gin v1.10.0
+	go.mongodb.org/mongo-driver/v2 v2.1.0
+)
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/bytedance/sonic v1.12.6 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
-	github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway v0.0.0-20250318134241-8a7669484f83 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.7 // indirect
-	github.com/gin-contrib/cors v1.7.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.1 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
@@ -32,7 +42,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/swaggo/files v1.0.1 // indirect
 	github.com/swaggo/gin-swagger v1.6.0 // indirect
@@ -43,8 +52,6 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	go.mongodb.org/mongo-driver v1.17.3 // indirect
-	go.mongodb.org/mongo-driver/v2 v2.1.0 // indirect
 	golang.org/x/arch v0.12.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.37.0 // indirect
@@ -55,5 +62,3 @@ require (
 	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway => ../apiGateway

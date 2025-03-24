@@ -1,18 +1,18 @@
 package userService
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+)
 
-type User struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-}
-
-func GetUser(c *gin.Context) {
-	user := User{
-		ID:       "0",
-		Username: "testUserName",
-		Email:    "testEmail",
+func GetUser(c *gin.Context, dbclient *mongo.Client) {
+	// get all users
+	users, err := dbclient.Database("demo").Collection("sampleCollection").Find(c, bson.M{})
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
 	}
-	c.JSON(200, user)
+	c.JSON(200, users)
+
 }

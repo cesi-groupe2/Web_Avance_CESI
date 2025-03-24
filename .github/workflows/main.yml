@@ -37,40 +37,24 @@ jobs:
            with:
              go-version: "1.21"
 
+
+
          - name: Install golangci-lint
            run: |
              curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
 
+         - name: Install dependencies
+           run: |
+                  cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/rest/
+                  go mod tidy
+                  go get -u github.com/swaggo/gin-swagger
+                  go get -u github.com/swaggo/files
+                  go mod tidy  # Nettoyer à nouveau
+                  go mod vendor  # Ajouter le dossier vendor pour éviter les problèmes
+              
+
          - name: Run lint
-           run: golangci-lint run ./...
-  sonarqube:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.21"
-
-      - name: Install SonarQube Scanner
-        run: |
-          curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner-cli.zip
-          echo "$(pwd)/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
-
-      - name: Run SonarQube analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: "https://sonarcloud.io"  # Remplacez par votre URL SonarQube si auto-hébergé
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=VotreProjet \
-            -Dsonar.organization=VotreOrganisation \
-            -Dsonar.sources=. \
-            -Dsonar.language=go \
-            -Dsonar.tests=. \
-            -Dsonar.test.inclusions="**/*_test.go" \
-            -Dsonar.go.coverage.reportPaths=coverage.out
+           run: |
+               cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+               golangci-lint run ./...
+ 

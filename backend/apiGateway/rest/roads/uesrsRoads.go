@@ -10,11 +10,10 @@ import (
 )
 
 func HandleUsersRoads(ctx context.Context, router *gin.RouterGroup) {
-	
-	
-	router.GET("/users", func (c *gin.Context) {
+
+	router.GET("/users", func(c *gin.Context) {
 		// request the microservice at address localhost:8081
-		httpResponse, err := http.Get("http://localhost:8081/users")
+		httpResponse, err := http.Get("http://localhost:8082/users")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
