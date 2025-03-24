@@ -10,3 +10,33 @@ Currently, two official plugins are available:
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+
+Prérequis : 
+Docker, Golang 1.24.1, vite (aps la rapidité)
+
+## Documentation - Comment lancer le projet
+
+# Phase 1 - BDD
+
+Créer les bases de données en local.
+
+cd backend/mongoDBMain
+docker-compose up
+
+Ouvrir un nouveau terminal
+
+## Comment lancer un micro service ?
+
+cd backend/{NomMicroService}
+go run main.go
+
+## Comment lancer l'api gateway ?
+
+cd backend/apigateway
+go run main.go
+
+## Comment lancer le front ?
+
+cd webapp
+npm run dev
