@@ -4,9 +4,9 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain/mongoModels"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
@@ -47,7 +47,7 @@ func GetAllOrder(ctx *gin.Context, database *mongo.Database) {
 // @Success 200 {object} mongoModels.Order
 // @Router /{orderId} [get]
 func GetOrderById(ctx *gin.Context, database *mongo.Database) {
-	orderObjId, err := orderIdParamToObjId(ctx.Param("orderId"))
+	orderObjId, err := utils.OrderIdParamToObjId(ctx.Param("orderId"))
 	if err != nil {
 		log.Printf("Error converting order ID to ObjectID: %v", err)
 		ctx.JSON(400, gin.H{"error": "Invalid order ID"})
@@ -128,7 +128,7 @@ func UpdateOrder(ctx *gin.Context, database *mongo.Database) {
 // @Router /{orderId} [delete]
 func DeleteOrder(ctx *gin.Context, database *mongo.Database) {
 	// delete an order
-	orderObjId, err := orderIdParamToObjId(ctx.Param("orderId"))
+	orderObjId, err := utils.OrderIdParamToObjId(ctx.Param("orderId"))
 	if err != nil {
 		log.Printf("Error converting order ID to ObjectID: %v", err)
 		ctx.JSON(400, gin.H{"error": "Invalid order ID"})
@@ -159,7 +159,7 @@ func DeleteOrder(ctx *gin.Context, database *mongo.Database) {
 // @Router /nextStatus/{orderId} [put]
 func UpdateToNextStatus(ctx *gin.Context, database *mongo.Database) {
 	// update an order to the next status
-	orderIdInt, err := orderIdParamToObjId(ctx.Param("orderId"))
+	orderIdInt, err := utils.OrderIdParamToObjId(ctx.Param("orderId"))
 	if err != nil {
 		log.Printf("Error converting order ID to ObjectID: %v", err)
 		ctx.JSON(400, gin.H{"error": "Invalid order ID"})
@@ -188,14 +188,4 @@ func UpdateToNextStatus(ctx *gin.Context, database *mongo.Database) {
 
 	// Return the order
 	ctx.JSON(200, order)
-}
-
-// orderIdParamToObjId converts an order ID string to a bson.ObjectID, or returns an error
-func orderIdParamToObjId(orderId string) (bson.ObjectID, error) {
-	orderObjId, err := bson.ObjectIDFromHex(orderId)
-	if err != nil {
-		log.Printf("Error converting order ID to ObjectID: %v", err)
-		return bson.ObjectID{}, err
-	}
-	return orderObjId, nil
 }
