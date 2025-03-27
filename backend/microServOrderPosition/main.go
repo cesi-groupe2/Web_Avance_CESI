@@ -12,7 +12,7 @@ import (
 // @title           Swagger Easeat Order position API
 // @version         2.0
 // @description     This is a microservice for managing orders positions
-
+	
 // @contact.name   Groupe 2 FISA INFO A4 CESI (2025)
 // @contact.url    https://contact.easeat.fr
 // @contact.email  benjamin.guerre@viacesi.fr

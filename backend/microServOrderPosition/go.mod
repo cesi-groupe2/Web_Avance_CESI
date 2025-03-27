@@ -10,7 +10,7 @@ go 1.24.1
 
 require (
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway v0.0.0-20250320150048-d4656c7d783a
-	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-00010101000000-000000000000
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250324151936-4cadc3d7c343
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
 	go.mongodb.org/mongo-driver/v2 v2.1.0
@@ -31,8 +31,11 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.23.0 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.10.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
@@ -61,4 +64,6 @@ require (
 	golang.org/x/tools v0.31.0 // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/driver/mysql v1.5.7 // indirect
+	gorm.io/gorm v1.25.12 // indirect
 )
