@@ -1,0 +1,14 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: utilisateur
+      MYSQL_PASSWORD: motdepasse
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./creation_script.sql:/docker-entrypoint-initdb.d/creation_script.sql
+    command: --default-authentication-plugin=mysql_native_password

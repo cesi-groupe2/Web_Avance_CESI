@@ -2,7 +2,6 @@ package microservbase
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -12,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -31,9 +32,9 @@ type MicroServMongo struct {
 	Database *mongo.Database
 }
 
-type MicroServSqlServer struct {
+type MicroServMySql struct {
 	Server *gin.Engine
-	client *sql.DB
+	DbCient *gorm.DB
 }
 
 //////////////////////
@@ -82,41 +83,40 @@ func (m *MicroServMongo) InitDbClient() {
 }
 
 //////////////////////////////
-// SQL Server methods       //
+// Mysql methods       //
 //////////////////////////////
 
-func (s *MicroServSqlServer) InitServer() {
+func (s *MicroServMySql) InitServer() {
 	s.Server = gin.Default()
 }
 
-func (s *MicroServSqlServer) RunServer(addr, port string) {
+func (s *MicroServMySql) RunServer(addr, port string) {
 	s.Server.Run(addr + ":" + port)
 }
 
-// func (s *MicroServSqlServer) InitDbClient() {
-// 	// Récupérer les valeurs de connexion depuis les variables d'environnement ou constantes
-// 	server := utils.GetEnvValueOrDefaultStr(constants.SQL_SERVER_HOST, "localhost")
-// 	port := utils.GetEnvValueOrDefaultStr(constants.SQL_SERVER_PORT, "1433")
-// 	user := utils.GetEnvValueOrDefaultStr(constants.SQL_SERVER_USER, "sa")
-// 	password := utils.GetEnvValueOrDefaultStr(constants.SQL_SERVER_PASSWORD, "yourStrong(!)Password")
-// 	database := utils.GetEnvValueOrDefaultStr(constants.SQL_SERVER_DB, "master")
+func (s *MicroServMySql) InitDbClient() {
+	// Connection to MySQL
+	username := utils.GetEnvValueOrDefaultStr(constants.MYSQL_USER_ENV, "root")
+	password := utils.GetEnvValueOrDefaultStr(constants.MYSQL_PASSWORD_ENV, "rootpassword")
+	dbAddress := utils.GetEnvValueOrDefaultStr(constants.MYSQL_ADDRESS_ENV, "localhost")
+	dbPort := utils.GetEnvValueOrDefaultStr(constants.MYSQL_PORT_ENV, "3306")
+	database := utils.GetEnvValueOrDefaultStr(constants.MYSQL_DATABASE, "easeat")
 
-// 	// Exemple de chaîne de connexion pour SQL Server
-// 	connString := fmt.Sprintf("server=%s;port=%s;user id=%s;password=%s;database=%s", server, port, user, password, database)
+	var err error
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, dbAddress, dbPort, database)
+	s.DbCient, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Connection MySQL error: %v", err)
+	}
 
-// 	var err error
-// 	s.DB, err = sql.Open("sqlserver", connString)
-// 	if err != nil {
-// 		log.Fatalf("Connection SQL Server error: %v", err)
-// 	}
+	defer func() {
+		sqlDB, err := s.DbCient.DB()
+		if err != nil {
+			log.Fatalf("Get MySQL DB error: %v", err)
+		}
+		sqlDB.Close()
+	}()
 
-// 	// Context avec timeout pour la vérification
-// 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-// 	defer cancel()
+	fmt.Printf("Connected to MySQL (%s:%s; database: %s) successfully!\n", dbAddress, dbPort, database)
+}
 
-// 	err = s.DB.PingContext(ctx)
-// 	if err != nil {
-// 		log.Fatalf("Ping SQL Server error: %v", err)
-// 	}
-// 	fmt.Println("Connecté à SQL Server avec succès!")
-// }

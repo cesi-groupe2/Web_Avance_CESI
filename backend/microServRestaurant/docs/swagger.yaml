@@ -1,0 +1,136 @@
+definitions:
+  model.Menuitem:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id_menu_item:
+        type: integer
+      id_restaurant:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  model.Restaurant:
+    properties:
+      address:
+        type: string
+      id_restaurant:
+        type: integer
+      localisation_latitude:
+        type: number
+      localisation_longitude:
+        type: number
+      name:
+        type: string
+      opening_hours:
+        type: string
+      phone:
+        type: string
+      picture:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /restaurant/{restaurantId}:
+    get:
+      consumes:
+      - application/json
+      description: Get a restaurant by its id
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: restaurantId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Restaurant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a restaurant by its id
+      tags:
+      - restaurant
+  /restaurant/{restaurantId}/menuitems:
+    get:
+      consumes:
+      - application/json
+      description: Get menu items by restaurant id
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: restaurantId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Menuitem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get menu items by restaurant id
+      tags:
+      - restaurant
+  /restaurant/nearby/{latitude}/{longitude}/{kmAround}:
+    get:
+      consumes:
+      - application/json
+      description: Get nearby restaurants from the user's location
+      parameters:
+      - description: Latitude of the user
+        in: formData
+        name: latitude
+        required: true
+        type: string
+      - description: Longitude of the user
+        in: formData
+        name: longitude
+        required: true
+        type: string
+      - description: Km around the user
+        in: formData
+        name: kmAround
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Restaurant'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get nearby restaurants
+      tags:
+      - restaurant
+swagger: "2.0"
