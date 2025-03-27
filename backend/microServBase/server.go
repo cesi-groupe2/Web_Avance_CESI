@@ -46,6 +46,9 @@ func (m *MicroServMongo) InitServer() {
 
 	// add swagger route
 	m.Server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	m.Server.GET("/docs", func(ctx *gin.Context) {
+		ctx.Redirect(301, "/swagger/index.html")
+	})
 }
 
 func (m *MicroServMongo) RunServer(addr, port string) {
@@ -86,8 +89,13 @@ func (m *MicroServMongo) InitDbClient() {
 // Mysql methods       //
 //////////////////////////////
 
-func (s *MicroServMySql) InitServer() {
-	s.Server = gin.Default()
+func (m *MicroServMySql) InitServer() {
+	m.Server = gin.Default()
+		// add swagger route
+	m.Server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	m.Server.GET("/docs", func(ctx *gin.Context) {
+		ctx.Redirect(301, "/swagger/index.html")
+	})
 }
 
 func (s *MicroServMySql) RunServer(addr, port string) {

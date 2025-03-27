@@ -101,7 +101,7 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 // @Param password formData string true "Password"
 // @Success 200 {object} map[string]interface{} "user": model.User, "token": string
 // @Failure 401 {string} string "msg": "User not found !"
-// @Router /login [post]
+// @Router /auth/login [post]
 func Login(ctx *gin.Context, db *gorm.DB) {
 	var currentUser model.User
 
@@ -181,7 +181,7 @@ func GenerateAccessToken(ctx *gin.Context, user model.User) (string, error) {
 // @Param token formData string true "Token"
 // @Success 200 {string} string "msg": "ok"
 // @Failure 401 {string} string "msg": "Token is required"
-// @Router /refreshToken [post]
+// @Router /auth/refreshToken [post]
 func RefreshToken(ctx *gin.Context) {
 	token := ctx.PostForm("token")
 	if token == "" {
@@ -219,7 +219,7 @@ func RefreshToken(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Success 200 {string} string "msg": "ok"
-// @Router /logout [post]
+// @Router /auth/logout [post]
 func Logout(ctx *gin.Context) {
 	session.DeleteUserSession(ctx)
 	ctx.JSON(200, "ok")
