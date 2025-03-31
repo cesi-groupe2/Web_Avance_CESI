@@ -25,7 +25,6 @@ func InitServer() {
 	roads.HandleApiRoads(context.Background(), router)
 
 	// serve swagger
-	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// run router

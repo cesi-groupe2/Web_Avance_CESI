@@ -12,6 +12,7 @@ func HandleApiRoads(ctx context.Context, router *gin.Engine) {
 	api.GET("/test", TestRoad(ctx))
 
 	HandleUsersRoads(ctx, api)
+	HandleOrdersRoads(ctx, api)
 	
 }
 
