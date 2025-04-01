@@ -1,4 +1,4 @@
-module microservrestaurant
+module github.com/cesi-groupe2/Web_Avance_CESI/backend/microservrestaurant
 
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway => ../apiGateway
 
