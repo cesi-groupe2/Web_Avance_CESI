@@ -1,0 +1,136 @@
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user
+      parameters:
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'user": model.User, "token": string'
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 'msg": "User not found !'
+          schema:
+            type: string
+      summary: Login a user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+      summary: Logout the user
+      tags:
+      - auth
+  /auth/refreshToken:
+    post:
+      consumes:
+      - application/json
+      description: Refresh the JWT token
+      parameters:
+      - description: Token
+        in: formData
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+        "401":
+          description: 'msg": "Token is required'
+          schema:
+            type: string
+      summary: Refresh the JWT token
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Picture
+        in: formData
+        name: picture
+        type: string
+      - description: Firstname
+        in: formData
+        name: firstname
+        required: true
+        type: string
+      - description: Lastname
+        in: formData
+        name: lastname
+        required: true
+        type: string
+      - description: Phone
+        in: formData
+        name: phone
+        type: string
+      - description: Delivery adress
+        in: formData
+        name: deliveryAdress
+        type: string
+      - description: Facturation adress
+        in: formData
+        name: facturationAdress
+        type: string
+      - description: Role
+        in: formData
+        name: role
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+        "400":
+          description: 'msg": "Role is required'
+          schema:
+            type: string
+      summary: Register a new user
+      tags:
+      - auth
+swagger: "2.0"
