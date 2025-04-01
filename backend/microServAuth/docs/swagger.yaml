@@ -72,7 +72,7 @@ paths:
       summary: Refresh the JWT token
       tags:
       - auth
-  /register:
+  /auth/register:
     post:
       consumes:
       - application/json

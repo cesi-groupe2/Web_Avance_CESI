@@ -33,7 +33,7 @@ import (
 // @Failure 400 {string} string	"msg": "Email is required"
 // @Failure 400 {string} string	"msg": "Password is required"
 // @Failure 400 {string} string	"msg": "Role is required"
-// @Router /register [post]
+// @Router /auth/register [post]
 func Register(ctx *gin.Context, db *gorm.DB) {
 	// Create a new user
 	email := ctx.PostForm("email")

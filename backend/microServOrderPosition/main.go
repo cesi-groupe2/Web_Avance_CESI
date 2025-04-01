@@ -19,15 +19,15 @@ import (
 // @contact.email  benjamin.guerre@viacesi.fr
 
 // @host      localhost:8020
-// @BasePath  /
+// @BasePath  /orderPosition
 
 // @securityDefinitions.basic  BasicAuth
 func main(){
 	microServBase := microservbase.MicroServMongo{}
 	microServBase.InitServer()
 	microServBase.InitDbClient()
-	roads.HandlerMicroServOrderPositionRoads(microServBase.Server, microServBase.Database)
-
+	orderPositionGroup := roads.HandlerMicroServOrderPositionRoads(microServBase.Server, microServBase.Database)
+	microServBase.InitSwagger(orderPositionGroup)
 	address := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_POSITIONS_ADDR_ENV, "localhost")
 	port := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_POSITIONS_PORT_ENV, "8003")
 	microServBase.RunServer(address, port)
