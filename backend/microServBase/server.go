@@ -44,11 +44,13 @@ type MicroServMySql struct {
 
 func (m *MicroServMongo) InitServer() {
 	m.Server = gin.Default()
+	m.Server.Use(cors.Default())
+}
 
-	// add swagger route
-	m.Server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	m.Server.GET("/docs", func(ctx *gin.Context) {
-		ctx.Redirect(301, "/swagger/index.html")
+func (m *MicroServMongo) InitSwagger(groupe *gin.RouterGroup) {
+	groupe.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	groupe.GET("/docs", func(ctx *gin.Context) {
+		ctx.Redirect(301, groupe.BasePath() + "/swagger/index.html")
 	})
 }
 
@@ -61,8 +63,8 @@ func (m *MicroServMongo) InitDbClient() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	username := utils.GetEnvValueOrDefaultStr(constants.MONGO_INITDB_ROOT_USERNAME, "root")
-	password := utils.GetEnvValueOrDefaultStr(constants.MONGO_INITDB_ROOT_PASSWORD, "root")
+	username := utils.GetEnvValueOrDefaultStr(constants.MONGO_INITDB_ROOT_USERNAME, "easeat")
+	password := utils.GetEnvValueOrDefaultStr(constants.MONGO_INITDB_ROOT_PASSWORD, "easeat")
 	host := utils.GetEnvValueOrDefaultStr(constants.MONGO_HOST_ENV, "localhost")
 	port := utils.GetEnvValueOrDefaultStr(constants.MONGO_PORT_ENV, "27017")
 	database := utils.GetEnvValueOrDefaultStr(constants.MONGO_DATABASE, "easeat")
@@ -92,16 +94,21 @@ func (m *MicroServMongo) InitDbClient() {
 
 func (m *MicroServMySql) InitServer() {
 	m.Server = gin.Default()
-		// add swagger route
-	m.Server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	m.Server.GET("/docs", func(ctx *gin.Context) {
-		ctx.Redirect(301, "/swagger/index.html")
-	})
 	m.Server.Use(cors.Default())
 }
 
 func (s *MicroServMySql) RunServer(addr, port string) {
 	s.Server.Run(addr + ":" + port)
+}
+func (s *MicroServMySql) InitSwagger(groupe *gin.RouterGroup) {
+	groupe.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	groupe.GET("/docs", func(ctx *gin.Context) {
+		prefix := ctx.GetHeader("X-Forwarded-Prefix")
+		if prefix == "" {
+			prefix = groupe.BasePath()
+		}
+		ctx.Redirect(301, prefix+"/swagger/index.html")
+	})
 }
 
 func (s *MicroServMySql) InitDbClient() {

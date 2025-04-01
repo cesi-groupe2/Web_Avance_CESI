@@ -21,7 +21,7 @@ import (
 // @contact.email  benjamin.guerre@viacesi.fr
 
 // @host      localhost:8093
-// @BasePath  /api
+// @BasePath  /order
 
 // @securityDefinitions.basic  BasicAuth
 
@@ -30,8 +30,8 @@ func main() {
 	microservorder := microservbase.MicroServMongo{}
 	microservorder.InitServer()
 	microservorder.InitDbClient()
-	roads.HandlerMicroServOrderRoads(microservorder.Server, microservorder.Database)
-
+	orderGroup := roads.HandlerMicroServOrderRoads(microservorder.Server, microservorder.Database)
+	microservorder.InitSwagger(orderGroup)
 
 	address := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_ADDR_ENV, "localhost")
 	port := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_PORT_ENV, "8002")

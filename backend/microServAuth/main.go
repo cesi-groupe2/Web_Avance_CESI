@@ -18,6 +18,7 @@ import (
 // @contact.email  benjamin.guerre@viacesi.fr
 
 // @host      localhost:8000
+// @BasePath  /auth
 
 // @securityDefinitions.basic  BasicAuth
 
@@ -26,7 +27,8 @@ func main(){
 	microservAuth.InitServer()
 	microservAuth.InitDbClient()
 
-	roads.HandlerMicroServAuthRoads(microservAuth.Server, microservAuth.DbCient)
+	authGroup := roads.HandlerMicroServAuthRoads(microservAuth.Server, microservAuth.DbCient)
+	microservAuth.InitSwagger(authGroup)
 	address := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_HOST_ENV, "0.0.0.0")
 	port := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_PORT_ENV, "8001")
 	microservAuth.RunServer(address, port)
