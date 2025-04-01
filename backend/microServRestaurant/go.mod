@@ -6,12 +6,14 @@ replace github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase => ../micr
 
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB => ../sqlDBMain
 
-
 go 1.24.1
 
-require github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250324151936-4cadc3d7c343
+require (
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250324151936-4cadc3d7c343
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB v0.0.0-00010101000000-000000000000
+)
 
-require github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB v0.0.0-00010101000000-000000000000 // indirect
+require github.com/gin-contrib/cors v1.7.3 // indirect
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect

@@ -2,6 +2,7 @@ package restaurantService
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -66,7 +67,12 @@ func GetNearbyRestaurants(ctx *gin.Context, db *gorm.DB) {
 func GetRestaurantById(ctx *gin.Context, db *gorm.DB) {
 	restaurantId := ctx.Param("restaurantId")
 	var restaurant model.Restaurant
-	db.First(&restaurant, restaurantId)
+	result := db.First(&restaurant, restaurantId)
+	if result.Error != nil {
+		log.Println(result.Error)
+		ctx.JSON(400, gin.H{"error": "Restaurant not found"})
+		return
+	}
 	ctx.JSON(200, restaurant)
 }
 
