@@ -11,15 +11,17 @@ replace github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB => ../sqlDBMain
 go 1.24.1
 
 require (
-	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-00010101000000-000000000000
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway v0.0.0
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250324151936-4cadc3d7c343
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB v0.0.0-00010101000000-000000000000
 )
+
+require github.com/gin-contrib/cors v1.7.3 // indirect
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/bytedance/sonic v1.12.6 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
-	github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway v0.0.0-20250318134241-8a7669484f83
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.7 // indirect
@@ -50,7 +52,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/swaggo/files v1.0.1 // indirect
 	github.com/swaggo/gin-swagger v1.6.0 // indirect
-	github.com/swaggo/swag v1.16.4 // indirect
+	github.com/swaggo/swag v1.16.4
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect

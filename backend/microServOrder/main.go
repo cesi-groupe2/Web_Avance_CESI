@@ -3,10 +3,13 @@ package main
 // command swag init -g order.go -d services,../mongoDBMain
 
 import (
+	"log"
+
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServOrder/roads"
 	_ "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServOrder/docs"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServOrder/roads"
 )
 
 // @title           Swagger Easeat Order microservice API
@@ -23,13 +26,14 @@ import (
 // @securityDefinitions.basic  BasicAuth
 
 func main() {
+	log.Println("Starting Order microservice")
 	microservorder := microservbase.MicroServMongo{}
 	microservorder.InitServer()
 	microservorder.InitDbClient()
 	roads.HandlerMicroServOrderRoads(microservorder.Server, microservorder.Database)
 
 
-	address := utils.GetEnvValueOrDefaultStr("ORDER_SERVICE_HOST", "localhost")
-	port := utils.GetEnvValueOrDefaultStr("ORDER_SERVICE_PORT", "8093")
+	address := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_ADDR_ENV, "localhost")
+	port := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_PORT_ENV, "8002")
 	microservorder.RunServer(address, port)
 }

@@ -27,7 +27,7 @@ func main(){
 	microservAuth.InitDbClient()
 
 	roads.HandlerMicroServAuthRoads(microservAuth.Server, microservAuth.DbCient)
-	address := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_HOST_ENV, "localhost")
-	port := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_PORT_ENV, "8000")
+	address := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_HOST_ENV, "0.0.0.0")
+	port := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_PORT_ENV, "8001")
 	microservAuth.RunServer(address, port)
 }

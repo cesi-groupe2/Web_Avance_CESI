@@ -10,11 +10,20 @@ replace github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain => ../mongoD
 
 require (
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway v0.0.0-20250320150048-d4656c7d783a
-	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-00010101000000-000000000000
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250324151936-4cadc3d7c343
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
 	github.com/swaggo/swag v1.16.4
 	go.mongodb.org/mongo-driver/v2 v2.1.0
+)
+
+require (
+	github.com/gin-contrib/cors v1.7.3 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
+	gorm.io/driver/mysql v1.5.7 // indirect
+	gorm.io/gorm v1.25.12 // indirect
 )
 
 require (
