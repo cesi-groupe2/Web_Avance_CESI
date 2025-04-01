@@ -1,18 +1,10 @@
 package userService
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
 
-type User struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-}
-
-func GetUser(c *gin.Context) {
-	user := User{
-		ID:       "0",
-		Username: "testUserName",
-		Email:    "testEmail",
-	}
-	c.JSON(200, user)
+func GetUser(c *gin.Context, dbclient *gorm.DB) {
+	c.JSON(200, "TO DO")
 }
