@@ -3,7 +3,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1rem;
-    background: url('../../assets/bg-header.jpg');
+    background: url('../../../assets/bg-header.jpg');
     min-height: 10vh;
   }
   

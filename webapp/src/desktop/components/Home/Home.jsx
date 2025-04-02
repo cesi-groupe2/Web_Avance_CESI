@@ -1,6 +1,6 @@
 import React from 'react';
 import './Home.css';
-import homePicture from '../../assets/home_picture.webp';
+import homePicture from '../../../assets/home_picture.webp';
 
 
 const Home = () => {

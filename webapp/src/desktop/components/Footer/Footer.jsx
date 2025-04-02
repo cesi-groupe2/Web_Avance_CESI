@@ -1,8 +1,8 @@
 import React from 'react';
 import './Footer.css';
-import logo from '../../assets/logo.png';
-import appStore from '../../assets/apple_store.webp';
-import googlePlay from '../../assets/google_play.png';
+import logo from '../../../assets/logo.png';
+import appStore from '../../../assets/apple_store.webp';
+import googlePlay from '../../../assets/google_play.png';
 
 const Footer = () => {
   return (
