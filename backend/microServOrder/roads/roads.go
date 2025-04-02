@@ -1,13 +1,14 @@
 package roads
 
 import (
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares"
 	orderService "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServOrder/services"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func HandlerMicroServOrderRoads(server *gin.Engine, database *mongo.Database) *gin.RouterGroup {
-	order := server.Group("/order")
+	order := server.Group("/order", middlewares.AuthMiddleware())
 	order.GET("/all", func(ctx *gin.Context) {
 		orderService.GetAllOrder(ctx, database)
 	})

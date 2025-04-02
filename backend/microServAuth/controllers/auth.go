@@ -3,10 +3,11 @@ package authController
 import (
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/session"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/session"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -17,8 +18,8 @@ import (
 // Register godoc
 // @Summary Register a new user
 // @Description Register a new user
-// @Tags auth
-// @Accept  json
+// @Tags public
+// @Accept  application/x-www-form-urlencoded
 // @Produce  json
 // @Param email formData string true "Email"
 // @Param password formData string true "Password"
@@ -33,7 +34,7 @@ import (
 // @Failure 400 {string} string	"msg": "Email is required"
 // @Failure 400 {string} string	"msg": "Password is required"
 // @Failure 400 {string} string	"msg": "Role is required"
-// @Router /auth/register [post]
+// @Router /public/register [post]
 func Register(ctx *gin.Context, db *gorm.DB) {
 	// Create a new user
 	email := ctx.PostForm("email")
@@ -59,10 +60,16 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	roleInt64, err := strconv.ParseInt(role, 10, 32)
+	if err != nil {
+		ctx.JSON(400, "Role must be a valid number")
+		return
+	}
+
 	// Get the role
 	roleObj := model.Role{}
 	result := db.Where(&model.Role{
-		Name: role,
+		IDRole: int32(roleInt64),
 	}).First(&roleObj)
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -94,14 +101,14 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 // Login godoc
 // @Summary Login a user
 // @Description Login a user
-// @Tags auth
-// @Accept  json
+// @Tags public
+// @Accept  application/x-www-form-urlencoded
 // @Produce  json
 // @Param email formData string true "Email"
 // @Param password formData string true "Password"
 // @Success 200 {object} map[string]interface{} "user": model.User, "token": string
 // @Failure 401 {string} string "msg": "User not found !"
-// @Router /auth/login [post]
+// @Router /public/login [post]
 func Login(ctx *gin.Context, db *gorm.DB) {
 	var currentUser model.User
 
@@ -161,6 +168,7 @@ func GenerateAccessToken(ctx *gin.Context, user model.User) (string, error) {
 	// Generate a token with the user's username (can replace with user's ID) and an expiration time of 2min
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId": user.IDRole,
+		"userRoleId": user.IDRole,
 		"iat":      time.Now().Unix(),
 		"exp":      time.Now().Add(time.Minute * 2).Unix(),
 	})
@@ -176,7 +184,8 @@ func GenerateAccessToken(ctx *gin.Context, user model.User) (string, error) {
 // @Summary Refresh the JWT token
 // @Description Refresh the JWT token
 // @Tags auth
-// @Accept  json
+// @Security BearerAuth
+// @Accept  application/x-www-form-urlencoded
 // @Produce  json
 // @Param token formData string true "Token"
 // @Success 200 {string} string "msg": "ok"
@@ -216,6 +225,7 @@ func RefreshToken(ctx *gin.Context) {
 // @Summary Logout the user
 // @Description Logout the user
 // @Tags auth
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Success 200 {string} string "msg": "ok"

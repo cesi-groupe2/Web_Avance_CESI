@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/rest"
-	    _ "github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/docs" // Import the generated docs
 )
 
 // @title           Swagger Easeat API
@@ -20,6 +18,4 @@ import (
 
 
 func main() {
-	// init server
-	rest.InitServer()
 }

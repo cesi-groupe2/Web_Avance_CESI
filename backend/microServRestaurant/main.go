@@ -1,6 +1,6 @@
 package main
 
-// command: swag init -g restaurantService.go -d services,../sqlDBMain
+// command: swag init -g main.go -d ./,services,../sqlDBMain,../mongoDBMain
 
 import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
@@ -21,8 +21,10 @@ import (
 // @host      localhost:8052
 // @BasePath  /restaurant
 
-// @securityDefinitions.basic  BasicAuth
-
+// @SecurityDefinitions.apiKey BearerAuth
+// @in              header
+// @name            Authorization
+// @description     Use /login to get your token and use it here
 
 func main() {
 	microservrestaurant := microservbase.MicroServMySql{}

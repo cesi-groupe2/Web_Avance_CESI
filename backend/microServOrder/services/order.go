@@ -12,6 +12,9 @@ import (
 
 // GetALLOrder godoc
 // @Summary Get all orders
+// @Description Get all orders
+// @Tags order
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Param limit query int false "Limit"
@@ -41,6 +44,9 @@ func GetAllOrder(ctx *gin.Context, database *mongo.Database) {
 
 // GetOrderById godoc
 // @Summary Get order by id
+// @Description Get order by id
+// @Tags order
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Param orderId path string true "Order ID"
@@ -70,6 +76,9 @@ func GetOrderById(ctx *gin.Context, database *mongo.Database) {
 
 // CreateOrder godoc
 // @Summary Create an order
+// @Description Create an order
+// @Tags order
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Param order body mongoModels.Order true "Order object"
@@ -95,6 +104,9 @@ func CreateOrder(ctx *gin.Context, database *mongo.Database) {
 
 // UpdateOrder godoc
 // @Summary Update an order
+// @Description Update an order
+// @Tags order
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Param order body mongoModels.Order true "Order object"
@@ -121,6 +133,9 @@ func UpdateOrder(ctx *gin.Context, database *mongo.Database) {
 
 // DeleteOrder godoc
 // @Summary Delete an order
+// @Description Delete an order
+// @Tags order
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Param orderId path string true "Order ID"
@@ -152,6 +167,9 @@ func DeleteOrder(ctx *gin.Context, database *mongo.Database) {
 
 // UpdateToNextStatus godoc
 // @Summary Update an order to the next status
+// @Description Update an order to the next status
+// @Tags order
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Param orderId path string true "Order ID"

@@ -4,16 +4,21 @@ replace github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway => ../apiGate
 
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase => ../microServBase
 
+replace github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain => ../mongoDBMain
+
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB => ../sqlDBMain
 
 go 1.24.1
 
 require (
-	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250324151936-4cadc3d7c343
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250401104727-d352a7fb2f8d
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB v0.0.0-00010101000000-000000000000
 )
 
-require github.com/gin-contrib/cors v1.7.3 // indirect
+require (
+	github.com/gin-contrib/cors v1.7.3 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+)
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect

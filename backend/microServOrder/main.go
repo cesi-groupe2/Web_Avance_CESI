@@ -1,6 +1,6 @@
 package main
 
-// command swag init -g order.go -d services,../mongoDBMain
+// command swag init -g main.go -d ./,services,../mongoDBMain
 
 import (
 	"log"
@@ -23,7 +23,10 @@ import (
 // @host      localhost:8093
 // @BasePath  /order
 
-// @securityDefinitions.basic  BasicAuth
+// @SecurityDefinitions.apiKey BearerAuth
+// @in              header
+// @name            Authorization
+// @description     Use /login to get your token and use it here
 
 func main() {
 	log.Println("Starting Order microservice")

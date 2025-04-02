@@ -1,11 +1,8 @@
 module github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth
 
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway => ../apiGateway
-
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase => ../microServBase
-
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain => ../mongoDBMain
-
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB => ../sqlDBMain
 
 go 1.24.1
