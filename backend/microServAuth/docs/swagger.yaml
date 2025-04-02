@@ -1,10 +1,58 @@
+basePath: /
+host: localhost:7001
 info:
-  contact: {}
+  contact:
+    email: benjamin.guerre@viacesi.fr
+    name: Groupe 2 FISA INFO A4 CESI (2025)
+    url: https://contact.easeat.fr
+  description: This is a microservice for managing authentication
+  title: Swagger Easeat Auth API
+  version: "1.0"
 paths:
-  /auth/login:
+  /auth/logout:
     post:
       consumes:
       - application/json
+      description: Logout the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+      summary: Logout the user
+      tags:
+      - auth
+  /auth/refreshToken:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Refresh the JWT token
+      parameters:
+      - description: Token
+        in: formData
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+        "401":
+          description: 'msg": "Token is required'
+          schema:
+            type: string
+      summary: Refresh the JWT token
+      tags:
+      - auth
+  /public/login:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
       description: Login a user
       parameters:
       - description: Email
@@ -31,51 +79,11 @@ paths:
             type: string
       summary: Login a user
       tags:
-      - auth
-  /auth/logout:
+      - public
+  /public/register:
     post:
       consumes:
-      - application/json
-      description: Logout the user
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'msg": "ok'
-          schema:
-            type: string
-      summary: Logout the user
-      tags:
-      - auth
-  /auth/refreshToken:
-    post:
-      consumes:
-      - application/json
-      description: Refresh the JWT token
-      parameters:
-      - description: Token
-        in: formData
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'msg": "ok'
-          schema:
-            type: string
-        "401":
-          description: 'msg": "Token is required'
-          schema:
-            type: string
-      summary: Refresh the JWT token
-      tags:
-      - auth
-  /auth/register:
-    post:
-      consumes:
-      - application/json
+      - application/x-www-form-urlencoded
       description: Register a new user
       parameters:
       - description: Email
@@ -132,5 +140,11 @@ paths:
             type: string
       summary: Register a new user
       tags:
-      - auth
+      - public
+securityDefinitions:
+  BearerAuth:
+    description: Use /login to get your token and use it here
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -15,6 +15,7 @@ import (
 // @Summary Get the last position of an order by its id
 // @Description Get the last position of an order by its id
 // @Tags OrderPosition
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param orderID path int true "Order ID"
@@ -45,6 +46,7 @@ func GetLastPositionByOrderID(ctx *gin.Context, database *mongo.Database) {
 // @Summary Create an order position
 // @Description Create an order position
 // @Tags OrderPosition
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param orderPositionHistory body mongoModels.OrderPositionHistory true "Order Position"
@@ -75,6 +77,7 @@ func CreateOrderPosition(ctx *gin.Context, database *mongo.Database) {
 // @Summary Create an order position with less order position informations
 // @Description Create an order position with less order position informations, only the order id, and the position are required
 // @Tags OrderPosition
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param orderPositionHistory body mongoModels.OrderPositionHistory true "Order Position"
@@ -107,6 +110,7 @@ func CreateOrderPositionLite(ctx *gin.Context, database *mongo.Database) {
 // @Summary Get the journey of an order by its id
 // @Description Get the journey of an order by its id
 // @Tags OrderPosition
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param orderID path int true "Order ID"

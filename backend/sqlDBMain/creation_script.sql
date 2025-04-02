@@ -58,3 +58,10 @@ CREATE TABLE posseder (
     CONSTRAINT fk_posseder_restaurant FOREIGN KEY (id_restaurant) REFERENCES restaurants (id_restaurant)
 );
 
+-- ------------------------
+-- INSERT ROLES
+-- ------------------------
+INSERT INTO roles (name) VALUES
+('CLIENT'),
+('RESTAURANT'),
+('DELIVERER');

@@ -15,6 +15,7 @@ import (
 // @Summary Get nearby restaurants
 // @Description Get nearby restaurants from the user's location
 // @Tags restaurant
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param latitude formData string true "Latitude of the user"
@@ -58,6 +59,7 @@ func GetNearbyRestaurants(ctx *gin.Context, db *gorm.DB) {
 // @Summary Get a restaurant by its id
 // @Description Get a restaurant by its id
 // @Tags restaurant
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param restaurantId path string true "Restaurant ID"
@@ -80,6 +82,7 @@ func GetRestaurantById(ctx *gin.Context, db *gorm.DB) {
 // @Summary Get menu items by restaurant id
 // @Description Get menu items by restaurant id
 // @Tags restaurant
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param restaurantId path string true "Restaurant ID"

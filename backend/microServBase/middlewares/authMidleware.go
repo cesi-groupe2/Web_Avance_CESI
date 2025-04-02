@@ -10,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+// @Security BearerAuth
 // AuthMiddleware is a middleware that checks if the user is authenticated (token is valid)
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {

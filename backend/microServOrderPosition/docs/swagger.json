@@ -1,8 +1,17 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is a microservice for managing orders positions",
+        "title": "Swagger Easeat Order position API",
+        "contact": {
+            "name": "Groupe 2 FISA INFO A4 CESI (2025)",
+            "url": "https://contact.easeat.fr",
+            "email": "benjamin.guerre@viacesi.fr"
+        },
+        "version": "2.0"
     },
+    "host": "localhost:8020",
+    "basePath": "/orderPosition",
     "paths": {
         "/": {
             "post": {
@@ -205,6 +214,14 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Use /login to get your token and use it here",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
