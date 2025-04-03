@@ -47,11 +47,17 @@ func (m *MicroServMongo) InitServer() {
 	m.Server.Use(cors.Default())
 }
 
-func (m *MicroServMongo) InitSwagger(groupe *gin.RouterGroup) {
+// InitSwagger initializes the Swagger documentation for the microservice, return host url according to the environment
+func (m *MicroServMongo) InitSwagger(groupe *gin.RouterGroup, address string, port string) (string) {
+	hostAddress := address + ":" + port
+	if utils.GetEnvValueOrDefaultStr(constants.ENV_MODE, "DEV") == "PROD" {
+		hostAddress = "localhost:80"
+	}
 	groupe.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	groupe.GET("/docs", func(ctx *gin.Context) {
 		ctx.Redirect(301, groupe.BasePath() + "/swagger/index.html")
 	})
+	return hostAddress
 }
 
 func (m *MicroServMongo) RunServer(addr, port string) {
@@ -100,7 +106,11 @@ func (m *MicroServMySql) InitServer() {
 func (s *MicroServMySql) RunServer(addr, port string) {
 	s.Server.Run(addr + ":" + port)
 }
-func (s *MicroServMySql) InitSwagger(groupe *gin.RouterGroup) {
+func (s *MicroServMySql) InitSwagger(groupe *gin.RouterGroup, address string, port string) (string) {
+	hostAddress := address + ":" + port
+	if utils.GetEnvValueOrDefaultStr(constants.ENV_MODE, "DEV") == "PROD" {
+		hostAddress = "localhost:80"
+	}
 	groupe.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	groupe.GET("/docs", func(ctx *gin.Context) {
 		prefix := ctx.GetHeader("X-Forwarded-Prefix")
@@ -109,6 +119,7 @@ func (s *MicroServMySql) InitSwagger(groupe *gin.RouterGroup) {
 		}
 		ctx.Redirect(301, prefix+"/swagger/index.html")
 	})
+	return hostAddress
 }
 
 func (s *MicroServMySql) InitDbClient() {

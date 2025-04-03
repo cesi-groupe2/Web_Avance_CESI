@@ -47,6 +47,7 @@ paths:
     patch:
       consumes:
       - application/json
+      description: Update an order
       parameters:
       - description: Order object
         in: body
@@ -61,10 +62,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/mongoModels.Order'
+      security:
+      - BearerAuth: []
       summary: Update an order
+      tags:
+      - order
     post:
       consumes:
       - application/json
+      description: Create an order
       parameters:
       - description: Order object
         in: body
@@ -79,11 +85,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/mongoModels.Order'
+      security:
+      - BearerAuth: []
       summary: Create an order
+      tags:
+      - order
   /{orderId}:
     delete:
       consumes:
       - application/json
+      description: Delete an order
       parameters:
       - description: Order ID
         in: path
@@ -95,10 +106,15 @@ paths:
       responses:
         "200":
           description: OK
+      security:
+      - BearerAuth: []
       summary: Delete an order
+      tags:
+      - order
     get:
       consumes:
       - application/json
+      description: Get order by id
       parameters:
       - description: Order ID
         in: path
@@ -112,11 +128,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/mongoModels.Order'
+      security:
+      - BearerAuth: []
       summary: Get order by id
+      tags:
+      - order
   /all:
     get:
       consumes:
       - application/json
+      description: Get all orders
       parameters:
       - description: Limit
         in: query
@@ -133,11 +154,43 @@ paths:
                 $ref: '#/definitions/mongoModels.Order'
               type: array
             type: array
+      security:
+      - BearerAuth: []
       summary: Get all orders
+      tags:
+      - order
+  /history/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Get order history by user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/mongoModels.Order'
+              type: array
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get order history by user ID
+      tags:
+      - order
   /nextStatus/{orderId}:
     put:
       consumes:
       - application/json
+      description: Update an order to the next status
       parameters:
       - description: Order ID
         in: path
@@ -149,7 +202,11 @@ paths:
       responses:
         "200":
           description: OK
+      security:
+      - BearerAuth: []
       summary: Update an order to the next status
+      tags:
+      - order
 securityDefinitions:
   BearerAuth:
     description: Use /login to get your token and use it here

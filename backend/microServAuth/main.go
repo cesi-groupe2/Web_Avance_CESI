@@ -5,9 +5,9 @@ package main
 import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
-	_ "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/docs"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/docs"
 	roads "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/routes"
-	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"       // swagger embed files
+	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase" // swagger embed files
 )
 
 // @title           Swagger Easeat Auth API
@@ -30,9 +30,13 @@ func main() {
 	microservAuth.InitDbClient()
 
 	authGroup := roads.HandlerMicroServAuthRoads(microservAuth.Server, microservAuth.DbCient)
-	microservAuth.InitSwagger(authGroup)
 
 	address := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_HOST_ENV, "0.0.0.0")
-	port := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_PORT_ENV, "8001")
+	portEnv := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_PORT_ENV, "8001")
+	port, err := utils.GetAvailablePort(portEnv)
+	if err != nil {
+		panic(err)
+	}
+	docs.SwaggerInfo.Host = microservAuth.InitSwagger(authGroup, address, port)
 	microservAuth.RunServer(address, port)
 }

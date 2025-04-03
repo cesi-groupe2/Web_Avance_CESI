@@ -27,6 +27,9 @@ func HandlerMicroServOrderRoads(server *gin.Engine, database *mongo.Database) *g
 	order.PUT("/nextStatus/:orderId", func(ctx *gin.Context) {
 		orderService.UpdateToNextStatus(ctx, database)
 	})
+	order.GET("/history/:idUser", func(ctx *gin.Context) {
+		orderService.GetHistoryOrderByUserId(ctx, database)
+	})
 
 	return order
 }
