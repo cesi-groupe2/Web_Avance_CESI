@@ -129,7 +129,8 @@ func Login(ctx *gin.Context, db *gorm.DB) {
 	result := db.Where(&model.User{
 		Email: mail,
 	}).Find(&users)
-	if result.Error != nil {
+	log.Println(users)
+	if result.Error != nil || len(users) == 0 {
 		log.Println(result.Error)
 		ctx.JSON(401, "Email not found !")
 		return
