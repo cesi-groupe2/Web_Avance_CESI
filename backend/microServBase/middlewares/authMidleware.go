@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -25,14 +26,15 @@ func AuthMiddleware() gin.HandlerFunc {
 		// Check if the token is valid
 		secretKey := os.Getenv(constants.ACCESS_JWT_KEY_ENV)
 
-		parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 			}
-			return secretKey, nil
+			return []byte(secretKey), nil
 		})
 
 		if err != nil || !parsedToken.Valid {
+			log.Println("Invalid token:", err)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
 			return
