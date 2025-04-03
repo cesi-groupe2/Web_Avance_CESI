@@ -16,6 +16,9 @@ func HandlerMicroServAuthPublicRoads(server *gin.Engine, sqlClient *gorm.DB) *gi
 	public.POST("/login", func(ctx *gin.Context) {
 		authController.Login(ctx, sqlClient)
 	})
+public.POST("/forgotPassword", func(ctx *gin.Context) {
+		authController.ForgotPassword(ctx, sqlClient)
+	})
 	return public
 }
 
