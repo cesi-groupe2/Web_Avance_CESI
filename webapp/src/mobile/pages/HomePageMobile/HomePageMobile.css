@@ -1,0 +1,106 @@
+.home-mobile-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  font-family: 'Arial', sans-serif;
+  background-color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-mobile-background {
+  background-image: url('../../../assets/bg-header.jpg');
+  background-repeat: repeat;
+  background-size: 300px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.mobile-logo {
+  width: 200px;
+  z-index: 1;
+  margin: 2rem 0 1.2rem;
+}
+
+.home-mobile-title,
+.home-mobile-sub {
+  z-index: 1;
+}
+
+.home-mobile-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.home-mobile-sub {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.home-mobile-actions {
+  background-color: rgba(255, 255, 255, 0.96);
+  border-radius: 16px;
+  padding: 2rem 1.2rem;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 1;
+}
+
+.btn-mobile-primary,
+.btn-mobile-secondary {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+  border-radius: 8px;
+  background-color: #f3c141;
+  margin: 0.75rem 0;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-mobile-primary:hover,
+.btn-mobile-secondary:hover {
+  background-color: #e2b52f;
+}
+
+.home-mobile-separator {
+  margin: 1rem 0;
+  font-size: 14px;
+  color: #777;
+  position: relative;
+  text-align: center;
+}
+
+.home-mobile-separator::before,
+.home-mobile-separator::after {
+  content: '';
+  height: 1px;
+  width: 40%;
+  background-color: #ccc;
+  position: absolute;
+  top: 50%;
+}
+
+.home-mobile-separator::before {
+  left: 0;
+}
+
+.home-mobile-separator::after {
+  right: 0;
+}

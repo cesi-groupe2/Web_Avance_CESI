@@ -1,13 +1,17 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React from 'react';
+import AppDesktop from './desktop/AppDesktop';
+import AppMobile from './mobile/AppMobile';
+import useIsMobile from './hooks/useIsMobile';
+import { BrowserRouter } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const isMobile = useIsMobile();
 
   return (
-    <></>
-  )
-}
+    <BrowserRouter>
+      {isMobile ? <AppMobile /> : <AppDesktop />}
+    </BrowserRouter>
+  );
+};
 
-export default App
+export default App;

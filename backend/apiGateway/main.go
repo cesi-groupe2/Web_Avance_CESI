@@ -18,4 +18,6 @@ import (
 
 
 func main() {
+	// init server
+	rest.InitServer()
 }

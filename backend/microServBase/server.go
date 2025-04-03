@@ -143,3 +143,43 @@ func (s *MicroServMySql) InitDbClient() {
 
 }
 
+	username := utils.GetEnvValueOrDefaultStr(constants.MONGO_INITDB_ROOT_USERNAME, "root")
+	password := utils.GetEnvValueOrDefaultStr(constants.MONGO_INITDB_ROOT_PASSWORD, "root")
+	host := utils.GetEnvValueOrDefaultStr(constants.MONGO_HOST_ENV, "localhost")
+	port := utils.GetEnvValueOrDefaultStr(constants.MONGO_PORT_ENV, "27017")
+
+	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s", username, password, host, port)
+
+	var err error
+	m.DbClient, err = mongo.Connect(options.Client().ApplyURI(uri))
+	if err != nil {
+		log.Fatalf("Connection MongoDB error: %v", err)
+	}
+
+	// check connection
+	err = m.DbClient.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Fatalf("Ping MongoDB error: %v", err)
+	}
+
+	// Set database
+	m.Database = m.DbClient.Database(constants.MONGO_DATABASE)
+
+	fmt.Printf("Connecté à MongoDB (%s:%s; database: %s) avec succès!\n", host, port, constants.MONGO_DATABASE)
+}
+
+//////////////////////////////
+// SQL Server methods       //
+//////////////////////////////
+
+func (s *MicroServSqlServer) InitServer() {
+	s.Server = gin.Default()
+}
+
+func (s *MicroServSqlServer) RunServer(addr, port string) {
+	s.Server.Run(addr + ":" + port)
+}
+
+func (s *MicroServSqlServer) InitDbClient() {
+
+}
