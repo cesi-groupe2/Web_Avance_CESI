@@ -9,7 +9,11 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "Groupe 2 FISA INFO A4 CESI (2025)",
+            "url": "https://contact.easeat.fr",
+            "email": "benjamin.guerre@viacesi.fr"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -17,6 +21,11 @@ const docTemplate = `{
     "paths": {
         "/restaurant/nearby/{latitude}/{longitude}/{kmAround}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get nearby restaurants from the user's location",
                 "consumes": [
                     "application/json"
@@ -33,21 +42,21 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Latitude of the user",
                         "name": "latitude",
-                        "in": "formData",
+                        "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "Longitude of the user",
                         "name": "longitude",
-                        "in": "formData",
+                        "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Km around the user",
+                        "description": "Distance around the user in km",
                         "name": "kmAround",
-                        "in": "formData",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -75,6 +84,11 @@ const docTemplate = `{
         },
         "/restaurant/{restaurantId}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a restaurant by its id",
                 "consumes": [
                     "application/json"
@@ -116,6 +130,11 @@ const docTemplate = `{
         },
         "/restaurant/{restaurantId}/menuitems": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get menu items by restaurant id",
                 "consumes": [
                     "application/json"
@@ -215,17 +234,25 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Use /login to get your token and use it here",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "2.0",
+	Host:             "localhost:8052",
+	BasePath:         "/restaurant",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Swagger Easeat restaurant microservice",
+	Description:      "This is a microservice for managing restaurants",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

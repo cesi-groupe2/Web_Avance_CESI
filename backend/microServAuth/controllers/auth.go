@@ -227,3 +227,22 @@ func Logout(ctx *gin.Context) {
 	session.DeleteUserSession(ctx)
 	ctx.JSON(200, "ok")
 }
+
+// GetMe godoc
+//	@Summary		Get the current user
+//	@Description	Get the current user
+//	@Tags			auth
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	model.User
+//	@Failure		401	{string}	string	"msg":	"User not found"
+//	@Router			/auth/me [get]
+func GetMe(ctx *gin.Context) {
+	currentUser, err := session.GetUserSession(ctx)
+	if err != nil {
+		ctx.JSON(401, "User not found")
+		return
+	}
+	ctx.JSON(200, currentUser)
+}

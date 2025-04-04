@@ -1,4 +1,34 @@
 basePath: /
+definitions:
+  model.User:
+    properties:
+      already_sponsored:
+        type: boolean
+      created_at:
+        type: string
+      delivery_adress:
+        type: string
+      email:
+        type: string
+      facturation_adress:
+        type: string
+      first_name:
+        type: string
+      id_role:
+        type: integer
+      id_user:
+        type: integer
+      last_name:
+        type: string
+      password_hash:
+        type: string
+      phone:
+        type: string
+      profil_picture:
+        type: string
+      sponsorship_code:
+        type: string
+    type: object
 host: localhost:8001
 info:
   contact:
@@ -49,6 +79,27 @@ paths:
       security:
       - BearerAuth: []
       summary: Logout the user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "401":
+          description: "msg\":\t\"User not found"
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get the current user
       tags:
       - auth
   /auth/refreshToken:

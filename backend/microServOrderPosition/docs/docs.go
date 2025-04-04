@@ -21,6 +21,11 @@ const docTemplate = `{
     "paths": {
         "/": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create an order position",
                 "consumes": [
                     "application/json"
@@ -67,6 +72,11 @@ const docTemplate = `{
         },
         "/createLite": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create an order position with less order position informations, only the order id, and the position are required",
                 "consumes": [
                     "application/json"
@@ -113,6 +123,11 @@ const docTemplate = `{
         },
         "/journey/{orderID}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get the journey of an order by its id",
                 "consumes": [
                     "application/json"
@@ -160,6 +175,11 @@ const docTemplate = `{
         },
         "/lastPosition/{orderID}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get the last position of an order by its id",
                 "consumes": [
                     "application/json"
