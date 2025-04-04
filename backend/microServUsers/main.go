@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	microServ := microservbase.MicroServSqlServer{}
+	microServ := microservbase.MicroServMySql{}
 	microServ.InitServer()
 	// microServ.InitDbClient()
 	// roads.HandlerMicroServUsersRoads(microServ.Server, microServ.MongoDB)

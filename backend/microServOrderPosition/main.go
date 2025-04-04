@@ -4,9 +4,9 @@ package main
 
 import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/roads"
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
 	_ "github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/docs"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/roads"
+	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
 )
 
 // @title           Swagger Easeat Order position API
@@ -21,7 +21,7 @@ import (
 // @BasePath  /
 
 // @securityDefinitions.basic  BasicAuth
-func main(){
+func main() {
 	microServBase := microservbase.MicroServMongo{}
 	microServBase.InitServer()
 	microServBase.InitDbClient()
