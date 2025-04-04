@@ -1,11 +1,25 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is a microservice for managing restaurants",
+        "title": "Swagger Easeat restaurant microservice",
+        "contact": {
+            "name": "Groupe 2 FISA INFO A4 CESI (2025)",
+            "url": "https://contact.easeat.fr",
+            "email": "benjamin.guerre@viacesi.fr"
+        },
+        "version": "2.0"
     },
+    "host": "localhost:8052",
+    "basePath": "/restaurant",
     "paths": {
         "/restaurant/nearby/{latitude}/{longitude}/{kmAround}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get nearby restaurants from the user's location",
                 "consumes": [
                     "application/json"
@@ -22,21 +36,21 @@
                         "type": "string",
                         "description": "Latitude of the user",
                         "name": "latitude",
-                        "in": "formData",
+                        "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "Longitude of the user",
                         "name": "longitude",
-                        "in": "formData",
+                        "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Km around the user",
+                        "description": "Distance around the user in km",
                         "name": "kmAround",
-                        "in": "formData",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -64,6 +78,11 @@
         },
         "/restaurant/{restaurantId}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a restaurant by its id",
                 "consumes": [
                     "application/json"
@@ -105,6 +124,11 @@
         },
         "/restaurant/{restaurantId}/menuitems": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get menu items by restaurant id",
                 "consumes": [
                     "application/json"
@@ -203,6 +227,14 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Use /login to get your token and use it here",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

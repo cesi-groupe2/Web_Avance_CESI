@@ -13,21 +13,19 @@ import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServOrder/roads"
 )
 
-// @title           Swagger Easeat Order microservice API
-// @version         2.0
-// @description     This is a microservice for managing orders in the Easeat application.
+//	@title			Swagger Easeat Order microservice API
+//	@version		2.0
+//	@description	This is a microservice for managing orders in the Easeat application.
+//	@contact.name	Groupe 2 FISA INFO A4 CESI (2025)
+//	@contact.url	https://contact.easeat.fr
+//	@contact.email	benjamin.guerre@viacesi.fr
+//	@host		localhost:8093
+//	@BasePath	/order
 
-// @contact.name   Groupe 2 FISA INFO A4 CESI (2025)
-// @contact.url    https://contact.easeat.fr
-// @contact.email  benjamin.guerre@viacesi.fr
-
-// @host      localhost:8093
-// @BasePath  /order
-
-// @SecurityDefinitions.apiKey BearerAuth
-// @in              header
-// @name            Authorization
-// @description     Use /login to get your token and use it here
+//	@SecurityDefinitions.apiKey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Use /login to get your token and use it here
 
 func main() {
 	log.Println("Starting Order microservice")

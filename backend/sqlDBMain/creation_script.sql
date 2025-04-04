@@ -22,6 +22,8 @@ CREATE TABLE users (
     delivery_adress TEXT,
     facturation_adress TEXT,
     id_role INT,
+    sponsorship_code VARCHAR(50),
+    already_sponsored BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_user_role FOREIGN KEY (id_role) REFERENCES roles (id_role)
 );
 

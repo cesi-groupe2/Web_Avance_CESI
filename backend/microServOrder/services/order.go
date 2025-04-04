@@ -11,15 +11,15 @@ import (
 )
 
 // GetALLOrder godoc
-// @Summary Get all orders
-// @Description Get all orders
-// @Tags order
-// @Security BearerAuth
-// @Accept  json
-// @Produce  json
-// @Param limit query int false "Limit"
-// @Success 200 {array} []mongoModels.Order
-// @Router /all [get]
+//	@Summary		Get all orders
+//	@Description	Get all orders
+//	@Tags			order
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			limit	query	int	false	"Limit"
+//	@Success		200		{array}	[]mongoModels.Order
+//	@Router			/all [get]
 func GetAllOrder(ctx *gin.Context, database *mongo.Database) {
 	limitStr := ctx.Param("limit")
 	if limitStr == "" {
@@ -43,15 +43,15 @@ func GetAllOrder(ctx *gin.Context, database *mongo.Database) {
 }
 
 // GetOrderById godoc
-// @Summary Get order by id
-// @Description Get order by id
-// @Tags order
-// @Security BearerAuth
-// @Accept  json
-// @Produce  json
-// @Param orderId path string true "Order ID"
-// @Success 200 {object} mongoModels.Order
-// @Router /{orderId} [get]
+//	@Summary		Get order by id
+//	@Description	Get order by id
+//	@Tags			order
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			orderId	path		string	true	"Order ID"
+//	@Success		200		{object}	mongoModels.Order
+//	@Router			/{orderId} [get]
 func GetOrderById(ctx *gin.Context, database *mongo.Database) {
 	orderObjId, err := utils.OrderIdParamToObjId(ctx.Param("orderId"))
 	if err != nil {
@@ -75,15 +75,15 @@ func GetOrderById(ctx *gin.Context, database *mongo.Database) {
 }
 
 // CreateOrder godoc
-// @Summary Create an order
-// @Description Create an order
-// @Tags order
-// @Security BearerAuth
-// @Accept  json
-// @Produce  json
-// @Param order body mongoModels.Order true "Order object"
-// @Success 200 {object} mongoModels.Order
-// @Router / [post]
+//	@Summary		Create an order
+//	@Description	Create an order
+//	@Tags			order
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			order	body		mongoModels.Order	true	"Order object"
+//	@Success		200		{object}	mongoModels.Order
+//	@Router			/ [post]
 func CreateOrder(ctx *gin.Context, database *mongo.Database) {
 	// get the order from the body
 	var order mongoModels.Order
@@ -103,15 +103,15 @@ func CreateOrder(ctx *gin.Context, database *mongo.Database) {
 }
 
 // UpdateOrder godoc
-// @Summary Update an order
-// @Description Update an order
-// @Tags order
-// @Security BearerAuth
-// @Accept  json
-// @Produce  json
-// @Param order body mongoModels.Order true "Order object"
-// @Success 200 {object} mongoModels.Order
-// @Router / [patch]
+//	@Summary		Update an order
+//	@Description	Update an order
+//	@Tags			order
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			order	body		mongoModels.Order	true	"Order object"
+//	@Success		200		{object}	mongoModels.Order
+//	@Router			/ [patch]
 func UpdateOrder(ctx *gin.Context, database *mongo.Database) {
 	// update an order
 	var order mongoModels.Order
@@ -132,15 +132,15 @@ func UpdateOrder(ctx *gin.Context, database *mongo.Database) {
 }
 
 // DeleteOrder godoc
-// @Summary Delete an order
-// @Description Delete an order
-// @Tags order
-// @Security BearerAuth
-// @Accept  json
-// @Produce  json
-// @Param orderId path string true "Order ID"
-// @Success 200
-// @Router /{orderId} [delete]
+//	@Summary		Delete an order
+//	@Description	Delete an order
+//	@Tags			order
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			orderId	path	string	true	"Order ID"
+//	@Success		200
+//	@Router			/{orderId} [delete]
 func DeleteOrder(ctx *gin.Context, database *mongo.Database) {
 	// delete an order
 	orderObjId, err := utils.OrderIdParamToObjId(ctx.Param("orderId"))
@@ -166,15 +166,15 @@ func DeleteOrder(ctx *gin.Context, database *mongo.Database) {
 }
 
 // UpdateToNextStatus godoc
-// @Summary Update an order to the next status
-// @Description Update an order to the next status
-// @Tags order
-// @Security BearerAuth
-// @Accept  json
-// @Produce  json
-// @Param orderId path string true "Order ID"
-// @Success 200
-// @Router /nextStatus/{orderId} [put]
+//	@Summary		Update an order to the next status
+//	@Description	Update an order to the next status
+//	@Tags			order
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			orderId	path	string	true	"Order ID"
+//	@Success		200
+//	@Router			/nextStatus/{orderId} [put]
 func UpdateToNextStatus(ctx *gin.Context, database *mongo.Database) {
 	// update an order to the next status
 	orderIdInt, err := utils.OrderIdParamToObjId(ctx.Param("orderId"))
@@ -209,15 +209,15 @@ func UpdateToNextStatus(ctx *gin.Context, database *mongo.Database) {
 }
 
 // GetHistoryOrderByUserId godoc
-// @Summary Get order history by user ID
-// @Description Get order history by user ID
-// @Tags order
-// @Security BearerAuth
-// @Accept  json
-// @Produce  json
-// @Param userId path string true "User ID"
-// @Success 200 {array} []mongoModels.Order
-// @Router /history/{userId} [get]
+//	@Summary		Get order history by user ID
+//	@Description	Get order history by user ID
+//	@Tags			order
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			userId	path	string	true	"User ID"
+//	@Success		200		{array}	[]mongoModels.Order
+//	@Router			/history/{userId} [get]
 func GetHistoryOrderByUserId(ctx *gin.Context, database *mongo.Database) {
 	userId := ctx.Param("userId")
 	userIdInt, err := strconv.Atoi(userId)

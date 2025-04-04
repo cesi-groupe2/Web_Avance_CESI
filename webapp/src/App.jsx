@@ -1,15 +1,21 @@
 import React from 'react';
-import AppDesktop from './desktop/AppDesktop';
-import AppMobile from './mobile/AppMobile';
-import useIsMobile from './hooks/useIsMobile';
 import { BrowserRouter } from 'react-router-dom';
+import AppRoutes from './routes';
+import { AuthProvider } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
+import { FavoritesProvider } from './contexts/FavoritesContext';
+import './App.css';
 
 const App = () => {
-  const isMobile = useIsMobile();
-
   return (
     <BrowserRouter>
-      {isMobile ? <AppMobile /> : <AppDesktop />}
+      <AuthProvider>
+        <CartProvider>
+          <FavoritesProvider>
+            <AppRoutes />
+          </FavoritesProvider>
+        </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 };

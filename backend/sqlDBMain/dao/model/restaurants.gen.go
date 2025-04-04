@@ -18,18 +18,6 @@ type Restaurant struct {
 	OpeningHours          string  `gorm:"column:opening_hours" json:"opening_hours"`
 }
 
-// Column names for Restaurant defined as constants for consistency and immutability.
-const (
-	RestaurantColumnIDRestaurant          = "id_restaurant"
-	RestaurantColumnName                  = "name"
-	RestaurantColumnAddress               = "address"
-	RestaurantColumnPicture               = "picture"
-	RestaurantColumnLocalisationLatitude  = "localisation_latitude"
-	RestaurantColumnLocalisationLongitude = "localisation_longitude"
-	RestaurantColumnPhone                 = "phone"
-	RestaurantColumnOpeningHours          = "opening_hours"
-)
-
 // TableName Restaurant's table name
 func (*Restaurant) TableName() string {
 	return TableNameRestaurant

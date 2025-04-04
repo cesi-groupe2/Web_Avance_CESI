@@ -10,21 +10,21 @@ import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServUsers/docs"
 )
 
-// @title           Swagger Easeat restaurant microservice
-// @version         2.0
-// @description     This is a microservice for managing restaurants
+//	@title			Swagger Easeat restaurant microservice
+//	@version		2.0
+//	@description	This is a microservice for managing restaurants
 
-// @contact.name   Groupe 2 FISA INFO A4 CESI (2025)
-// @contact.url    https://contact.easeat.fr
-// @contact.email  benjamin.guerre@viacesi.fr
+//	@contact.name	Groupe 2 FISA INFO A4 CESI (2025)
+//	@contact.url	https://contact.easeat.fr
+//	@contact.email	benjamin.guerre@viacesi.fr
 
-// @host      localhost:8052
-// @BasePath  /users
+//	@host		localhost:8052
+//	@BasePath	/users
 
-// @SecurityDefinitions.apiKey BearerAuth
-// @in              header
-// @name            Authorization
-// @description     Use /login to get your token and use it here
+//	@SecurityDefinitions.apiKey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Use /login to get your token and use it here
 
 func main() {
 	microServ := microservbase.MicroServMySql{}

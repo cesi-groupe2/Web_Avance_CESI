@@ -10,21 +10,21 @@ import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
 )
 
-// @title           Swagger Easeat Order position API
-// @version         2.0
-// @description     This is a microservice for managing orders positions
+//	@title			Swagger Easeat Order position API
+//	@version		2.0
+//	@description	This is a microservice for managing orders positions
 
-// @contact.name   Groupe 2 FISA INFO A4 CESI (2025)
-// @contact.url    https://contact.easeat.fr
-// @contact.email  benjamin.guerre@viacesi.fr
+//	@contact.name	Groupe 2 FISA INFO A4 CESI (2025)
+//	@contact.url	https://contact.easeat.fr
+//	@contact.email	benjamin.guerre@viacesi.fr
 
-// @host      localhost:8020
-// @BasePath  /orderPosition
+//	@host		localhost:8020
+//	@BasePath	/orderPosition
 
-// @SecurityDefinitions.apiKey BearerAuth
-// @in              header
-// @name            Authorization
-// @description     Use /login to get your token and use it here
+//	@SecurityDefinitions.apiKey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Use /login to get your token and use it here
 
 func main(){
 	microServBase := microservbase.MicroServMongo{}

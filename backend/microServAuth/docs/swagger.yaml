@@ -1,13 +1,35 @@
 basePath: /
 definitions:
-  handlers.LoginRequest:
+  model.User:
     properties:
+      already_sponsored:
+        type: boolean
+      created_at:
+        type: string
+      delivery_adress:
+        type: string
       email:
         type: string
-      password:
+      facturation_adress:
+        type: string
+      first_name:
+        type: string
+      id_role:
+        type: integer
+      id_user:
+        type: integer
+      last_name:
+        type: string
+      password_hash:
+        type: string
+      phone:
+        type: string
+      profil_picture:
+        type: string
+      sponsorship_code:
         type: string
     type: object
-host: localhost:7001
+host: localhost:8001
 info:
   contact:
     email: benjamin.guerre@viacesi.fr
@@ -17,6 +39,31 @@ info:
   title: Swagger Easeat Auth API
   version: "1.0"
 paths:
+  /{code}:
+    get:
+      consumes:
+      - application/json
+      description: Sponsorise a user with sponsorship code
+      parameters:
+      - description: Sponsorship code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: "msg\":\t\"ok"
+          schema:
+            type: string
+        "400":
+          description: "msg\":\t\"User not found in session"
+          schema:
+            type: string
+      summary: Sponsorise a user by code
+      tags:
+      - sponso
   /auth/logout:
     post:
       consumes:
@@ -32,6 +79,27 @@ paths:
       security:
       - BearerAuth: []
       summary: Logout the user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "401":
+          description: "msg\":\t\"User not found"
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get the current user
       tags:
       - auth
   /auth/refreshToken:
@@ -97,65 +165,25 @@ paths:
       summary: Reset password
       tags:
       - auth
-  /canAccess/{roleId}:
+  /myCode:
     get:
       consumes:
       - application/json
-      description: Check if the user has the right role
-      parameters:
-      - description: Role id
-        in: path
-        name: roleId
-        required: true
-        type: integer
+      description: Get my sponsorship code
       produces:
       - application/json
       responses:
         "200":
-          description: OK
-          schema:
-            type: string
-        "403":
-          description: Forbidden
-          schema:
-            type: string
-      summary: Check if the user has the right role
-      tags:
-      - middlewares
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: Login
-      parameters:
-      - description: Login request
-        in: body
-        name: loginRequest
-        required: true
-        schema:
-          $ref: '#/definitions/handlers.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
+          description: "msg\":\t\"ok"
           schema:
             type: string
         "400":
-          description: Bad Request
+          description: "msg\":\t\"User not found in session"
           schema:
             type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Login
+      summary: Get my sponsorship code
       tags:
-      - auth
+      - sponso
   /public/forgotPassword:
     post:
       consumes:

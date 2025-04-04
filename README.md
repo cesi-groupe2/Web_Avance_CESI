@@ -9,11 +9,19 @@ Dans un troisième temps, une analyse de sécurité de notre application sera la
 docker network create easeat-net
 ```
 
-Si BDD (docker) mysql n'est pas sur le network easeat-net, il faut executer la commande suivante:
+### Init bdd
+mongoDB
 ```bash
-docker network connect easeat-net mysql
-docker network connect easeat-net mongodbmain-db-client-1
+cd backend/mongoDBMain
+docker-compose up -d
 ```
+
+mySQL
+```bash
+cd ../sqlDBMain
+docker-compose up -d
+```
+
 
 ### Launch API Gateway
 To launch the API Gateway, you need to create file .env in the 'backend' folder.  
