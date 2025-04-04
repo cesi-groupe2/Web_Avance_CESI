@@ -32,7 +32,7 @@ class ApiClient {
      * Overrides the default value set in spec file if present
      * @param {String} basePath
      */
-    constructor(basePath = 'http://localhost:80') {
+    constructor(basePath = 'http://localhost:8080') {
         /**
          * The base URL against which to resolve every API call's (relative) path.
          * @type {String}
@@ -302,7 +302,6 @@ class ApiClient {
                     if (auth.username || auth.password) {
                         request.auth(auth.username || '', auth.password || '');
                     }
-
                     break;
                 case 'bearer':
                     if (auth.accessToken) {
@@ -311,30 +310,19 @@ class ApiClient {
                           : auth.accessToken
                         request.set({'Authorization': 'Bearer ' + localVarBearerToken});
                     }
-
                     break;
                 case 'apiKey':
                     if (auth.apiKey) {
-                        var data = {};
-                        if (auth.apiKeyPrefix) {
-                            data[auth.name] = auth.apiKeyPrefix + ' ' + auth.apiKey;
-                        } else {
-                            data[auth.name] = auth.apiKey;
-                        }
-
-                        if (auth['in'] === 'header') {
-                            request.set(data);
-                        } else {
-                            request.query(data);
+                        const token = localStorage.getItem('token');
+                        if (token) {
+                            request.set({'Authorization': `Bearer ${token}`});
                         }
                     }
-
                     break;
                 case 'oauth2':
                     if (auth.accessToken) {
                         request.set({'Authorization': 'Bearer ' + auth.accessToken});
                     }
-
                     break;
                 default:
                     throw new Error('Unknown authentication type: ' + auth.type);

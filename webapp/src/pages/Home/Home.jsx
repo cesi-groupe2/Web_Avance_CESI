@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
 import { useAuth } from "../../contexts/AuthContext";
 import home_picture from "../../assets/home_picture.webp";
+import RestaurantApi from "../../api/RestaurantApi";
 import "./Home.css";
+import { Link } from "react-router-dom";
 
 const HomeContainer = styled.div`
   display: flex;
@@ -16,129 +18,158 @@ const HomeContainer = styled.div`
 
 const HeroSection = styled.div`
   position: relative;
-  height: 500px;
+  height: 80vh;
+  min-height: 600px;
   width: 100%;
   overflow: hidden;
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5));
 
   @media (max-width: 768px) {
-    height: 400px;
+    height: 60vh;
+    min-height: 400px;
   }
 `;
 
 const HeroImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-`;
-
-const HeroContent = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: -1;
+  transform: scale(1.1);
+  animation: zoomIn 20s linear infinite alternate;
+
+  @keyframes zoomIn {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+`;
+
+const HeroContent = styled.div`
+  position: relative;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
-  color: white;
   text-align: center;
-  padding: 0 20px;
+  padding: 0 2rem;
+  color: white;
+  max-width: 800px;
+  margin: 0 auto;
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 4rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 1s ease;
 
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 2.5rem;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 `;
 
 const HeroSubtitle = styled.p`
   font-size: 1.5rem;
   font-weight: 400;
-  margin-bottom: 30px;
-  max-width: 700px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin-bottom: 2rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 1s ease 0.2s backwards;
 
   @media (max-width: 768px) {
     font-size: 1.2rem;
   }
 `;
 
-const FeaturesSection = styled.div`
-  padding: 80px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #f9f9f9;
+const HeroButton = styled(Link)`
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  animation: fadeInUp 1s ease 0.4s backwards;
+
+  &:hover {
+    background-color: darken(var(--primary-color), 10%);
+    transform: translateY(-2px);
+  }
+`;
+
+const FeaturesSection = styled.section`
+  padding: 6rem 2rem;
+  background-color: var(--gray-light);
 `;
 
 const FeatureTitle = styled.h2`
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 50px;
   text-align: center;
-  color: #333;
+  margin-bottom: 4rem;
+  color: var(--text-color);
 
   @media (max-width: 768px) {
-    font-size: 1.5rem;
-    margin-bottom: 30px;
+    font-size: 2rem;
+    margin-bottom: 3rem;
   }
 `;
 
 const FeaturesGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
   max-width: 1200px;
-  width: 100%;
-
-  @media (max-width: 992px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  margin: 0 auto;
 `;
 
 const FeatureCard = styled.div`
   background-color: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius);
+  padding: 2rem;
   text-align: center;
-  transition: all 0.3s ease;
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
 `;
 
 const FeatureIcon = styled.div`
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  color: #00a082;
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
 `;
 
 const FeatureCardTitle = styled.h3`
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 10px;
-  color: #333;
+  margin-bottom: 1rem;
+  color: var(--text-color);
 `;
 
 const FeatureCardText = styled.p`
-  font-size: 1rem;
-  color: #666;
-  line-height: 1.5;
+  font-size: 1.1rem;
+  color: var(--gray-medium);
+  line-height: 1.6;
 `;
 
 const DebugAuthSection = styled.div`
@@ -161,9 +192,79 @@ const DebugAuthItem = styled.div`
   }
 `;
 
+const RestaurateurSection = styled.div`
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f0f8ff;
+`;
+
+const RestaurateurTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #333;
+`;
+
+const CreateRestaurantButton = styled(Button)`
+  background-color: #00a082;
+  color: white;
+  padding: 20px 40px;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #008c74;
+    transform: scale(1.05);
+  }
+`;
+
+const RestaurantCard = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: all 0.3s ease;
+  max-width: 600px;
+  width: 100%;
+  margin: 20px 0;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const RestaurantName = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+`;
+
+const RestaurantInfo = styled.p`
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 15px;
+`;
+
+const RestaurantActions = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+`;
+
 const WebPageDAccueil = () => {
   const navigate = useNavigate();
   const { isAuthenticated, currentUser, token, userRole } = useAuth();
+  const [restaurant, setRestaurant] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log("État d'authentification sur la page d'accueil:", { 
@@ -173,11 +274,63 @@ const WebPageDAccueil = () => {
       tokenInStorage: localStorage.getItem("token"),
       userInStorage: localStorage.getItem("currentUser")
     });
-  }, [isAuthenticated, currentUser, token]);
+
+    if (currentUser?.role === '2') {
+      // Vérifier si l'utilisateur a un id_restaurant
+      if (currentUser.id_restaurant) {
+        const restaurantApi = new RestaurantApi();
+        restaurantApi.restaurantRestaurantIdGet(currentUser.id_restaurant.toString(), (error, data) => {
+          if (!error && data) {
+            setRestaurant(data);
+          } else {
+            console.error("Erreur lors de la récupération du restaurant:", error);
+          }
+          setLoading(false);
+        });
+      } else {
+        // Si l'utilisateur n'a pas d'id_restaurant, on considère qu'il n'a pas de restaurant
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
+  }, [currentUser]);
 
   return (
     <HomeContainer>
       <Header />
+      
+      {currentUser?.role === '2' && (
+        <RestaurateurSection>
+          <RestaurateurTitle>Espace Restaurateur</RestaurateurTitle>
+          {loading ? (
+            <p>Chargement...</p>
+          ) : restaurant ? (
+            <RestaurantCard>
+              <RestaurantName>{restaurant.name}</RestaurantName>
+              <RestaurantInfo>Adresse : {restaurant.address}</RestaurantInfo>
+              <RestaurantInfo>Téléphone : {restaurant.phone}</RestaurantInfo>
+              <RestaurantActions>
+                <Button onClick={() => navigate(`/restaurant/${restaurant.id_restaurant}`)}>
+                  Voir mon restaurant
+                </Button>
+                <Button onClick={() => navigate(`/restaurant/${restaurant.id_restaurant}/edit`)}>
+                  Modifier
+                </Button>
+              </RestaurantActions>
+            </RestaurantCard>
+          ) : (
+            <>
+              <p style={{ fontSize: '1.2rem', marginBottom: '20px', textAlign: 'center' }}>
+                Vous n'avez pas encore de restaurant. Créez votre restaurant pour commencer à recevoir des commandes !
+              </p>
+              <CreateRestaurantButton onClick={() => navigate("/restaurant/create")}>
+                Créer mon restaurant
+              </CreateRestaurantButton>
+            </>
+          )}
+        </RestaurateurSection>
+      )}
       
       <HeroSection>
         <HeroImage src={home_picture} alt="EasEat - Livraison de repas" />
@@ -186,9 +339,9 @@ const WebPageDAccueil = () => {
           <HeroSubtitle>
             C'est easy, commandez, détendez vous, dégustez !
           </HeroSubtitle>
-          <Button onClick={() => navigate("/restaurants")}>
+          <HeroButton to="/restaurants">
             Commandez maintenant
-          </Button>
+          </HeroButton>
         </HeroContent>
       </HeroSection>
       

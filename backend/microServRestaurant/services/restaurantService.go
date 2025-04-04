@@ -8,8 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/session"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
 )
 
 // GetNearbyRestaurants godoc
@@ -96,3 +97,74 @@ func GetMenuItemsByRestaurantId(ctx *gin.Context, db *gorm.DB) {
 	db.Where(columns.MenuitemColumnCreatedAtColumn+" = ?", restaurantId).Find(&menuItems)
 	ctx.JSON(200, menuItems)
 }
+
+
+// CreateRestaurant godoc
+//	@Summary		Create a restaurant
+//	@Description	Create a restaurant
+//	@Tags			restaurant
+//	@Security		BearerAuth
+//	@Accept			application/x-www-form-urlencoded
+//	@Produce		json
+//	@Param			name					formData	string					true	"Name of the restaurant"
+//	@Param			address					formData	string					true	"Address of the restaurant"
+//	@Param			phone					formData	string					true	"Phone number of the restaurant"
+//	@Param			localisationLatitude	formData	string					true	"Latitude of the restaurant"
+//	@Param			localisationLongitude	formData	string					true	"Longitude of the restaurant"
+//	@Param			openingHours			formData	customtype.OpeningHours	true	"Opening hours of the restaurant"
+//	@Success		200						{object}	model.Restaurant
+//	@Failure		400						{object}	map[string]string
+//	@Router			/restaurant/new [post]
+func CreateRestaurant(ctx *gin.Context, db *gorm.DB) {
+	// Get user want to create restaurant
+	user, err := session.GetUserSession(ctx)
+	if err != nil {
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Get restaurant data from request
+	latitudeStr := ctx.PostForm("localisationLatitude")
+	latitude, err := strconv.ParseFloat(latitudeStr, 64)
+	if err != nil {
+		ctx.JSON(400, gin.H{"error": "Invalid localisationLatitude"})
+		return
+	}
+
+	longitudeStr := ctx.PostForm("localisationLongitude")
+	longitude, err := strconv.ParseFloat(longitudeStr, 64)
+	if err != nil {
+		ctx.JSON(400, gin.H{"error": "Invalid localisationLongitude"})
+		return
+	}
+
+	restaurant := model.Restaurant{
+		Name:                 ctx.PostForm("name"),
+		Address:              ctx.PostForm("address"),
+		Phone:                ctx.PostForm("phone"),
+		LocalisationLatitude: latitude,
+		LocalisationLongitude: longitude,
+		OpeningHours:         ctx.PostForm("openingHours"),
+	}
+
+	// Create restaurant in database
+	result := db.Create(&restaurant)
+	if result.Error != nil {
+		log.Println(result.Error)
+		ctx.JSON(400, gin.H{"error": "Failed to create restaurant"})
+		return
+	}
+	// Add restaurant to user
+	possede := model.Posseder{
+		IDRestaurant: restaurant.IDRestaurant,
+		IDUser: user.IDUser,
+	}
+	result = db.Create(&possede)
+	if result.Error != nil {
+		log.Println(result.Error)
+		ctx.JSON(400, gin.H{"error": "Failed to add restaurant to user"})
+		return
+	}
+	ctx.JSON(200, restaurant)
+}
+

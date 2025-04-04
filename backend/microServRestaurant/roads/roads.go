@@ -9,6 +9,10 @@ import (
 
 func HandlerMicroServRestaurantRoads(server *gin.Engine , sqlClient *gorm.DB) *gin.RouterGroup {
 	restaurant := server.Group("/restaurant", middlewares.AuthMiddleware())
+	restaurant.POST("/new", func(ctx *gin.Context) {
+		middlewares.CanAccessMiddleware(ctx, 2)
+		restaurantService.CreateRestaurant(ctx, sqlClient)
+	})
 	restaurant.GET("/:restaurantId", func(ctx *gin.Context) {
 		restaurantService.GetRestaurantById(ctx, sqlClient)
 	})

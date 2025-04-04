@@ -13,6 +13,87 @@
     "host": "localhost:8052",
     "basePath": "/restaurant",
     "paths": {
+        "/restaurant": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a restaurant",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "restaurant"
+                ],
+                "summary": "Create a restaurant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of the restaurant",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address of the restaurant",
+                        "name": "address",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone number of the restaurant",
+                        "name": "phone",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Latitude of the restaurant",
+                        "name": "localisationLatitude",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Longitude of the restaurant",
+                        "name": "localisationLongitude",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Opening hours of the restaurant (JSON format)",
+                        "name": "openingHours",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Restaurant"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/restaurant/nearby/{latitude}/{longitude}/{kmAround}": {
             "get": {
                 "security": [

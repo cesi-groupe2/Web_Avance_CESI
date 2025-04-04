@@ -46,6 +46,60 @@ info:
   title: Swagger Easeat restaurant microservice
   version: "2.0"
 paths:
+  /restaurant:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Create a restaurant
+      parameters:
+      - description: Name of the restaurant
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Address of the restaurant
+        in: formData
+        name: address
+        required: true
+        type: string
+      - description: Phone number of the restaurant
+        in: formData
+        name: phone
+        required: true
+        type: string
+      - description: Latitude of the restaurant
+        in: formData
+        name: localisationLatitude
+        required: true
+        type: string
+      - description: Longitude of the restaurant
+        in: formData
+        name: localisationLongitude
+        required: true
+        type: string
+      - description: Opening hours of the restaurant (JSON format)
+        in: formData
+        name: openingHours
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Restaurant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a restaurant
+      tags:
+      - restaurant
   /restaurant/{restaurantId}:
     get:
       consumes:

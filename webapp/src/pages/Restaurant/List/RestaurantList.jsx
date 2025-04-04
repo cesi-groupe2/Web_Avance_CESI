@@ -236,6 +236,23 @@ const LoadingMessage = styled.div`
   color: #666;
 `;
 
+const CreateButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  background-color: #00a082;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 20px;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #008c74;
+  }
+`;
+
 // Liste des catégories pour les filtres
 const categories = [
   "Tous",
@@ -252,13 +269,14 @@ const categories = [
 ];
 
 const RestaurantList = () => {
-  const { isAuthenticated, userRole } = useAuth();
+  const { isAuthenticated, userRole, currentUser } = useAuth();
+  const { favorites, toggleFavorite } = useFavorites();
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
-  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     console.log("État d'authentification dans RestaurantList:", { isAuthenticated, userRole });
@@ -363,10 +381,10 @@ const RestaurantList = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (isFavorite(restaurant.id_restaurant)) {
-      removeFavorite(restaurant.id_restaurant);
+    if (favorites.includes(restaurant.id_restaurant)) {
+      toggleFavorite(restaurant.id_restaurant);
     } else {
-      addFavorite(restaurant);
+      toggleFavorite(restaurant);
     }
   };
   
@@ -389,28 +407,49 @@ const RestaurantList = () => {
   }
   
   return (
-    <>
+    <PageContainer>
       <Header />
-      <RestaurantsContainer>
-        <RestaurantsTitle>Restaurants</RestaurantsTitle>
+      <ContentContainer>
+        <Title>Restaurants</Title>
         
-        <SearchBar>
-          <SearchIcon />
-          <SearchInput 
-            type="text" 
-            placeholder="Rechercher un restaurant" 
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-        </SearchBar>
-        
-        <FiltersContainer>
-          {categories.map((category) => (
-            <FilterButton key={category}>
-              {category}
+        {currentUser?.role === '2' && (
+          <CreateButton to="/restaurant/create">
+            Créer un restaurant
+          </CreateButton>
+        )}
+
+        <SearchSection>
+          <SearchBar>
+            <SearchIcon />
+            <SearchInput
+              type="text"
+              placeholder="Rechercher un restaurant..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </SearchBar>
+          
+          <FiltersContainer>
+            <FilterButton
+              active={activeFilter === "all"}
+              onClick={() => setActiveFilter("all")}
+            >
+              Tous
             </FilterButton>
-          ))}
-        </FiltersContainer>
+            <FilterButton
+              active={activeFilter === "favorites"}
+              onClick={() => setActiveFilter("favorites")}
+            >
+              <FiHeart /> Favoris
+            </FilterButton>
+            <FilterButton
+              active={activeFilter === "open"}
+              onClick={() => setActiveFilter("open")}
+            >
+              <FiClock /> Ouverts
+            </FilterButton>
+          </FiltersContainer>
+        </SearchSection>
         
         {filteredRestaurants.length === 0 ? (
           <EmptyMessage>
@@ -441,9 +480,9 @@ const RestaurantList = () => {
                   </RestaurantLink>
                 </RestaurantCard>
                 <FavoriteButton 
-                  isFavorite={isFavorite(restaurant.id_restaurant)}
+                  isFavorite={favorites.includes(restaurant.id_restaurant)}
                   onClick={(e) => handleFavoriteToggle(e, restaurant)}
-                  aria-label={isFavorite(restaurant.id_restaurant) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                  aria-label={favorites.includes(restaurant.id_restaurant) ? "Retirer des favoris" : "Ajouter aux favoris"}
                 >
                   <FiHeart />
                 </FavoriteButton>
@@ -451,8 +490,8 @@ const RestaurantList = () => {
             ))}
           </RestaurantsGrid>
         )}
-      </RestaurantsContainer>
-    </>
+      </ContentContainer>
+    </PageContainer>
   );
 };
 

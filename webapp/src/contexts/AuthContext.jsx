@@ -21,12 +21,46 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [refreshToken, setRefreshToken] = useState(localStorage.getItem("refreshToken") || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Propriétés dérivées
   const isAuthenticated = useMemo(() => !!token && !!currentUser, [token, currentUser]);
   const userRole = useMemo(() => currentUser?.id_role?.toString() || currentUser?.role || null, [currentUser]);
+
+  // Fonction pour rafraîchir le token
+  const refreshAuthToken = async () => {
+    if (!refreshToken) {
+      console.log("Aucun refresh token disponible");
+      return false;
+    }
+
+    try {
+      return new Promise((resolve, reject) => {
+        authApi.authRefreshTokenPost(refreshToken, (error, data, response) => {
+          if (error) {
+            console.error("Erreur lors du rafraîchissement du token:", error);
+            reject(error);
+            return;
+          }
+
+          if (!data || !data.token) {
+            reject(new Error("Format de réponse invalide"));
+            return;
+          }
+
+          const newToken = data.token.startsWith('Bearer ') ? data.token : `Bearer ${data.token}`;
+          localStorage.setItem("token", newToken);
+          setToken(newToken);
+          resolve(true);
+        });
+      });
+    } catch (error) {
+      console.error("Erreur lors du rafraîchissement du token:", error);
+      return false;
+    }
+  };
 
   // Fonction de connexion
   const login = async (email, password) => {
@@ -41,7 +75,7 @@ export const AuthProvider = ({ children }) => {
 
           console.log("Réponse de connexion:", data);
 
-          if (!data || !data.token || !data.user) {
+          if (!data || !data.token || !data.user || !data.refreshToken) {
             reject(new Error("Format de réponse invalide"));
             return;
           }
@@ -52,8 +86,6 @@ export const AuthProvider = ({ children }) => {
           // Formater les données utilisateur pour assurer la cohérence en front-end
           const formattedUser = {
             ...userModel,
-            // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
-            // et s'assurer que FirstName et LastName sont correctement définis
             FirstName: userModel.first_name || "",
             LastName: userModel.last_name || "",
             Email: userModel.email || "",
@@ -61,26 +93,27 @@ export const AuthProvider = ({ children }) => {
             DeliveryAdress: userModel.delivery_adress || "",
             FacturationAdress: userModel.facturation_adress || "",
             role: userModel.id_role?.toString() || "1",
-
-            // S'assurer que first_name et last_name sont définis
             first_name: userModel.first_name || userModel.FirstName || "",
             last_name: userModel.last_name || userModel.LastName || ""
           };
           
           console.log("Données utilisateur formatées après login:", formattedUser);
           
-          // Stocker le token et les informations utilisateur
-          localStorage.setItem("token", data.token);
+          // Stocker les tokens et les informations utilisateur
+          const token = data.token.startsWith('Bearer ') ? data.token : `Bearer ${data.token}`;
+          localStorage.setItem("token", token);
+          localStorage.setItem("refreshToken", data.refreshToken);
           localStorage.setItem("currentUser", JSON.stringify(formattedUser));
           
-          setToken(data.token);
+          setToken(token);
+          setRefreshToken(data.refreshToken);
           setCurrentUser(formattedUser);
           
           resolve({ ...data, user: formattedUser });
         });
       });
     } catch (error) {
-      console.error("Erreur de connexion:", error);
+      console.error("Erreur lors de la connexion:", error);
       throw error;
     }
   };
@@ -145,8 +178,10 @@ export const AuthProvider = ({ children }) => {
     
     // Nettoyer les informations d'authentification locales
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("currentUser");
     setToken(null);
+    setRefreshToken(null);
     setCurrentUser(null);
   };
 
@@ -157,6 +192,7 @@ export const AuthProvider = ({ children }) => {
     if (!token) {
       // Supprimer toutes les données d'authentification au cas où
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("currentUser");
       setCurrentUser(null);
       setLoading(false);
@@ -182,6 +218,17 @@ export const AuthProvider = ({ children }) => {
         if (error) {
           console.error("Erreur d'authentification:", error);
           
+          // Si l'erreur est une 401, essayer de rafraîchir le token
+          if (error.status === 401) {
+            refreshAuthToken().then(success => {
+              if (success) {
+                // Réessayer la vérification après le rafraîchissement
+                checkAuth();
+                return;
+              }
+            });
+          }
+          
           // Si l'erreur est une 404, le serveur est peut-être simplement indisponible
           // Ne pas déconnecter l'utilisateur si nous avons des données locales valides
           if (error.status === 404 && storedUser) {
@@ -191,8 +238,10 @@ export const AuthProvider = ({ children }) => {
           }
           
           localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
           localStorage.removeItem("currentUser");
           setToken(null);
+          setRefreshToken(null);
           setCurrentUser(null);
           setLoading(false);
           return;
@@ -200,19 +249,23 @@ export const AuthProvider = ({ children }) => {
         
         console.log("Données utilisateur récupérées depuis l'API:", userData);
         
+        // Vérifier si les données utilisateur sont valides
+        if (!userData) {
+          console.log("Aucune donnée utilisateur reçue de l'API");
+          setLoading(false);
+          return;
+        }
+
         // Formater les données utilisateur pour assurer la cohérence en front-end
         const formattedUserData = {
           ...userData,
-          // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
-          FirstName: userData.first_name || "",
-          LastName: userData.last_name || "",
+          FirstName: userData.first_name || userData.FirstName || "",
+          LastName: userData.last_name || userData.LastName || "",
           Email: userData.email || "",
           Phone: userData.phone || "",
           DeliveryAdress: userData.delivery_adress || "",
           FacturationAdress: userData.facturation_adress || "",
-          role: userData.id_role?.toString() || "1",
-            
-          // S'assurer que first_name et last_name sont définis
+          role: userData.id_role?.toString() || userData.role || "1",
           first_name: userData.first_name || userData.FirstName || "",
           last_name: userData.last_name || userData.LastName || ""
         };
@@ -221,15 +274,17 @@ export const AuthProvider = ({ children }) => {
         
         // Mettre à jour le localStorage avec les données fraîches
         localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
-        localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
+        localStorage.setItem("token", token);
         setCurrentUser(formattedUserData);
         setLoading(false);
       });
     } catch (error) {
       console.error("Erreur d'authentification:", error);
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("currentUser");
       setToken(null);
+      setRefreshToken(null);
       setCurrentUser(null);
       setLoading(false);
     }
@@ -288,15 +343,16 @@ export const AuthProvider = ({ children }) => {
   const value = {
     currentUser,
     token,
+    isAuthenticated,
+    userRole,
     loading,
     error,
     login,
-    register,
     logout,
+    register,
     checkAuth,
     updateUser,
-    isAuthenticated,
-    userRole
+    refreshAuthToken
   };
 
   return (

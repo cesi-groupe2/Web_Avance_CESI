@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@react-google-maps/api": "^2.20.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.3"
+  }
+}

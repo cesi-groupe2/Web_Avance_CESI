@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/gin-gonic/gin"
@@ -16,12 +17,21 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the token from the header
-		token := c.Request.Header.Get("Authorization")
-		if token == "" {
+		authHeader := c.Request.Header.Get("Authorization")
+		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "No token provided"})
 			c.Abort()
 			return
 		}
+
+		// Extract the token from the Bearer string
+		const bearerPrefix = "Bearer "
+		if !strings.HasPrefix(authHeader, bearerPrefix) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			c.Abort()
+			return
+		}
+		token := authHeader[len(bearerPrefix):]
 
 		// Check if the token is valid
 		secretKey := os.Getenv(constants.ACCESS_JWT_KEY_ENV)
