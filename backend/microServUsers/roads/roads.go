@@ -1,13 +1,17 @@
 package roads
 
 import (
-	userService "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServUsers/service"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/middlewares"
+	userService "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServUsers/services"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/v2/mongo"
+	"gorm.io/gorm"
 )
 
-func HandlerMicroServUsersRoads(server *gin.Engine, dbclient *mongo.Client) {
-	server.GET("/users", func(c *gin.Context) {
+func HandlerMicroServUsersRoads(server *gin.Engine, dbclient *gorm.DB) *gin.RouterGroup {
+	users := server.Group("/users", middlewares.AuthMiddleware())
+	users.GET("/", func(c *gin.Context) {
 		userService.GetUser(c, dbclient)
 	})
+
+	return users
 }

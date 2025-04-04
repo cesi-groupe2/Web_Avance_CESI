@@ -1,29 +1,42 @@
 package main
 
-// command swag init -g orderPositionService.go -d services,../mongoDBMain
+// command: swag init -g main.go -d ./,../sqlDBMain,controllers
 
 import (
-	roads "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/roads"
-	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/docs"
+	roads "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/routes"
+	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase" // swagger embed files
 )
 
-// @title           Swagger Easeat Order position API
-// @version         2.0
-// @description     This is a microservice for managing users
+// @title           Swagger Easeat Auth API
+// @version         1.0
+// @description     This is a microservice for managing authentication
+// @contact.name    Groupe 2 FISA INFO A4 CESI (2025)
+// @contact.url     https://contact.easeat.fr
+// @contact.email   benjamin.guerre@viacesi.fr
+// @host            localhost:7001
+// @BasePath        /
 
-// @contact.name   Groupe 2 FISA INFO A4 CESI (2025)
-// @contact.url    https://contact.easeat.fr
-// @contact.email  benjamin.guerre@viacesi.fr
+// @SecurityDefinitions.apiKey BearerAuth
+// @in              header
+// @name            Authorization
+// @description     Use /login to get your token and use it here
 
-// @host      localhost:8030
-// @BasePath  /
-
-// @securityDefinitions.basic  BasicAuth
 func main() {
-	microServBase := microservbase.MicroServSqlServer{}
-	microServBase.InitServer()
-	microServBase.InitDbClient()
+	microservAuth := microservbase.MicroServMySql{}
+	microservAuth.InitServer()
+	microservAuth.InitDbClient()
 
-	roads.HandleUserRoads(microServBase.Server, microServBase.Client)
-	microServBase.RunServer("localhost", "8030")
+	authGroup := roads.HandlerMicroServAuthRoads(microservAuth.Server, microservAuth.DbCient)
+
+	address := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_HOST_ENV, "0.0.0.0")
+	portEnv := utils.GetEnvValueOrDefaultStr(constants.AUTH_SERVICE_PORT_ENV, "8001")
+	port, err := utils.GetAvailablePort(portEnv)
+	if err != nil {
+		panic(err)
+	}
+	docs.SwaggerInfo.Host = microservAuth.InitSwagger(authGroup, address, port)
+	microservAuth.RunServer(address, port)
 }

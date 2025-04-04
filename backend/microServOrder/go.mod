@@ -8,6 +8,8 @@ replace github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase => ../micr
 
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain => ../mongoDBMain
 
+replace github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB => ../sqlDBMain
+
 require (
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway v0.0.0-20250320150048-d4656c7d783a
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-00010101000000-000000000000
@@ -15,6 +17,17 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/swaggo/swag v1.16.4
 	go.mongodb.org/mongo-driver/v2 v2.1.0
+)
+
+require (
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB v0.0.0-00010101000000-000000000000 // indirect
+	github.com/gin-contrib/cors v1.7.3 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
+	gorm.io/driver/mysql v1.5.7 // indirect
+	gorm.io/gorm v1.25.12 // indirect
 )
 
 require (
@@ -60,6 +73,5 @@ require (
 	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
-	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

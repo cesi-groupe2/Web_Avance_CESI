@@ -1,0 +1,219 @@
+basePath: /
+host: localhost:7001
+info:
+  contact:
+    email: benjamin.guerre@viacesi.fr
+    name: Groupe 2 FISA INFO A4 CESI (2025)
+    url: https://contact.easeat.fr
+  description: This is a microservice for managing authentication
+  title: Swagger Easeat Auth API
+  version: "1.0"
+paths:
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Logout the user
+      tags:
+      - auth
+  /auth/refreshToken:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Refresh the JWT token
+      parameters:
+      - description: Token
+        in: formData
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+        "401":
+          description: 'msg": "Token is required'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Refresh the JWT token
+      tags:
+      - auth
+  /auth/resetPwd/{userId}:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Reset password
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: New password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+        "400":
+          description: 'msg": "Password is required'
+          schema:
+            type: string
+        "401":
+          description: 'msg": "User not found !'
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Reset password
+      tags:
+      - auth
+  /public/forgotPassword:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Forgot password, send an email to the user
+      parameters:
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+        "400":
+          description: 'msg": "Email is required'
+          schema:
+            type: string
+        "401":
+          description: 'msg": "User not found !'
+          schema:
+            type: string
+      summary: Forgot password, send an email to the user
+      tags:
+      - public
+  /public/login:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Login a user
+      parameters:
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'user": model.User, "token": string'
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 'msg": "User not found !'
+          schema:
+            type: string
+      summary: Login a user
+      tags:
+      - public
+  /public/register:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Register a new user
+      parameters:
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Picture
+        in: formData
+        name: picture
+        type: string
+      - description: Firstname
+        in: formData
+        name: firstname
+        required: true
+        type: string
+      - description: Lastname
+        in: formData
+        name: lastname
+        required: true
+        type: string
+      - description: Phone
+        in: formData
+        name: phone
+        type: string
+      - description: Delivery adress
+        in: formData
+        name: deliveryAdress
+        type: string
+      - description: Facturation adress
+        in: formData
+        name: facturationAdress
+        type: string
+      - description: Role
+        in: formData
+        name: role
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'msg": "ok'
+          schema:
+            type: string
+        "400":
+          description: 'msg": "Role is required'
+          schema:
+            type: string
+      summary: Register a new user
+      tags:
+      - public
+securityDefinitions:
+  BearerAuth:
+    description: Use /login to get your token and use it here
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

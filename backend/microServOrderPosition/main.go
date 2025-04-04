@@ -1,12 +1,13 @@
 package main
 
-// command swag init -g orderPositionService.go -d services,../mongoDBMain
+// command swag init -g main.go -d ./,services,../mongoDBMain
 
 import (
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
-	_ "github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/docs"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/docs"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/roads"
-	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
 )
 
 // @title           Swagger Easeat Order position API
@@ -18,16 +19,26 @@ import (
 // @contact.email  benjamin.guerre@viacesi.fr
 
 // @host      localhost:8020
-// @BasePath  /
+// @BasePath  /orderPosition
 
-// @securityDefinitions.basic  BasicAuth
-func main() {
+// @SecurityDefinitions.apiKey BearerAuth
+// @in              header
+// @name            Authorization
+// @description     Use /login to get your token and use it here
+
+func main(){
 	microServBase := microservbase.MicroServMongo{}
 	microServBase.InitServer()
 	microServBase.InitDbClient()
-	roads.HandlerMicroServOrderPositionRoads(microServBase.Server, microServBase.Database)
+	orderPositionGroup := roads.HandlerMicroServOrderPositionRoads(microServBase.Server, microServBase.Database)
 
-	address := utils.GetEnvValueOrDefaultStr("ORDER_POSITION_SERVICE_HOST", "localhost")
-	port := utils.GetEnvValueOrDefaultStr("ORDER_POSITION_SERVICE_PORT", "8020")
+	address := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_POSITIONS_ADDR_ENV, "localhost")
+	portEnv := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_POSITIONS_PORT_ENV, "8003")
+	port, err := utils.GetAvailablePort(portEnv)
+	if err != nil {
+		panic(err)
+	}
+	docs.SwaggerInfo.Host = microServBase.InitSwagger(orderPositionGroup, address, port)
+
 	microServBase.RunServer(address, port)
 }

@@ -9,7 +9,11 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "Groupe 2 FISA INFO A4 CESI (2025)",
+            "url": "https://contact.easeat.fr",
+            "email": "benjamin.guerre@viacesi.fr"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -17,11 +21,20 @@ const docTemplate = `{
     "paths": {
         "/": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create an order",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Create an order",
                 "parameters": [
@@ -45,11 +58,20 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an order",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Update an order",
                 "parameters": [
@@ -75,11 +97,20 @@ const docTemplate = `{
         },
         "/all": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all orders",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Get all orders",
                 "parameters": [
@@ -106,13 +137,65 @@ const docTemplate = `{
                 }
             }
         },
-        "/nextStatus/{orderId}": {
-            "put": {
+        "/history/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get order history by user ID",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
+                ],
+                "summary": "Get order history by user ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/mongoModels.Order"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nextStatus/{orderId}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an order to the next status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Update an order to the next status",
                 "parameters": [
@@ -133,11 +216,20 @@ const docTemplate = `{
         },
         "/{orderId}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get order by id",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Get order by id",
                 "parameters": [
@@ -159,11 +251,20 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete an order",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Delete an order",
                 "parameters": [
@@ -229,17 +330,25 @@ const docTemplate = `{
                 "OrderStatusClosed"
             ]
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Use /login to get your token and use it here",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "2.0",
+	Host:             "localhost:8093",
+	BasePath:         "/order",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Swagger Easeat Order microservice API",
+	Description:      "This is a microservice for managing orders in the Easeat application.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

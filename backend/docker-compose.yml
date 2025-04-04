@@ -1,0 +1,122 @@
+services:
+  serviceauth:
+    build: 
+      context: .
+      dockerfile: ./microServAuth/Dockerfile
+    environment:
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
+      - AUTH_SERVICE_HOST=${AUTH_SERVICE_HOST}
+      - AUTH_SERVICE_PORT=${AUTH_SERVICE_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ADDRESS=${MYSQL_ADDRESS}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8001"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
+
+  serviceorder:
+    build:
+      context:  .
+      dockerfile: ./microServOrder/Dockerfile
+    environment:
+      - MICRO_SERV_ORDER_ADDR=${MICRO_SERV_ORDER_ADDR}
+      - MICRO_SERV_ORDER_PORT=${MICRO_SERV_ORDER_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - GMAIL_TOKEN=${GMAIL_TOKEN}
+      - GMAIL_ADDR=${GMAIL_ADDR}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8002"
+    deploy:
+      replicas: 1
+    networks:
+      - easeat-net   
+
+  serviceorderposition:
+    build: 
+      context:  .
+      dockerfile: ./microServOrderPosition/Dockerfile
+    environment:
+      - MICRO_SERV_ORDER_POSITIONS_ADDR=${MICRO_SERV_ORDER_POSITIONS_ADDR}
+      - MICRO_SERV_ORDER_POSITIONS_PORT=${MICRO_SERV_ORDER_POSITIONS_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8003"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
+
+  servicerestaurant:
+    build: 
+      context:  .
+      dockerfile: ./microServRestaurant/Dockerfile
+    environment:
+      - MICRO_SERV_RESTAURANT_ADDR=${MICRO_SERV_RESTAURANT_ADDR}
+      - MICRO_SERV_RESTAURANT_PORT=${MICRO_SERV_RESTAURANT_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ADDRESS=${MYSQL_ADDRESS}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8004"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
+  
+  serviceuser:
+    build: 
+      context:  .
+      dockerfile: ./microServUsers/Dockerfile
+    environment:
+      - MICRO_SERV_USERS_ADDR=${MICRO_SERV_USERS_ADDR}
+      - MICRO_SERV_USERS_PORT=${MICRO_SERV_USERS_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ADDRESS=${MYSQL_ADDRESS}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8005"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
+
+  gateway:
+    image: nginx:latest
+    container_name: gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./apiGateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - easeat-net
+    depends_on:
+      - serviceauth
+      - serviceorder
+      - serviceorderposition
+      - servicerestaurant
+      - serviceuser
+
+networks:
+  easeat-net:
+    external: true

@@ -1,17 +1,24 @@
-module microservrestaurant
+module github.com/cesi-groupe2/Web_Avance_CESI/backend/microservrestaurant
 
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway => ../apiGateway
 
 replace github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase => ../microServBase
 
-replace github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB => ../sqlDBMain
+replace github.com/cesi-groupe2/Web_Avance_CESI/backend/mongoDBMain => ../mongoDBMain
 
+replace github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB => ../sqlDBMain
 
 go 1.24.1
 
-require github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250324151936-4cadc3d7c343
+require (
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase v0.0.0-20250401104727-d352a7fb2f8d
+	github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB v0.0.0-00010101000000-000000000000
+)
 
-require github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB v0.0.0-00010101000000-000000000000 // indirect
+require (
+	github.com/gin-contrib/cors v1.7.3 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+)
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect

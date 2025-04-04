@@ -1,16 +1,34 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is a microservice for managing orders in the Easeat application.",
+        "title": "Swagger Easeat Order microservice API",
+        "contact": {
+            "name": "Groupe 2 FISA INFO A4 CESI (2025)",
+            "url": "https://contact.easeat.fr",
+            "email": "benjamin.guerre@viacesi.fr"
+        },
+        "version": "2.0"
     },
+    "host": "localhost:8093",
+    "basePath": "/order",
     "paths": {
         "/": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create an order",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Create an order",
                 "parameters": [
@@ -34,11 +52,20 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an order",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Update an order",
                 "parameters": [
@@ -64,11 +91,20 @@
         },
         "/all": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all orders",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Get all orders",
                 "parameters": [
@@ -95,13 +131,65 @@
                 }
             }
         },
-        "/nextStatus/{orderId}": {
-            "put": {
+        "/history/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get order history by user ID",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
+                ],
+                "summary": "Get order history by user ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/mongoModels.Order"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nextStatus/{orderId}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an order to the next status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Update an order to the next status",
                 "parameters": [
@@ -122,11 +210,20 @@
         },
         "/{orderId}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get order by id",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Get order by id",
                 "parameters": [
@@ -148,11 +245,20 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete an order",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "order"
                 ],
                 "summary": "Delete an order",
                 "parameters": [
@@ -217,6 +323,14 @@
                 "OrderStatusDelivered",
                 "OrderStatusClosed"
             ]
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Use /login to get your token and use it here",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
