@@ -207,3 +207,34 @@ func UpdateToNextStatus(ctx *gin.Context, database *mongo.Database) {
 	// Return the order
 	ctx.JSON(200, order)
 }
+
+// GetHistoryOrderByUserId godoc
+// @Summary Get order history by user ID
+// @Description Get order history by user ID
+// @Tags order
+// @Security BearerAuth
+// @Accept  json
+// @Produce  json
+// @Param userId path string true "User ID"
+// @Success 200 {array} []mongoModels.Order
+// @Router /history/{userId} [get]
+func GetHistoryOrderByUserId(ctx *gin.Context, database *mongo.Database) {
+	userId := ctx.Param("userId")
+	userIdInt, err := strconv.Atoi(userId)
+	if err != nil {
+		log.Printf("Error converting user ID to int: %v", err)
+		ctx.JSON(400, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// get the order
+	orders, err := mongoModels.GetOrderByUserId(ctx, database, userIdInt)
+	if err != nil {
+		log.Printf("Error getting order: %v", err)
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return the order
+	ctx.JSON(200, orders)
+}

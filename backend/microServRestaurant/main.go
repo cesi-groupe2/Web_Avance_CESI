@@ -6,7 +6,7 @@ import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
-	_ "github.com/cesi-groupe2/Web_Avance_CESI/backend/microservrestaurant/docs"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microservrestaurant/docs"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microservrestaurant/roads"
 )
 
@@ -31,8 +31,13 @@ func main() {
 	microservrestaurant.InitServer()
 	microservrestaurant.InitDbClient()
 	restaurantGroup := roads.HandlerMicroServRestaurantRoads(microservrestaurant.Server, microservrestaurant.DbCient)
-	microservrestaurant.InitSwagger(restaurantGroup)
-	microservrestaurant.RunServer(
-		utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_RESTAURANT_ADDR_ENV, "localhost"), 
-		utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_RESTAURANT_PORT_ENV, "8004"))
+
+	address := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_RESTAURANT_ADDR_ENV, "localhost")
+	portEnv := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_RESTAURANT_PORT_ENV, "8004")
+	port, err := utils.GetAvailablePort(portEnv)
+	if err != nil {
+		panic(err)
+	}
+	docs.SwaggerInfo.Host = microservrestaurant.InitSwagger(restaurantGroup, address, port)
+	microservrestaurant.RunServer(address, port)
 }

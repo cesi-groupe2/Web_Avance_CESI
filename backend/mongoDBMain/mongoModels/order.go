@@ -92,3 +92,28 @@ func GetAllOrder(ctx *gin.Context, database *mongo.Database, limit int) ([]Order
 	return orders, nil
 }
 
+func GetOrderByUserId(ctx *gin.Context, database *mongo.Database, userId int) ([]Order, error) {
+	// get all orders by user id
+	filter := bson.D{{Key: "customer_id", Value: userId}}
+	opts := options.Find()
+	cursor, err := database.Collection(constants.MONGO_ORDERS_COLLECTION).Find(ctx, filter, opts)
+	if err != nil {
+		err = fmt.Errorf("Error finding documents: %v", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// Iterate over documents
+	var orders []Order
+	for cursor.Next(ctx) {
+		var order Order
+		if err := cursor.Decode(&order); err != nil {
+			err = fmt.Errorf("Error decoding document: %v", err)
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+
+	// Return the orders
+	return orders, nil
+}

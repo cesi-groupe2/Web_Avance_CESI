@@ -5,7 +5,7 @@ package main
 import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
-	_ "github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/docs"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/docs"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microSerOrderPosition/roads"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
 )
@@ -31,8 +31,14 @@ func main(){
 	microServBase.InitServer()
 	microServBase.InitDbClient()
 	orderPositionGroup := roads.HandlerMicroServOrderPositionRoads(microServBase.Server, microServBase.Database)
-	microServBase.InitSwagger(orderPositionGroup)
+
 	address := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_POSITIONS_ADDR_ENV, "localhost")
-	port := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_POSITIONS_PORT_ENV, "8003")
+	portEnv := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_ORDER_POSITIONS_PORT_ENV, "8003")
+	port, err := utils.GetAvailablePort(portEnv)
+	if err != nil {
+		panic(err)
+	}
+	docs.SwaggerInfo.Host = microServBase.InitSwagger(orderPositionGroup, address, port)
+
 	microServBase.RunServer(address, port)
 }
