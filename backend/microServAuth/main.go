@@ -10,19 +10,19 @@ import (
 	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase" // swagger embed files
 )
 
-// @title           Swagger Easeat Auth API
-// @version         1.0
-// @description     This is a microservice for managing authentication
-// @contact.name    Groupe 2 FISA INFO A4 CESI (2025)
-// @contact.url     https://contact.easeat.fr
-// @contact.email   benjamin.guerre@viacesi.fr
-// @host            localhost:7001
-// @BasePath        /
+//	@title			Swagger Easeat Auth API
+//	@version		1.0
+//	@description	This is a microservice for managing authentication
+//	@contact.name	Groupe 2 FISA INFO A4 CESI (2025)
+//	@contact.url	https://contact.easeat.fr
+//	@contact.email	benjamin.guerre@viacesi.fr
+//	@host			localhost:7001
+//	@BasePath		/
 
-// @SecurityDefinitions.apiKey BearerAuth
-// @in              header
-// @name            Authorization
-// @description     Use /login to get your token and use it here
+//	@SecurityDefinitions.apiKey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Use /login to get your token and use it here
 
 func main() {
 	microservAuth := microservbase.MicroServMySql{}

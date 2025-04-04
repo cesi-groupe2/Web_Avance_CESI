@@ -1,4 +1,12 @@
 basePath: /
+definitions:
+  handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
 host: localhost:7001
 info:
   contact:
@@ -18,7 +26,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'msg": "ok'
+          description: "msg\":\t\"ok"
           schema:
             type: string
       security:
@@ -41,11 +49,11 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'msg": "ok'
+          description: "msg\":\t\"ok"
           schema:
             type: string
         "401":
-          description: 'msg": "Token is required'
+          description: "msg\":\t\"Token is required"
           schema:
             type: string
       security:
@@ -73,20 +81,79 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'msg": "ok'
+          description: "msg\":\t\"ok"
           schema:
             type: string
         "400":
-          description: 'msg": "Password is required'
+          description: "msg\":\t\"Password is required"
           schema:
             type: string
         "401":
-          description: 'msg": "User not found !'
+          description: "msg\":\t\"User not found !"
           schema:
             type: string
       security:
       - BearerAuth: []
       summary: Reset password
+      tags:
+      - auth
+  /canAccess/{roleId}:
+    get:
+      consumes:
+      - application/json
+      description: Check if the user has the right role
+      parameters:
+      - description: Role id
+        in: path
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+      summary: Check if the user has the right role
+      tags:
+      - middlewares
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: Login request
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Login
       tags:
       - auth
   /public/forgotPassword:
@@ -104,15 +171,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'msg": "ok'
+          description: "msg\":\t\"ok"
           schema:
             type: string
         "400":
-          description: 'msg": "Email is required'
+          description: "msg\":\t\"Email is required"
           schema:
             type: string
         "401":
-          description: 'msg": "User not found !'
+          description: "msg\":\t\"User not found !"
           schema:
             type: string
       summary: Forgot password, send an email to the user
@@ -138,12 +205,12 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'user": model.User, "token": string'
+          description: "user\":\tmodel.User,\t\"token\":\tstring"
           schema:
             additionalProperties: true
             type: object
         "401":
-          description: 'msg": "User not found !'
+          description: "msg\":\t\"User not found !"
           schema:
             type: string
       summary: Login a user
@@ -200,11 +267,11 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'msg": "ok'
+          description: "msg\":\t\"ok"
           schema:
             type: string
         "400":
-          description: 'msg": "Role is required'
+          description: "msg\":\t\"Role is required"
           schema:
             type: string
       summary: Register a new user

@@ -11,16 +11,16 @@ import (
 )
 
 // ForgotPassword godoc
-// @Summary Forgot password, send an email to the user
-// @Description Forgot password, send an email to the user
-// @Tags public
-// @Accept  application/x-www-form-urlencoded
-// @Produce  json
-// @Param email formData string true "Email"
-// @Success 200 {string} string "msg": "ok"
-// @Failure 400 {string} string "msg": "Email is required"
-// @Failure 401 {string} string "msg": "User not found !"
-// @Router /public/forgotPassword [post]
+//	@Summary		Forgot password, send an email to the user
+//	@Description	Forgot password, send an email to the user
+//	@Tags			public
+//	@Accept			application/x-www-form-urlencoded
+//	@Produce		json
+//	@Param			email	formData	string	true	"Email"
+//	@Success		200		{string}	string	"msg":	"ok"
+//	@Failure		400		{string}	string	"msg":	"Email is required"
+//	@Failure		401		{string}	string	"msg":	"User not found !"
+//	@Router			/public/forgotPassword [post]
 func ForgotPassword(ctx *gin.Context, db *gorm.DB) {
 	email := ctx.PostForm("email")
 	if email == "" {
@@ -57,18 +57,18 @@ func ForgotPassword(ctx *gin.Context, db *gorm.DB) {
 }
 
 // ResetPwd godoc
-// @Summary Reset password
-// @Description Reset password 
-// @Tags auth
-// @Accept  application/x-www-form-urlencoded
-// @Produce  json
-// @Param userId path int true "User ID"
-// @Param password formData string true "New password"
-// @Success 200 {string} string "msg": "ok"
-// @Failure 400 {string} string "msg": "Password is required"
-// @Failure 401 {string} string "msg": "User not found !"
-// @Router /auth/resetPwd/{userId} [post]
-// @Security BearerAuth
+//	@Summary		Reset password
+//	@Description	Reset password 
+//	@Tags			auth
+//	@Accept			application/x-www-form-urlencoded
+//	@Produce		json
+//	@Param			userId		path		int		true	"User ID"
+//	@Param			password	formData	string	true	"New password"
+//	@Success		200			{string}	string	"msg":	"ok"
+//	@Failure		400			{string}	string	"msg":	"Password is required"
+//	@Failure		401			{string}	string	"msg":	"User not found !"
+//	@Router			/auth/resetPwd/{userId} [post]
+//	@Security		BearerAuth
 func ResetPwd(ctx *gin.Context, db *gorm.DB) {
 	// Get the user ID from the URL
 	userIdStr := ctx.Param("userId")

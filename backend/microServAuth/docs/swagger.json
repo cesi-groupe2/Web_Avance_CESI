@@ -33,7 +33,7 @@
                 "summary": "Logout the user",
                 "responses": {
                     "200": {
-                        "description": "msg\": \"ok",
+                        "description": "msg\":\t\"ok",
                         "schema": {
                             "type": "string"
                         }
@@ -70,13 +70,13 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "msg\": \"ok",
+                        "description": "msg\":\t\"ok",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
-                        "description": "msg\": \"Token is required",
+                        "description": "msg\":\t\"Token is required",
                         "schema": {
                             "type": "string"
                         }
@@ -120,19 +120,109 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "msg\": \"ok",
+                        "description": "msg\":\t\"ok",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "msg\": \"Password is required",
+                        "description": "msg\":\t\"Password is required",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
-                        "description": "msg\": \"User not found !",
+                        "description": "msg\":\t\"User not found !",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/canAccess/{roleId}": {
+            "get": {
+                "description": "Check if the user has the right role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "middlewares"
+                ],
+                "summary": "Check if the user has the right role",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role id",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Login",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "Login request",
+                        "name": "loginRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "string"
                         }
@@ -164,19 +254,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "msg\": \"ok",
+                        "description": "msg\":\t\"ok",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "msg\": \"Email is required",
+                        "description": "msg\":\t\"Email is required",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
-                        "description": "msg\": \"User not found !",
+                        "description": "msg\":\t\"User not found !",
                         "schema": {
                             "type": "string"
                         }
@@ -215,14 +305,14 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "user\": model.User, \"token\": string",
+                        "description": "user\":\tmodel.User,\t\"token\":\tstring",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "401": {
-                        "description": "msg\": \"User not found !",
+                        "description": "msg\":\t\"User not found !",
                         "schema": {
                             "type": "string"
                         }
@@ -306,17 +396,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "msg\": \"ok",
+                        "description": "msg\":\t\"ok",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "msg\": \"Role is required",
+                        "description": "msg\":\t\"Role is required",
                         "schema": {
                             "type": "string"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         }

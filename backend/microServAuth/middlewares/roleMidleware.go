@@ -8,15 +8,15 @@ import (
 )
 
 // CanAccessMiddleware godoc
-// @Summary Check if the user has the right role
-// @Description Check if the user has the right role
-// @Tags middlewares
-// @Accept json
-// @Produce json
-// @Param roleId path int true "Role id"
-// @Success 200 {string} string
-// @Failure 403 {string} string
-// @Router /canAccess/{roleId} [get]
+//	@Summary		Check if the user has the right role
+//	@Description	Check if the user has the right role
+//	@Tags			middlewares
+//	@Accept			json
+//	@Produce		json
+//	@Param			roleId	path		int	true	"Role id"
+//	@Success		200		{string}	string
+//	@Failure		403		{string}	string
+//	@Router			/canAccess/{roleId} [get]
 func CanAccessMiddleware(ctx *gin.Context) bool {
 	roleIdStr := ctx.Param("roleId")
 	id, err := strconv.Atoi(roleIdStr)

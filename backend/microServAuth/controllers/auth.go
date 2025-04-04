@@ -17,25 +17,25 @@ import (
 )
 
 // Register godoc
-// @Summary Register a new user
-// @Description Register a new user
-// @Tags public
-// @Accept  application/x-www-form-urlencoded
-// @Produce  json
-// @Param email formData string true "Email"
-// @Param password formData string true "Password"
-// @Param picture formData string false "Picture"
-// @Param firstname formData string true "Firstname"
-// @Param lastname formData string true "Lastname"
-// @Param phone formData string false "Phone"
-// @Param deliveryAdress formData string false "Delivery adress"
-// @Param facturationAdress formData string false "Facturation adress"
-// @Param role formData string true "Role"
-// @Success 200 {string} string	"msg": "ok"
-// @Failure 400 {string} string	"msg": "Email is required"
-// @Failure 400 {string} string	"msg": "Password is required"
-// @Failure 400 {string} string	"msg": "Role is required"
-// @Router /public/register [post]
+//	@Summary		Register a new user
+//	@Description	Register a new user
+//	@Tags			public
+//	@Accept			application/x-www-form-urlencoded
+//	@Produce		json
+//	@Param			email				formData	string	true	"Email"
+//	@Param			password			formData	string	true	"Password"
+//	@Param			picture				formData	string	false	"Picture"
+//	@Param			firstname			formData	string	true	"Firstname"
+//	@Param			lastname			formData	string	true	"Lastname"
+//	@Param			phone				formData	string	false	"Phone"
+//	@Param			deliveryAdress		formData	string	false	"Delivery adress"
+//	@Param			facturationAdress	formData	string	false	"Facturation adress"
+//	@Param			role				formData	string	true	"Role"
+//	@Success		200					{string}	string	"msg":	"ok"
+//	@Failure		400					{string}	string	"msg":	"Email is required"
+//	@Failure		400					{string}	string	"msg":	"Password is required"
+//	@Failure		400					{string}	string	"msg":	"Role is required"
+//	@Router			/public/register [post]
 func Register(ctx *gin.Context, db *gorm.DB) {
 	// Create a new user
 	email := ctx.PostForm("email")
@@ -100,16 +100,16 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 }
 
 // Login godoc
-// @Summary Login a user
-// @Description Login a user
-// @Tags public
-// @Accept  application/x-www-form-urlencoded
-// @Produce  json
-// @Param email formData string true "Email"
-// @Param password formData string true "Password"
-// @Success 200 {object} map[string]interface{} "user": model.User, "token": string
-// @Failure 401 {string} string "msg": "User not found !"
-// @Router /public/login [post]
+//	@Summary		Login a user
+//	@Description	Login a user
+//	@Tags			public
+//	@Accept			application/x-www-form-urlencoded
+//	@Produce		json
+//	@Param			email		formData	string					true	"Email"
+//	@Param			password	formData	string					true	"Password"
+//	@Success		200			{object}	map[string]interface{}	"user":	model.User,	"token":	string
+//	@Failure		401			{string}	string					"msg":	"User not found !"
+//	@Router			/public/login [post]
 func Login(ctx *gin.Context, db *gorm.DB) {
 	var currentUser model.User
 
@@ -165,16 +165,16 @@ func Login(ctx *gin.Context, db *gorm.DB) {
 } 
 
 // RefreshToken godoc
-// @Summary Refresh the JWT token
-// @Description Refresh the JWT token
-// @Tags auth
-// @Security BearerAuth
-// @Accept  application/x-www-form-urlencoded
-// @Produce  json
-// @Param token formData string true "Token"
-// @Success 200 {string} string "msg": "ok"
-// @Failure 401 {string} string "msg": "Token is required"
-// @Router /auth/refreshToken [post]
+//	@Summary		Refresh the JWT token
+//	@Description	Refresh the JWT token
+//	@Tags			auth
+//	@Security		BearerAuth
+//	@Accept			application/x-www-form-urlencoded
+//	@Produce		json
+//	@Param			token	formData	string	true	"Token"
+//	@Success		200		{string}	string	"msg":	"ok"
+//	@Failure		401		{string}	string	"msg":	"Token is required"
+//	@Router			/auth/refreshToken [post]
 func RefreshToken(ctx *gin.Context) {
 	token := ctx.PostForm("token")
 	if token == "" {
@@ -206,14 +206,14 @@ func RefreshToken(ctx *gin.Context) {
 }
 
 // Logout godoc
-// @Summary Logout the user
-// @Description Logout the user
-// @Tags auth
-// @Security BearerAuth
-// @Accept  json
-// @Produce  json
-// @Success 200 {string} string "msg": "ok"
-// @Router /auth/logout [post]
+//	@Summary		Logout the user
+//	@Description	Logout the user
+//	@Tags			auth
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{string}	string	"msg":	"ok"
+//	@Router			/auth/logout [post]
 func Logout(ctx *gin.Context) {
 	session.DeleteUserSession(ctx)
 	ctx.JSON(200, "ok")
