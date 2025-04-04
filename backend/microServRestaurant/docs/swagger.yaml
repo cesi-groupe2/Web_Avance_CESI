@@ -1,3 +1,4 @@
+basePath: /restaurant
 definitions:
   model.Menuitem:
     properties:
@@ -35,8 +36,15 @@ definitions:
       picture:
         type: string
     type: object
+host: localhost:8052
 info:
-  contact: {}
+  contact:
+    email: benjamin.guerre@viacesi.fr
+    name: Groupe 2 FISA INFO A4 CESI (2025)
+    url: https://contact.easeat.fr
+  description: This is a microservice for managing restaurants
+  title: Swagger Easeat restaurant microservice
+  version: "2.0"
 paths:
   /restaurant/{restaurantId}:
     get:
@@ -62,6 +70,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get a restaurant by its id
       tags:
       - restaurant
@@ -91,6 +101,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get menu items by restaurant id
       tags:
       - restaurant
@@ -101,17 +113,17 @@ paths:
       description: Get nearby restaurants from the user's location
       parameters:
       - description: Latitude of the user
-        in: formData
+        in: path
         name: latitude
         required: true
         type: string
       - description: Longitude of the user
-        in: formData
+        in: path
         name: longitude
         required: true
         type: string
-      - description: Km around the user
-        in: formData
+      - description: Distance around the user in km
+        in: path
         name: kmAround
         required: true
         type: string
@@ -130,7 +142,15 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get nearby restaurants
       tags:
       - restaurant
+securityDefinitions:
+  BearerAuth:
+    description: Use /login to get your token and use it here
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
