@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../../components/Header";
@@ -143,7 +143,17 @@ const FeatureCardText = styled.p`
 
 const WebPageDAccueil = () => {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { isAuthenticated, currentUser, token } = useAuth();
+
+  useEffect(() => {
+    console.log("État d'authentification sur la page d'accueil:", { 
+      isAuthenticated, 
+      currentUser, 
+      token,
+      tokenInStorage: localStorage.getItem("token"),
+      userInStorage: localStorage.getItem("currentUser")
+    });
+  }, [isAuthenticated, currentUser, token]);
 
   return (
     <HomeContainer>

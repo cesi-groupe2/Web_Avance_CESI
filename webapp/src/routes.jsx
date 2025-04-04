@@ -9,6 +9,10 @@ import RestaurantList from "./pages/Restaurant/List/RestaurantList";
 import RestaurantDetails from "./pages/Restaurant/Details/RestaurantDetails";
 import Checkout from "./pages/Order/Checkout/Checkout";
 import Tracking from "./pages/Order/Tracking/Tracking";
+import Profile from "./pages/User/Profile/Profile";
+import OrderHistory from "./pages/User/Orders/OrderHistory";
+import Cart from "./pages/Order/Cart/Cart";
+import Favorites from "./pages/User/Favorites/Favorites";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./contexts/AuthContext";
@@ -26,6 +30,11 @@ const AppRoutes = () => {
       <Route path="/restaurant/:id" element={<RestaurantDetails />} />
       
       <Route
+        path="/cart"
+        element={<Cart />}
+      />
+      
+      <Route
         path="/order/checkout"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
@@ -39,6 +48,33 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
             <Tracking />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <OrderHistory />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/favorites"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <Favorites />
           </ProtectedRoute>
         }
       />
