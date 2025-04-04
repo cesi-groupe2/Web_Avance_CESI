@@ -91,6 +91,15 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 		CreatedAt:         time.Now(),
 	}
 
+	// Generate a sponsorship code
+	sponsorshipCode, err := authservices.GenerateSponsorShipsCode(db, newUser)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(500, "Error generating sponsorship code")
+		return
+	}
+	newUser.SponsorshipCode = sponsorshipCode
+
 	result = db.Create(&newUser)
 	if result.Error != nil {
 		log.Println(result.Error)
