@@ -1,0 +1,17 @@
+.add-product-button {
+    position: fixed;
+    bottom: 90px;
+    right: 16px;
+    background-color: #f3c141;
+    border: none;
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    cursor: pointer;
+  }
+  

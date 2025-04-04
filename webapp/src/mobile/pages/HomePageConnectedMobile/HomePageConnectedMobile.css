@@ -1,0 +1,43 @@
+/* Search input */
+.search-mobile {
+    width: 90%;
+    margin: 1.5rem auto;
+    display: block;
+    padding: 0.9rem 1rem;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+  }
+  
+  /* Carousel title */
+  .carousel-title {
+    font-weight: bold;
+    font-size: 18px;
+    padding: 0 1.2rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  /* Card for each restaurant */
+  .carousel-card {
+    min-width: 150px;
+    background: #fff;
+    border-radius: 12px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .carousel-card img {
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    object-fit: cover;
+    height: 100px;
+  }
+
+  /* remove bg */
+  .mobile-layout-background {
+    background: none;
+  }
+  
