@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +17,7 @@ func GenerateSponsorShipsCode(db *gorm.DB, user model.User) (string, error) {
 
 	// Check if the code already exists in the database
 	var userWithExistingCode model.User
-	result := db.Where(fmt.Sprintf("%s = ?", model.SponsorshipCodeColumn), code).First(&userWithExistingCode)
+	result := db.Where(fmt.Sprintf("%s = ?", columns.UserColumnSponsorshipCode), code).First(&userWithExistingCode)
 	if result.Error == nil || result.RowsAffected > 0 {
 		// Code already exists, generate a new one
 		return GenerateSponsorShipsCode(db, user)

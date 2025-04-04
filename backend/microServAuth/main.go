@@ -16,7 +16,7 @@ import (
 //	@contact.name	Groupe 2 FISA INFO A4 CESI (2025)
 //	@contact.url	https://contact.easeat.fr
 //	@contact.email	benjamin.guerre@viacesi.fr
-//	@host			localhost:7001
+//	@host			localhost:8001
 //	@BasePath		/
 
 //	@SecurityDefinitions.apiKey	BearerAuth

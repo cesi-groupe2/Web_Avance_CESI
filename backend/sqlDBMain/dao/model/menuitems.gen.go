@@ -21,7 +21,6 @@ type Menuitem struct {
 	IDRestaurant int32     `gorm:"column:id_restaurant;not null" json:"id_restaurant"`
 }
 
-// TableName Menuitem's table name
 func (*Menuitem) TableName() string {
 	return TableNameMenuitem
 }

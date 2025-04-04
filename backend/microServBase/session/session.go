@@ -9,8 +9,12 @@ func SetUserSession(ctx *gin.Context, user model.User) {
 	ctx.Set("user", user)
 }
 
-func GetUserSession(ctx *gin.Context) model.User {
-	return ctx.MustGet("user").(model.User)
+func GetUserSession(ctx *gin.Context) (model.User, error) {
+	user := ctx.MustGet("user").(model.User)
+	if user.IDUser == 0 {
+		return model.User{}, nil
+	} 
+	return user, nil
 }
 
 func DeleteUserSession(ctx *gin.Context) {

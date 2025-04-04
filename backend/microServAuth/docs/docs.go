@@ -146,9 +146,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/canAccess/{roleId}": {
+        "/myCode": {
             "get": {
-                "description": "Check if the user has the right role",
+                "description": "Get my sponsorship code",
                 "consumes": [
                     "application/json"
                 ],
@@ -156,79 +156,18 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "middlewares"
+                    "sponso"
                 ],
-                "summary": "Check if the user has the right role",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Role id",
-                        "name": "roleId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Get my sponsorship code",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/login": {
-            "post": {
-                "description": "Login",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Login",
-                "parameters": [
-                    {
-                        "description": "Login request",
-                        "name": "loginRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handlers.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                        "description": "msg\":\t\"ok",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
+                        "description": "msg\":\t\"User not found in session",
                         "schema": {
                             "type": "string"
                         }
@@ -415,17 +354,42 @@ const docTemplate = `{
                     }
                 }
             }
-        }
-    },
-    "definitions": {
-        "handlers.LoginRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
+        },
+        "/{code}": {
+            "get": {
+                "description": "Sponsorise a user with sponsorship code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sponso"
+                ],
+                "summary": "Sponsorise a user by code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sponsorship code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "msg\":\t\"ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "msg\":\t\"User not found in session",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         }
@@ -443,7 +407,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:7001",
+	Host:             "localhost:8001",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Swagger Easeat Auth API",

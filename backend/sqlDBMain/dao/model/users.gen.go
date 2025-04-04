@@ -24,23 +24,8 @@ type User struct {
 	FacturationAdress string    `gorm:"column:facturation_adress" json:"facturation_adress"`
 	IDRole            int32     `gorm:"column:id_role" json:"id_role"`
 	SponsorshipCode   string    `gorm:"column:sponsorship_code" json:"sponsorship_code"`
+	AlreadySponsored  bool      `gorm:"column:already_sponsored" json:"already_sponsored"`
 }
-
-// Column names for Restaurant defined as constants for consistency and immutability.
-const (
-	IDUserColumn            = "id_user"
-	EmailColumn             = "email"
-	PasswordHashColumn      = "password_hash"
-	ProfilPictureColumn     = "profil_picture"
-	FirstNameColumn         = "first_name"
-	LastNameColumn          = "last_name"
-	PhoneColumn             = "phone"
-	CreatedAtColumn         = "created_at"
-	DeliveryAdressColumn    = "delivery_adress"
-	FacturationAdressColumn = "facturation_adress"
-	IDRoleColumn            = "id_role"
-	SponsorshipCodeColumn   = "sponsorship_code"
-)
 
 // TableName User's table name
 func (*User) TableName() string {

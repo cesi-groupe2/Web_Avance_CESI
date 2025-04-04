@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
 )
 
 // GetNearbyRestaurants godoc
@@ -48,8 +49,8 @@ func GetNearbyRestaurants(ctx *gin.Context, db *gorm.DB) {
 	}
 
 	var nearbyRestaurants []model.Restaurant
-	db.Where(fmt.Sprintf("%s BETWEEN ? AND ?", model.RestaurantColumnLocalisationLatitude), userLatitude-kmAround, userLatitude+kmAround).
-		Where(fmt.Sprintf("%s BETWEEN ? AND ?", model.RestaurantColumnLocalisationLongitude), userLongitude-kmAround, userLongitude+kmAround).
+	db.Where(fmt.Sprintf("%s BETWEEN ? AND ?", columns.RestaurantColumnLocalisationLatitude), userLatitude-kmAround, userLatitude+kmAround).
+		Where(fmt.Sprintf("%s BETWEEN ? AND ?", columns.RestaurantColumnLocalisationLongitude), userLongitude-kmAround, userLongitude+kmAround).
 		Find(&nearbyRestaurants)
 
 	ctx.JSON(200, nearbyRestaurants)
@@ -92,6 +93,6 @@ func GetRestaurantById(ctx *gin.Context, db *gorm.DB) {
 func GetMenuItemsByRestaurantId(ctx *gin.Context, db *gorm.DB) {
 	restaurantId := ctx.Param("restaurantId")
 	var menuItems []model.Menuitem
-	db.Where(model.MenuitemColumnIDRestaurant+" = ?", restaurantId).Find(&menuItems)
+	db.Where(columns.MenuitemColumnCreatedAtColumn+" = ?", restaurantId).Find(&menuItems)
 	ctx.JSON(200, menuItems)
 }
