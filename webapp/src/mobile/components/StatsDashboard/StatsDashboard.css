@@ -1,0 +1,23 @@
+.stats-dashboard {
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem;
+    background: #fefef3;
+    margin: 0 1rem 1rem;
+    border-radius: 10px;
+  }
+  
+  .stat-box {
+    text-align: center;
+  }
+  
+  .stat-label {
+    font-size: 13px;
+    color: #777;
+  }
+  
+  .stat-value {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  

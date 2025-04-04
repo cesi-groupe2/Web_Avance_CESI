@@ -1,23 +1,40 @@
 import React from 'react';
+import { useKeenSlider } from 'keen-slider/react';
+import 'keen-slider/keen-slider.min.css';
 import './RestaurantCarousel.css';
 
-const RestaurantCarousel = ({ title, restaurants }) => {
+const RestaurantCarousel = ({ restaurants }) => {
+  const [sliderRef] = useKeenSlider({
+    loop: true,
+    mode: 'snap',
+    slides: { perView: 1.5, spacing: 15 },
+    breakpoints: {
+      '(min-width: 768px)': {
+        slides: { perView: 3, spacing: 20 },
+      },
+    },
+  });
+
   return (
-    <div className="carousel-container">
-      <h3 className="carousel-title">{title}</h3>
-      <div className="carousel-scroll">
-        {restaurants.map((resto) => (
-          <div key={resto.id} className="carousel-card">
-            <img src={resto.image} alt={resto.nom} />
-            <p className="resto-title">{resto.nom}</p>
-            <p className="resto-sub">
-              livraison à {resto.prix} – {resto.temps}
-              <br />
-              {resto.note} ★ ({resto.avis}+)
+    <div ref={sliderRef} className="keen-slider">
+      {restaurants.map((restaurant) => (
+        <a
+          key={restaurant.id}
+          href={`/restaurant/${restaurant.id}`}
+          className="keen-slider__slide carousel-card"
+        >
+          <img src={restaurant.image} alt={restaurant.nom} className="carousel-image" />
+          <div className="carousel-info">
+            <h3 className="carousel-title">{restaurant.nom}</h3>
+            <p className="carousel-details">
+              Livraison à {restaurant.prix} – {restaurant.temps}
+            </p>
+            <p className="carousel-rating">
+              {restaurant.note} ★ ({restaurant.avis}+)
             </p>
           </div>
-        ))}
-      </div>
+        </a>
+      ))}
     </div>
   );
 };

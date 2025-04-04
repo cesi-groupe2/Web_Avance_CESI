@@ -11,27 +11,12 @@
     background-color: #fff;
   }
   
-  /* Carousel container spacing */
-  .carousel-container {
-    margin-bottom: 2.5rem;
-  }
-  
   /* Carousel title */
   .carousel-title {
     font-weight: bold;
     font-size: 18px;
     padding: 0 1.2rem;
     margin-bottom: 0.6rem;
-  }
-  
-  /* Scrollable row of restaurants */
-  .carousel-scroll {
-    display: flex;
-    gap: 12px;
-    padding: 0 1.2rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
   }
   
   /* Card for each restaurant */
@@ -50,18 +35,9 @@
     object-fit: cover;
     height: 100px;
   }
-  
-  .resto-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0.5rem 0 0.2rem;
-    padding: 0 0.5rem;
-  }
-  
-  .resto-sub {
-    font-size: 12px;
-    color: #444;
-    line-height: 1.3;
-    padding: 0 0.5rem 0.8rem;
+
+  /* remove bg */
+  .mobile-layout-background {
+    background: none;
   }
   
