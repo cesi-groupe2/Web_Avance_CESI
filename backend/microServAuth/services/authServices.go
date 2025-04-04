@@ -7,6 +7,7 @@ import (
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -56,4 +57,16 @@ func UpdatePassword(user model.User, newPassword string, db *gorm.DB) error {
 		return errors.New("failed to update password: " + result.Error.Error())
 	}
 	return nil
+}
+
+func EmailAlreadyUsed(db *gorm.DB, email string) (bool, error) {
+	var user model.User
+	result := db.Where(fmt.Sprintf("%s = ?", columns.UserColumnEmail), email).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return false, nil // Email not found
+		}
+		return false, result.Error // Some other error occurred
+	}
+	return true, nil // Email already used
 }
