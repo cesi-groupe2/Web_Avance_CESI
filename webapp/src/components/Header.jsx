@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import PropTypes from "prop-types";
@@ -338,13 +338,19 @@ const FavoritesButton = styled(Link)`
 `;
 
 const Header = () => {
-  const { currentUser, token, logout } = useAuth();
+  const { currentUser, token, isAuthenticated, logout } = useAuth();
   const { cartItems = [] } = useCart() || { cartItems: [] };
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const isAuthenticated = !!token && !!currentUser;
+  useEffect(() => {
+    console.log("Header Auth State Updated:", { 
+      isAuthenticated, 
+      token: token ? "exists" : "missing", 
+      currentUser: currentUser ? `${currentUser.FirstName} ${currentUser.LastName}` : "missing" 
+    });
+  }, [isAuthenticated, token, currentUser]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -373,8 +379,6 @@ const Header = () => {
     navigate("/");
   };
 
-  console.log("Auth State:", { isAuthenticated, currentUser, token });
-
   return (
     <HeaderContainer>
       <HeaderContent>
@@ -391,11 +395,9 @@ const Header = () => {
                 <CartIcon />
                 {cartItems.length > 0 && <CartBadge>{cartItems.length}</CartBadge>}
               </CartButton>
-              {isAuthenticated && (
-                <FavoritesButton to="/favorites">
-                  <FiHeart />
-                </FavoritesButton>
-              )}
+              <FavoritesButton to="/favorites">
+                <FiHeart />
+              </FavoritesButton>
               <UserMenu>
                 <UserMenuButton onClick={toggleUserMenu}>
                   {currentUser?.FirstName || "Mon Profil"}

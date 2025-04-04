@@ -143,6 +143,17 @@ const Login = () => {
     setFormError("");
 
     try {
+      // Valider les données du formulaire
+      if (!formData.email || !formData.password) {
+        throw new Error("Veuillez remplir tous les champs");
+      }
+
+      // Email valide ?
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        throw new Error("Veuillez entrer une adresse email valide");
+      }
+
       // Utiliser la fonction login du contexte d'authentification
       const result = await login(formData.email, formData.password);
       console.log("Résultat de la connexion:", result);
@@ -150,10 +161,22 @@ const Login = () => {
       if (result && result.user) {
         console.log("Utilisateur connecté:", result.user);
         setLoginSuccessful(true);
+      } else {
+        throw new Error("Échec de la connexion: informations utilisateur manquantes");
       }
     } catch (err) {
       console.error("Erreur de connexion:", err);
-      setFormError(err.message || "Une erreur est survenue lors de la connexion");
+      
+      // Gestion d'erreurs plus précise
+      if (err.status === 401) {
+        setFormError("Email ou mot de passe incorrect");
+      } else if (err.status === 404) {
+        setFormError("Utilisateur introuvable");
+      } else if (err.message) {
+        setFormError(err.message);
+      } else {
+        setFormError("Une erreur est survenue lors de la connexion");
+      }
     } finally {
       setLoading(false);
     }

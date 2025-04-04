@@ -6,6 +6,7 @@ import Button from "../../../components/Button";
 import { useAuth } from "../../../contexts/AuthContext";
 import logo from "../../../assets/logo.png";
 import { FiArrowLeft } from "react-icons/fi";
+import ModelUser from "../../../model/ModelUser";
 
 const RegisterContainer = styled.div`
   display: flex;
@@ -161,8 +162,10 @@ const Register = () => {
     firstName: "",
     lastName: "",
     phone: "",
-    deliveryAddress: "",
-    facturationAddress: "",
+    street: "",
+    postalCode: "",
+    city: "",
+    additionalInfo: "",
     role: "1", // 1 = client par défaut
   });
   
@@ -220,21 +223,51 @@ const Register = () => {
     try {
       setLoading(true);
       
-      // Exclure la confirmation du mot de passe
-      const { passwordConfirm, ...userData } = formData;
+      // Créer une adresse complète à partir des champs individuels
+      const fullAddress = [
+        formData.street,
+        formData.additionalInfo,
+        `${formData.postalCode} ${formData.city}`
+      ].filter(Boolean).join(", ");
       
-      await register(userData);
+      // Créer un modèle utilisateur compatible directement avec l'API
+      const apiUserData = {
+        email: formData.email,
+        password: formData.password,
+        // Utiliser exactement les noms de champs attendus par l'API
+        firstname: formData.firstName,
+        lastname: formData.lastName,
+        phone: formData.phone || "",
+        // Utiliser les noms de champs exacts pour les adresses
+        deliveryAdress: fullAddress || "",
+        facturationAdress: fullAddress || "", // Utiliser la même adresse pour la facturation par défaut
+        role: formData.role
+      };
       
-      setSuccess("Inscription réussie ! Vous allez être redirigé vers la page de connexion.");
+      console.log("Données d'inscription préparées:", apiUserData);
+      const result = await register(apiUserData);
       
-      // Rediriger vers la page de connexion après 2 secondes
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-      
+      if (result && result.success) {
+        setSuccess("Inscription réussie ! Vous allez être redirigé vers la page de connexion.");
+        
+        // Rediriger vers la page de connexion après 2 secondes
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        throw new Error(result?.message || "Échec de l'inscription");
+      }
     } catch (error) {
-      setError("Erreur lors de l'inscription. Veuillez réessayer.");
-      console.error(error);
+      console.error("Erreur d'inscription:", error);
+      if (error.status === 409) {
+        setError("Cette adresse email est déjà utilisée.");
+      } else if (error.status === 400) {
+        setError("Données d'inscription invalides. Veuillez vérifier vos informations.");
+      } else if (error.message) {
+        setError(error.message);
+      } else {
+        setError("Erreur lors de l'inscription. Veuillez réessayer.");
+      }
     } finally {
       setLoading(false);
     }
@@ -275,7 +308,7 @@ const Register = () => {
                   active={formData.role === "2"}
                   onClick={() => handleRoleSelect("2")}
                 >
-                  Restaurateur
+                  Restaurant
                 </UserTypeButton>
               </UserTypeOption>
               <UserTypeOption>
@@ -353,23 +386,44 @@ const Register = () => {
           />
 
           <Input
-            id="deliveryAddress"
-            name="deliveryAddress"
-            label="Adresse de livraison"
+            id="street"
+            name="street"
+            label="Rue"
             type="text"
-            value={formData.deliveryAddress}
+            value={formData.street || ""}
             onChange={handleChange}
-            placeholder="Entrez votre adresse de livraison"
+            placeholder="Numéro et nom de rue"
           />
 
+          <FormRow>
+            <Input
+              id="postalCode"
+              name="postalCode"
+              label="Code postal"
+              type="text"
+              value={formData.postalCode || ""}
+              onChange={handleChange}
+              placeholder="Code postal"
+            />
+            <Input
+              id="city"
+              name="city"
+              label="Ville"
+              type="text"
+              value={formData.city || ""}
+              onChange={handleChange}
+              placeholder="Ville"
+            />
+          </FormRow>
+
           <Input
-            id="facturationAddress"
-            name="facturationAddress"
-            label="Adresse de facturation"
+            id="additionalInfo"
+            name="additionalInfo"
+            label="Complément d'adresse"
             type="text"
-            value={formData.facturationAddress}
+            value={formData.additionalInfo || ""}
             onChange={handleChange}
-            placeholder="Entrez votre adresse de facturation"
+            placeholder="Étage, digicode, etc."
           />
 
           <FormRow>

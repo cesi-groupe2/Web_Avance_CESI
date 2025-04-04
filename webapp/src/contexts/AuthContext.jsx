@@ -2,6 +2,8 @@ import React, { createContext, useState, useEffect, useContext, useMemo } from "
 import PropTypes from "prop-types";
 import PublicApi from "../api/PublicApi";
 import AuthApi from "../api/AuthApi";
+import ModelUser from "../model/ModelUser";
+import HandlersLoginRequest from "../model/HandlersLoginRequest";
 
 // Initialiser les APIs
 const publicApi = new PublicApi();
@@ -24,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   // Propriétés dérivées
   const isAuthenticated = useMemo(() => !!token && !!currentUser, [token, currentUser]);
-  const userRole = useMemo(() => currentUser?.role || currentUser?.IDRole?.toString() || null, [currentUser]);
+  const userRole = useMemo(() => currentUser?.id_role?.toString() || currentUser?.role || null, [currentUser]);
 
   // Fonction de connexion
   const login = async (email, password) => {
@@ -39,17 +41,30 @@ export const AuthProvider = ({ children }) => {
 
           console.log("Réponse de connexion:", data);
 
-          // Formater les données utilisateur pour assurer la cohérence
+          if (!data || !data.token || !data.user) {
+            reject(new Error("Format de réponse invalide"));
+            return;
+          }
+
+          // Créer un ModelUser à partir des données utilisateur
+          const userModel = ModelUser.constructFromObject(data.user);
+          
+          // Formater les données utilisateur pour assurer la cohérence en front-end
           const formattedUser = {
-            ...data.user,
-            // Assurer une structure uniforme quelle que soit la réponse de l'API
-            FirstName: data.user.firstname || data.user.first_name || data.user.FirstName || "",
-            LastName: data.user.lastname || data.user.last_name || data.user.LastName || "",
-            Email: data.user.email || data.user.Email || "",
-            Phone: data.user.phone || data.user.Phone || "",
-            DeliveryAdress: data.user.deliveryAdress || data.user.DeliveryAdress || data.user.delivery_adress || "",
-            FacturationAdress: data.user.facturationAdress || data.user.FacturationAdress || data.user.facturation_adress || "",
-            role: data.user.id_role || data.user.IDRole || data.user.role || "1",
+            ...userModel,
+            // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
+            // et s'assurer que FirstName et LastName sont correctement définis
+            FirstName: userModel.first_name || "",
+            LastName: userModel.last_name || "",
+            Email: userModel.email || "",
+            Phone: userModel.phone || "",
+            DeliveryAdress: userModel.delivery_adress || "",
+            FacturationAdress: userModel.facturation_adress || "",
+            role: userModel.id_role?.toString() || "1",
+
+            // S'assurer que first_name et last_name sont définis
+            first_name: userModel.first_name || userModel.FirstName || "",
+            last_name: userModel.last_name || userModel.LastName || ""
           };
           
           console.log("Données utilisateur formatées après login:", formattedUser);
@@ -77,18 +92,24 @@ export const AuthProvider = ({ children }) => {
       
       return new Promise((resolve, reject) => {
         // Préparer les options pour les paramètres optionnels
+        // Utiliser seulement les champs que l'API accepte
         const opts = {
           picture: "",
           phone: userData.phone || "",
-          deliveryAdress: userData.deliveryAddress || "",
-          facturationAdress: userData.facturationAddress || ""
+          // Utiliser les noms de champs exacts de l'API
+          deliveryAdress: userData.deliveryAdress || "",
+          facturationAdress: userData.facturationAdress || ""
+          // Ne pas inclure sponsorship_code qui cause une erreur de colonne inconnue
         };
         
+        console.log("Options d'inscription:", opts);
+        
+        // S'assurer que nous utilisons les noms de champs corrects pour le backend
         publicApi.publicRegisterPost(
           userData.email,
           userData.password,
-          userData.firstName,
-          userData.lastName,
+          userData.firstname || userData.firstName, // Utiliser firstname ou firstName
+          userData.lastname || userData.lastName,   // Utiliser lastname ou lastName
           userData.role || "1",
           opts,
           (error, data, response) => {
@@ -155,52 +176,61 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      // L'AuthApi ne semble pas avoir de méthode pour vérifier le token
-      // Nous devons utiliser la méthode fetch directe pour accéder à /auth/me
-      // Cette partie restera avec fetch jusqu'à ce qu'un endpoint dans l'API soit disponible
-      console.log("Envoi de requête à /auth/me avec token:", token);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      // Utiliser l'API AuthApi pour vérifier l'authentification
+      console.log("Vérification de l'authentification avec authMeGet");
+      authApi.authMeGet((error, userData, response) => {
+        if (error) {
+          console.error("Erreur d'authentification:", error);
+          
+          // Si l'erreur est une 404, le serveur est peut-être simplement indisponible
+          // Ne pas déconnecter l'utilisateur si nous avons des données locales valides
+          if (error.status === 404 && storedUser) {
+            console.log("Serveur /auth/me non disponible, utilisation des données locales");
+            setLoading(false);
+            return;
+          }
+          
+          localStorage.removeItem("token");
+          localStorage.removeItem("currentUser");
+          setToken(null);
+          setCurrentUser(null);
+          setLoading(false);
+          return;
+        }
+        
+        console.log("Données utilisateur récupérées depuis l'API:", userData);
+        
+        // Formater les données utilisateur pour assurer la cohérence en front-end
+        const formattedUserData = {
+          ...userData,
+          // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
+          FirstName: userData.first_name || "",
+          LastName: userData.last_name || "",
+          Email: userData.email || "",
+          Phone: userData.phone || "",
+          DeliveryAdress: userData.delivery_adress || "",
+          FacturationAdress: userData.facturation_adress || "",
+          role: userData.id_role?.toString() || "1",
+            
+          // S'assurer que first_name et last_name sont définis
+          first_name: userData.first_name || userData.FirstName || "",
+          last_name: userData.last_name || userData.LastName || ""
+        };
+        
+        console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
+        
+        // Mettre à jour le localStorage avec les données fraîches
+        localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
+        localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
+        setCurrentUser(formattedUserData);
+        setLoading(false);
       });
-
-      console.log("Réponse de /auth/me:", response.status);
-      
-      if (!response.ok) {
-        throw new Error(`Token invalide (status: ${response.status})`);
-      }
-
-      const userData = await response.json();
-      console.log("Données utilisateur récupérées depuis l'API:", userData);
-      
-      // Vérifier si userData a les propriétés attendues et corriger la structure si nécessaire
-      const formattedUserData = {
-        ...userData,
-        // Assurer une structure uniforme quelle que soit la réponse de l'API
-        FirstName: userData.firstname || userData.first_name || userData.FirstName || "",
-        LastName: userData.lastname || userData.last_name || userData.LastName || "",
-        Email: userData.email || userData.Email || "",
-        Phone: userData.phone || userData.Phone || "",
-        DeliveryAdress: userData.deliveryAdress || userData.DeliveryAdress || userData.delivery_adress || "",
-        FacturationAdress: userData.facturationAdress || userData.FacturationAdress || userData.facturation_adress || "",
-        role: userData.id_role || userData.IDRole || userData.role || "1",
-      };
-      
-      console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
-      
-      // Mettre à jour le localStorage avec les données fraîches
-      localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
-      localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
-      setCurrentUser(formattedUserData);
     } catch (error) {
       console.error("Erreur d'authentification:", error);
       localStorage.removeItem("token");
       localStorage.removeItem("currentUser");
       setToken(null);
       setCurrentUser(null);
-    } finally {
       setLoading(false);
     }
   };

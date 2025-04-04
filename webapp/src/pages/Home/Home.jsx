@@ -141,9 +141,29 @@ const FeatureCardText = styled.p`
   line-height: 1.5;
 `;
 
+const DebugAuthSection = styled.div`
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px;
+  border-radius: 8px;
+`;
+
+const DebugAuthItem = styled.div`
+  margin-bottom: 10px;
+  display: flex;
+  
+  span {
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 150px;
+  }
+`;
+
 const WebPageDAccueil = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, currentUser, token } = useAuth();
+  const { isAuthenticated, currentUser, token, userRole } = useAuth();
 
   useEffect(() => {
     console.log("État d'authentification sur la page d'accueil:", { 
@@ -157,10 +177,7 @@ const WebPageDAccueil = () => {
 
   return (
     <HomeContainer>
-      <Header 
-        isAuthenticated={!!currentUser} 
-        userRole={currentUser?.role}
-      />
+      <Header />
       
       <HeroSection>
         <HeroImage src={home_picture} alt="EasEat - Livraison de repas" />
@@ -175,6 +192,31 @@ const WebPageDAccueil = () => {
         </HeroContent>
       </HeroSection>
       
+      {/* Section de débogage d'authentification */}
+      <DebugAuthSection>
+        <h2>Informations d'authentification</h2>
+        <DebugAuthItem>
+          <span>isAuthenticated:</span> {isAuthenticated ? 'Oui' : 'Non'}
+        </DebugAuthItem>
+        <DebugAuthItem>
+          <span>userRole:</span> {userRole || 'Aucun'}
+        </DebugAuthItem>
+        <DebugAuthItem>
+          <span>Token disponible:</span> {token ? 'Oui' : 'Non'}
+        </DebugAuthItem>
+        <DebugAuthItem>
+          <span>Utilisateur:</span> {currentUser ? `${currentUser.FirstName} ${currentUser.LastName}` : 'Non connecté'}
+        </DebugAuthItem>
+        {currentUser && (
+          <div style={{ marginTop: '10px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
+            <h3>Détails utilisateur</h3>
+            <pre style={{ background: '#eee', padding: '10px', overflow: 'auto' }}>
+              {JSON.stringify(currentUser, null, 2)}
+            </pre>
+          </div>
+        )}
+      </DebugAuthSection>
+
       <FeaturesSection>
         <FeatureTitle>Pourquoi choisir EasEat ?</FeatureTitle>
         <FeaturesGrid>
