@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/rest"
 )
 
 // @title           Swagger Easeat API
@@ -16,6 +17,7 @@ import (
 
 // @securityDefinitions.basic  BasicAuth
 
-
 func main() {
+	// Initialiser le serveur API Gateway
+	rest.InitServer()
 }

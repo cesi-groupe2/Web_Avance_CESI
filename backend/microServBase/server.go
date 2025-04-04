@@ -34,7 +34,7 @@ type MicroServMongo struct {
 }
 
 type MicroServMySql struct {
-	Server *gin.Engine
+	Server  *gin.Engine
 	DbCient *gorm.DB
 }
 
@@ -48,14 +48,14 @@ func (m *MicroServMongo) InitServer() {
 }
 
 // InitSwagger initializes the Swagger documentation for the microservice, return host url according to the environment
-func (m *MicroServMongo) InitSwagger(groupe *gin.RouterGroup, address string, port string) (string) {
+func (m *MicroServMongo) InitSwagger(groupe *gin.RouterGroup, address string, port string) string {
 	hostAddress := address + ":" + port
 	if utils.GetEnvValueOrDefaultStr(constants.ENV_MODE, "DEV") == "PROD" {
 		hostAddress = "localhost:80"
 	}
 	groupe.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	groupe.GET("/docs", func(ctx *gin.Context) {
-		ctx.Redirect(301, groupe.BasePath() + "/swagger/index.html")
+		ctx.Redirect(301, groupe.BasePath()+"/swagger/index.html")
 	})
 	return hostAddress
 }
@@ -89,9 +89,10 @@ func (m *MicroServMongo) InitDbClient() {
 	}
 
 	// Set database
-	m.Database = m.DbClient.Database(constants.MONGO_DATABASE)
-	
-	fmt.Printf("Connecté à MongoDB (%s:%s; database: %s) avec succès!\n", host, port, constants.MONGO_DATABASE)
+	databaseName := utils.GetEnvValueOrDefaultStr(constants.MONGO_DATABASE, "easeat")
+	m.Database = m.DbClient.Database(databaseName)
+
+	fmt.Printf("Connecté à MongoDB (%s:%s; database: %s) avec succès!\n", host, port, databaseName)
 }
 
 //////////////////////////////
@@ -106,7 +107,7 @@ func (m *MicroServMySql) InitServer() {
 func (s *MicroServMySql) RunServer(addr, port string) {
 	s.Server.Run(addr + ":" + port)
 }
-func (s *MicroServMySql) InitSwagger(groupe *gin.RouterGroup, address string, port string) (string) {
+func (s *MicroServMySql) InitSwagger(groupe *gin.RouterGroup, address string, port string) string {
 	hostAddress := address + ":" + port
 	if utils.GetEnvValueOrDefaultStr(constants.ENV_MODE, "DEV") == "PROD" {
 		hostAddress = "localhost:80"
@@ -137,7 +138,7 @@ func (s *MicroServMySql) InitDbClient() {
 	if err != nil {
 		log.Fatalf("Connection MySQL error: %v", err)
 	}
-	
+
 	fmt.Printf("Connected to MySQL (%s:%s; database: %s) successfully!\n", dbAddress, dbPort, database)
 
 	// Connect /health
@@ -149,8 +150,7 @@ func (s *MicroServMySql) InitDbClient() {
 			return
 		}
 		ctx.JSON(200, gin.H{
-			"status": "UP",})
+			"status": "UP"})
 	})
 
 }
-

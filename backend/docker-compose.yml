@@ -101,6 +101,25 @@ services:
     networks:
       - easeat-net
 
+  servicenotification:
+    build: 
+      context:  .
+      dockerfile: ./microServNotifications/Dockerfile
+    environment:
+      - MICRO_SERV_NOTIFICATIONS_ADDR=${MICRO_SERV_NOTIFICATIONS_ADDR}
+      - MICRO_SERV_NOTIFICATIONS_PORT=${MICRO_SERV_NOTIFICATIONS_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8006"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
+
   gateway:
     image: nginx:latest
     container_name: gateway
@@ -116,6 +135,7 @@ services:
       - serviceorderposition
       - servicerestaurant
       - serviceuser
+      - servicenotification
 
 networks:
   easeat-net:
