@@ -1,16 +1,16 @@
 import React from 'react';
-import AppDesktop from './desktop/AppDesktop';
-import AppMobile from './mobile/AppMobile';
-import useIsMobile from './hooks/useIsMobile';
 import { BrowserRouter } from 'react-router-dom';
+import AppRoutes from './routes';
+import { AuthProvider } from './contexts/AuthContext';
+import './App.css';
 
 const App = () => {
-  const isMobile = useIsMobile();
-
   return (
-    <BrowserRouter>
-      {isMobile ? <AppMobile /> : <AppDesktop />}
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 

@@ -1,10 +1,39 @@
+version: '3.8'
+
 services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    networks:
+      - easeat-net
+    volumes:
+      - ./sqlDBMain/migrations:/docker-entrypoint-initdb.d
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - easeat-net
+    volumes:
+      - ./mongoDBMain/migrations:/docker-entrypoint-initdb.d
+  
   serviceauth:
     build: 
-      context: .
+      context:  .
       dockerfile: ./microServAuth/Dockerfile
     environment:
-      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
       - AUTH_SERVICE_HOST=${AUTH_SERVICE_HOST}
       - AUTH_SERVICE_PORT=${AUTH_SERVICE_PORT}
       - MYSQL_USER=${MYSQL_USER}
@@ -12,6 +41,7 @@ services:
       - MYSQL_ADDRESS=${MYSQL_ADDRESS}
       - MYSQL_PORT=${MYSQL_PORT}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
       - ENV_MODE=${ENV_MODE}
     expose:
       - "8001"
@@ -19,29 +49,27 @@ services:
       replicas: 2
     networks:
       - easeat-net
-
+  
   serviceorder:
-    build:
+    build: 
       context:  .
       dockerfile: ./microServOrder/Dockerfile
     environment:
       - MICRO_SERV_ORDER_ADDR=${MICRO_SERV_ORDER_ADDR}
       - MICRO_SERV_ORDER_PORT=${MICRO_SERV_ORDER_PORT}
-      - MONGO_HOST=${MONGO_HOST}
-      - MONGO_PORT=${MONGO_PORT}
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - GMAIL_TOKEN=${GMAIL_TOKEN}
-      - GMAIL_ADDR=${GMAIL_ADDR}
-      - FRONTEND_URL=${FRONTEND_URL}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ADDRESS=${MYSQL_ADDRESS}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
       - ENV_MODE=${ENV_MODE}
     expose:
       - "8002"
     deploy:
-      replicas: 1
+      replicas: 2
     networks:
-      - easeat-net   
-
+      - easeat-net
+  
   serviceorderposition:
     build: 
       context:  .
@@ -49,10 +77,10 @@ services:
     environment:
       - MICRO_SERV_ORDER_POSITIONS_ADDR=${MICRO_SERV_ORDER_POSITIONS_ADDR}
       - MICRO_SERV_ORDER_POSITIONS_PORT=${MICRO_SERV_ORDER_POSITIONS_PORT}
-      - MONGO_HOST=${MONGO_HOST}
-      - MONGO_PORT=${MONGO_PORT}
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
       - ENV_MODE=${ENV_MODE}
     expose:
       - "8003"
@@ -60,7 +88,7 @@ services:
       replicas: 2
     networks:
       - easeat-net
-
+  
   servicerestaurant:
     build: 
       context:  .
@@ -100,6 +128,25 @@ services:
       replicas: 2
     networks:
       - easeat-net
+  
+  servicenotification:
+    build: 
+      context:  .
+      dockerfile: ./microServNotifications/Dockerfile
+    environment:
+      - MICRO_SERV_NOTIFICATIONS_ADDR=${MICRO_SERV_NOTIFICATIONS_ADDR}
+      - MICRO_SERV_NOTIFICATIONS_PORT=${MICRO_SERV_NOTIFICATIONS_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8006"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
 
   gateway:
     image: nginx:latest
@@ -116,6 +163,7 @@ services:
       - serviceorderposition
       - servicerestaurant
       - serviceuser
+      - servicenotification
 
 networks:
   easeat-net:
