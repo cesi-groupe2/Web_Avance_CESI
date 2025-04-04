@@ -43,6 +43,19 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 		ctx.JSON(400, "Email is required")
 		return
 	}
+	// Check if the email is already used
+	isUsed, err := authservices.EmailAlreadyUsed(db, email)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(500, "Error checking email")
+		return
+	}
+	if isUsed {
+		ctx.JSON(400, "Email already used")
+		return
+	}
+
+	// Check if the password is empty
 	pwd, err := bcrypt.GenerateFromPassword([]byte(ctx.PostForm("password")), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println(err)
