@@ -8,7 +8,7 @@ import (
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	authservices "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/services"
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/session"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares/jwtActions"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -138,12 +138,12 @@ func Login(ctx *gin.Context, db *gorm.DB) {
 	// Check if the user exists
 	mail := ctx.PostForm("email")
 	if mail == "" {
-		ctx.JSON(401, "Mail is required")
+		ctx.JSON(401, gin.H{"error": "Mail is required"})
 		return
 	}
 	inputPassword := ctx.PostForm("password")
 	if inputPassword == "" {
-		ctx.JSON(401, "Password is required")
+		ctx.JSON(401, gin.H{"error": "Password is required"})
 		return
 	}
 
@@ -154,7 +154,7 @@ func Login(ctx *gin.Context, db *gorm.DB) {
 	log.Println(users)
 	if result.Error != nil || len(users) == 0 {
 		log.Println(result.Error)
-		ctx.JSON(401, "Email not found !")
+		ctx.JSON(401, gin.H{"error": "Email not found !"})
 		return
 	}
 
@@ -163,7 +163,7 @@ func Login(ctx *gin.Context, db *gorm.DB) {
 		err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(inputPassword))
 		if err != nil {
 			log.Println(err)
-			ctx.JSON(401, "Password is incorrect !")
+			ctx.JSON(401, gin.H{"error": "Password is incorrect !"})
 			return
 		}
 		currentUser = user
@@ -173,18 +173,18 @@ func Login(ctx *gin.Context, db *gorm.DB) {
 	token, err := authservices.GenerateAccessToken(ctx, currentUser)
 	if err != nil {
 		log.Println(err)
-		ctx.JSON(500, "Error generating token")
+		ctx.JSON(500, gin.H{"error": "Error generating token"})
 		return
 	}
 
-	// Save the user in the session
-	session.SetUserSession(ctx, currentUser)
+	// Ensure password hash is not sent to the client
+	currentUser.PasswordHash = ""
 
 	ctx.JSON(200, gin.H{
 		"user": currentUser,
-		"token":token,
+		"token": token,
 	})
-} 
+}
 
 // RefreshToken godoc
 //	@Summary		Refresh the JWT token
@@ -237,7 +237,6 @@ func RefreshToken(ctx *gin.Context) {
 //	@Success		200	{string}	string	"msg":	"ok"
 //	@Router			/auth/logout [post]
 func Logout(ctx *gin.Context) {
-	session.DeleteUserSession(ctx)
 	ctx.JSON(200, "ok")
 }
 
@@ -251,11 +250,25 @@ func Logout(ctx *gin.Context) {
 //	@Success		200	{object}	model.User
 //	@Failure		401	{string}	string	"msg":	"User not found"
 //	@Router			/auth/me [get]
-func GetMe(ctx *gin.Context) {
-	currentUser, err := session.GetUserSession(ctx)
+func GetMe(ctx *gin.Context, db *gorm.DB) {
+	userId, err := jwtActions.GetUserIdFromToken(ctx)
 	if err != nil {
+		log.Println(err)
 		ctx.JSON(401, "User not found")
 		return
 	}
+
+	log.Println("userID from token", userId)
+	currentUser := model.User{}
+	result := db.Where(&model.User{
+		IDUser: int32(userId),
+	}).First(&currentUser)
+	if result.Error != nil {
+		log.Println(result.Error)
+		ctx.JSON(401, "User not found")
+		return
+	}
+	log.Println(currentUser)
+
 	ctx.JSON(200, currentUser)
 }

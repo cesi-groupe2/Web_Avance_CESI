@@ -22,6 +22,11 @@ const (
 	RestaurantColumnPhone                 = "phone"
 	RestaurantColumnOpeningHours          = "opening_hours"
 )
+// Column names for Posserder defined as constants for consistency and immutability.
+const (
+	PosserderColumnIDPosserder         = "id_user"
+	PosserderColumnIDRestaurant       = "id_restaurant"
+)
 
 // Column names for User defined as constants for consistency and immutability.
 const (

@@ -32,7 +32,7 @@ class ApiClient {
      * Overrides the default value set in spec file if present
      * @param {String} basePath
      */
-    constructor(basePath = 'http://localhost:80') {
+    constructor(basePath = 'http://localhost:8080') {
         /**
          * The base URL against which to resolve every API call's (relative) path.
          * @type {String}
@@ -410,6 +410,12 @@ class ApiClient {
 
         // apply authentications
         this.applyAuthToRequest(request, authNames);
+
+        // add token 
+        let token = localStorage.getItem('token');
+        if (token) {
+            request.set('Authorization', 'Bearer ' + token);
+        }
 
         // set query parameters
         if (httpMethod.toUpperCase() === 'GET' && this.cache === false) {
