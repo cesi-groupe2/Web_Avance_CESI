@@ -20,7 +20,7 @@ L.Icon.Default.mergeOptions({
 const restaurantApi = new RestaurantApi();
 const CreateRestaurant = () => {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, isAuthenticated, userRole, hasRestaurant } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
@@ -304,7 +304,7 @@ const CreateRestaurant = () => {
       });
 
       console.log('Restaurant créé avec succès:', response.data);
-      navigate('/restaurant/my');
+      navigate('/restaurant/menuitems');
     } catch (error) {
       console.error('Erreur lors de la création du restaurant:', error);
       setError(error.message || 'Une erreur est survenue lors de la création du restaurant');

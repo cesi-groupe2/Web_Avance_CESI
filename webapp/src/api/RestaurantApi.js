@@ -144,11 +144,10 @@ export default class RestaurantApi {
      * @param {String} localisationLatitude Latitude of the restaurant
      * @param {String} localisationLongitude Longitude of the restaurant
      * @param {File} picture Picture of the restaurant
-     * @param {String} openingHoursStr Opening hours of the restaurant
      * @param {module:api/RestaurantApi~restaurantNewPostCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/ModelRestaurant}
      */
-    restaurantNewPost(name, phone, address, localisationLatitude, localisationLongitude, picture, openingHoursStr, callback) {
+    restaurantNewPost(name, phone, address, localisationLatitude, localisationLongitude, picture, callback) {
       let postBody = null;
       // verify the required parameter 'name' is set
       if (name === undefined || name === null) {
@@ -174,10 +173,6 @@ export default class RestaurantApi {
       if (picture === undefined || picture === null) {
         throw new Error("Missing the required parameter 'picture' when calling restaurantNewPost");
       }
-      // verify the required parameter 'openingHoursStr' is set
-      if (openingHoursStr === undefined || openingHoursStr === null) {
-        throw new Error("Missing the required parameter 'openingHoursStr' when calling restaurantNewPost");
-      }
 
       let pathParams = {
       };
@@ -191,12 +186,11 @@ export default class RestaurantApi {
         'address': address,
         'localisation_latitude': localisationLatitude,
         'localisation_longitude': localisationLongitude,
-        'picture': picture,
-        'opening_hours': openingHoursStr
+        'picture': picture
       };
 
       let authNames = ['BearerAuth'];
-      let contentTypes = ['application/x-www-form-urlencoded'];
+      let contentTypes = ['multipart/form-data'];
       let accepts = ['application/json'];
       let returnType = ModelRestaurant;
       return this.apiClient.callApi(

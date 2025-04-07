@@ -81,24 +81,6 @@ func GetRestaurantById(ctx *gin.Context, db *gorm.DB) {
 	ctx.JSON(200, restaurant)
 }
 
-// GetMenuItemsByRestaurantId godoc
-//	@Summary		Get menu items by restaurant id
-//	@Description	Get menu items by restaurant id
-//	@Tags			restaurant
-//	@Security		BearerAuth
-//	@Accept			json
-//	@Produce		json
-//	@Param			restaurantId	path		string	true	"Restaurant ID"
-//	@Success		200				{array}		model.Menuitem
-//	@Failure		400				{object}	map[string]string
-//	@Router			/restaurant/{restaurantId}/menuitems [get]
-func GetMenuItemsByRestaurantId(ctx *gin.Context, db *gorm.DB) {
-	restaurantId := ctx.Param("restaurantId")
-	var menuItems []model.Menuitem
-	db.Where(columns.MenuitemColumnCreatedAtColumn+" = ?", restaurantId).Find(&menuItems)
-	ctx.JSON(200, menuItems)
-}
-
 // GetMyRestaurants godoc
 //	@Summary		Get the restaurants owned by the user
 //	@Description	Get the restaurants owned by the user
@@ -110,7 +92,14 @@ func GetMenuItemsByRestaurantId(ctx *gin.Context, db *gorm.DB) {
 //	@Failure		400	{object}	map[string]string
 //	@Router			/restaurant/my [get]
 func GetMyRestaurants(ctx *gin.Context, db *gorm.DB) {
-	userId := ctx.Param("userId")
+	userId, err := jwtActions.GetUserIdFromToken(ctx)
+	if err != nil {
+		log.Println("Error getting userId from token:", err)
+		ctx.JSON(500, gin.H{"error": "Error getting userId from token"})
+		return
+	}
+
+	// Get associated restaurants
 	var possede model.Posseder
 	result := db.Where(fmt.Sprintf("%s = ?", columns.PosserderColumnIDPosserder), userId).
 		Find(&possede)
@@ -119,6 +108,8 @@ func GetMyRestaurants(ctx *gin.Context, db *gorm.DB) {
 		ctx.JSON(400, gin.H{"error": "User not found"})
 		return
 	}
+
+	// Get restaurants by ID
 	var restaurants []model.Restaurant
 	result = db.Where(fmt.Sprintf("%s = ?", columns.RestaurantColumnIDRestaurant), possede.IDRestaurant).
 		Find(&restaurants)

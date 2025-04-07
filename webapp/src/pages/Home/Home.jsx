@@ -205,18 +205,21 @@ const WebPageDAccueil = () => {
   }, [isAuthenticated, currentUser, token, userRole]);
 
   const getButtonText = () => {
-    console.log("État actuel pour le texte du bouton:", {
-      isLoading,
-      isAuthenticated,
-      userRole,
-      hasRestaurant
-    });
-
     if (isLoading) {
       return "Chargement...";
     }
-    if (isAuthenticated && userRole === "2" && !hasRestaurant) {
-      return "Ouvrir mon restaurant";
+    if (isAuthenticated) {
+      if (userRole === "2") { // Restaurateur
+        if (!hasRestaurant) {
+          return "Ouvrir mon restaurant";
+        } else {
+          return "Gérer mon menu";
+        }
+      } else if (userRole === "3") { // Livreur
+        return "Voir mes livraisons";
+      } else if (userRole === "4") { // Développeur
+        return "Accéder au dashboard";
+      }
     }
     return "Commandez maintenant";
   };
@@ -224,8 +227,20 @@ const WebPageDAccueil = () => {
   const handleButtonClick = () => {
     if (isLoading) return;
     
-    if (isAuthenticated && userRole === "2" && !hasRestaurant) {
-      navigate("/restaurant/create");
+    if (isAuthenticated) {
+      if (userRole === "2") { // Restaurateur
+        if (!hasRestaurant) {
+          navigate("/restaurant/create");
+        } else {
+          navigate("/restaurant/menuitems");
+        }
+      } else if (userRole === "3") { // Livreur
+        navigate("/deliveries");
+      } else if (userRole === "4") { // Développeur
+        navigate("/dashboard");
+      } else {
+        navigate("/restaurants");
+      }
     } else {
       navigate("/restaurants");
     }

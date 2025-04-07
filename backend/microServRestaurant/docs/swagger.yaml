@@ -113,6 +113,191 @@ paths:
       summary: Get menu items by restaurant id
       tags:
       - restaurant
+  /restaurant/{restaurantId}/menuitems/{menuItemId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete menu item by id
+      parameters:
+      - description: Restaurant id
+        in: path
+        name: restaurantId
+        required: true
+        type: integer
+      - description: Menu item id
+        in: path
+        name: menuItemId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete menu item
+      tags:
+      - menuitem
+    get:
+      consumes:
+      - application/json
+      description: Get menu item by id
+      parameters:
+      - description: Restaurant id
+        in: path
+        name: restaurantId
+        required: true
+        type: integer
+      - description: Menu item id
+        in: path
+        name: menuItemId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Menuitem'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get menu item by id
+      tags:
+      - menuitem
+    put:
+      consumes:
+      - application/json
+      description: Update menu item by id
+      parameters:
+      - description: Restaurant id
+        in: path
+        name: restaurantId
+        required: true
+        type: integer
+      - description: Menu item id
+        in: path
+        name: menuItemId
+        required: true
+        type: integer
+      - description: Menu item
+        in: body
+        name: menuItem
+        required: true
+        schema:
+          $ref: '#/definitions/model.Menuitem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Menuitem'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update menu item
+      tags:
+      - menuitem
+  /restaurant/{restaurantId}/menuitems/new:
+    post:
+      consumes:
+      - application/json
+      description: Get menu items by restaurant id
+      parameters:
+      - description: Restaurant id
+        in: path
+        name: restaurantId
+        required: true
+        type: integer
+      - description: Menu item
+        in: body
+        name: menuItem
+        required: true
+        schema:
+          $ref: '#/definitions/model.Menuitem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Menuitem'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get menu items by restaurant id
+      tags:
+      - menuitem
   /restaurant/my:
     get:
       consumes:

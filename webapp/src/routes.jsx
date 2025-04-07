@@ -8,6 +8,7 @@ import Register from "./pages/Auth/Register/Register";
 import RestaurantList from "./pages/Restaurant/List/RestaurantList";
 import RestaurantDetails from "./pages/Restaurant/Details/RestaurantDetails";
 import CreateRestaurant from "./pages/Restaurant/Create/CreateRestaurant";
+import RestaurantMenu from "./pages/Restaurant/Menu/RestaurantMenu";
 import Checkout from "./pages/Order/Checkout/Checkout";
 import Tracking from "./pages/Order/Tracking/Tracking";
 import Profile from "./pages/User/Profile/Profile";
@@ -34,6 +35,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <CreateRestaurant />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/restaurant/menu"
+        element={
+          <ProtectedRoute requiredRole="2">
+            <RestaurantMenu />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/restaurant/menuitems"
+        element={
+          <ProtectedRoute requiredRole="2">
+            <RestaurantMenu />
           </ProtectedRoute>
         }
       />
