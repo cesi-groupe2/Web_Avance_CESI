@@ -2,13 +2,13 @@ package columns
 
 // Column names for Menuitem defined as constants for consistency and immutability.
 const (
-	MenuitemColumnIDMenuItemColumn         = "id_menu_item"
-	MenuitemColumnNameColumn               = "name"
-	MenuitemColumnDescriptionColumn        = "description"
-	MenuitemColumnPriceColumn              = "price"
-	MenuitemColumnImageColumn              = "image"
-	MenuitemColumnCreatedAtColumn  = "created_at"
-	MenuitemColumnIDRestaurantColumn       = "id_restaurant"
+	MenuitemColumnIDMenuItem        = "id_menu_item"
+	MenuitemColumnName              = "name"
+	MenuitemColumnDescription       = "description"
+	MenuitemColumnPrice             = "price"
+	MenuitemColumnImage             = "image"
+	MenuitemColumnCreatedAt = "created_at"
+	MenuitemColumnIDRestaurant      = "id_restaurant"
 )
 
 // Column names for Restaurant defined as constants for consistency and immutability.
@@ -21,6 +21,11 @@ const (
 	RestaurantColumnLocalisationLongitude = "localisation_longitude"
 	RestaurantColumnPhone                 = "phone"
 	RestaurantColumnOpeningHours          = "opening_hours"
+)
+// Column names for Posserder defined as constants for consistency and immutability.
+const (
+	PosserderColumnIDPosserder         = "id_user"
+	PosserderColumnIDRestaurant       = "id_restaurant"
 )
 
 // Column names for User defined as constants for consistency and immutability.

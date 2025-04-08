@@ -14,7 +14,9 @@ func HandlerMicroServAuthPrivateRoads(server *gin.Engine, sqlClient *gorm.DB) *g
 	auth.POST("/resetPwd/:userId", func (ctx *gin.Context) {
 		authController.ResetPwd(ctx, sqlClient)
 	})
-	auth.GET("/me", authController.GetMe)
+	auth.GET("/me", func(ctx *gin.Context) {
+		authController.GetMe(ctx, sqlClient)
+	})
 
 	return auth
 }

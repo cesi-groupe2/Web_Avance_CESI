@@ -44,11 +44,16 @@ const StyledButton = styled.button`
 `;
 
 const Button = ({ children, variant, type, onClick, disabled, fullWidth, className }) => {
+  const handleClick = (e) => {
+    if (disabled) return;
+    if (onClick) onClick(e);
+  };
+
   return (
     <StyledButton
       variant={variant}
       type={type}
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled}
       fullWidth={fullWidth}
       className={className}

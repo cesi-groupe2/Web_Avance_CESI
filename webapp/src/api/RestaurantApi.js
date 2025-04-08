@@ -36,6 +36,43 @@ export default class RestaurantApi {
 
 
     /**
+     * Callback function to receive the result of the restaurantMyGet operation.
+     * @callback module:api/RestaurantApi~restaurantMyGetCallback
+     * @param {String} error Error message, if any.
+     * @param {Array.<module:model/ModelRestaurant>} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Get the restaurants owned by the user
+     * Get the restaurants owned by the user
+     * @param {module:api/RestaurantApi~restaurantMyGetCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link Array.<module:model/ModelRestaurant>}
+     */
+    restaurantMyGet(callback) {
+      let postBody = null;
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = ['BearerAuth'];
+      let contentTypes = [];
+      let accepts = ['application/json'];
+      let returnType = [ModelRestaurant];
+      return this.apiClient.callApi(
+        '/restaurant/my', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, null, callback
+      );
+    }
+
+    /**
      * Callback function to receive the result of the restaurantNearbyLatitudeLongitudeKmAroundGet operation.
      * @callback module:api/RestaurantApi~restaurantNearbyLatitudeLongitudeKmAroundGetCallback
      * @param {String} error Error message, if any.
@@ -85,6 +122,79 @@ export default class RestaurantApi {
       let returnType = [ModelRestaurant];
       return this.apiClient.callApi(
         '/restaurant/nearby/{latitude}/{longitude}/{kmAround}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, null, callback
+      );
+    }
+
+    /**
+     * Callback function to receive the result of the restaurantNewPost operation.
+     * @callback module:api/RestaurantApi~restaurantNewPostCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/ModelRestaurant} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Create a new restaurant
+     * Create a new restaurant
+     * @param {String} name Name of the restaurant
+     * @param {String} phone Phone number of the restaurant
+     * @param {String} address Address of the restaurant
+     * @param {String} localisationLatitude Latitude of the restaurant
+     * @param {String} localisationLongitude Longitude of the restaurant
+     * @param {File} picture Picture of the restaurant
+     * @param {module:api/RestaurantApi~restaurantNewPostCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/ModelRestaurant}
+     */
+    restaurantNewPost(name, phone, address, localisationLatitude, localisationLongitude, picture, callback) {
+      let postBody = null;
+      // verify the required parameter 'name' is set
+      if (name === undefined || name === null) {
+        throw new Error("Missing the required parameter 'name' when calling restaurantNewPost");
+      }
+      // verify the required parameter 'phone' is set
+      if (phone === undefined || phone === null) {
+        throw new Error("Missing the required parameter 'phone' when calling restaurantNewPost");
+      }
+      // verify the required parameter 'address' is set
+      if (address === undefined || address === null) {
+        throw new Error("Missing the required parameter 'address' when calling restaurantNewPost");
+      }
+      // verify the required parameter 'localisationLatitude' is set
+      if (localisationLatitude === undefined || localisationLatitude === null) {
+        throw new Error("Missing the required parameter 'localisationLatitude' when calling restaurantNewPost");
+      }
+      // verify the required parameter 'localisationLongitude' is set
+      if (localisationLongitude === undefined || localisationLongitude === null) {
+        throw new Error("Missing the required parameter 'localisationLongitude' when calling restaurantNewPost");
+      }
+      // verify the required parameter 'picture' is set
+      if (picture === undefined || picture === null) {
+        throw new Error("Missing the required parameter 'picture' when calling restaurantNewPost");
+      }
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+        'name': name,
+        'phone': phone,
+        'address': address,
+        'localisation_latitude': localisationLatitude,
+        'localisation_longitude': localisationLongitude,
+        'picture': picture
+      };
+
+      let authNames = ['BearerAuth'];
+      let contentTypes = ['multipart/form-data'];
+      let accepts = ['application/json'];
+      let returnType = ModelRestaurant;
+      return this.apiClient.callApi(
+        '/restaurant/new', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType, null, callback
       );

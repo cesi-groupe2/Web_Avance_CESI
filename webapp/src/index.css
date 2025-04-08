@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
     --yellow-color: #E0BE36;
     --green-color: #1E852C;
@@ -15,7 +19,8 @@ body {
     overflow-x: hidden;
 }
 
-html, body {
+html,
+body {
     max-width: 100vw;
 }
 

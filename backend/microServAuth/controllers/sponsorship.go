@@ -3,7 +3,7 @@ package authController
 import (
 	"fmt"
 
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/session"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares/jwtActions"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
 	"github.com/gin-gonic/gin"
@@ -38,8 +38,17 @@ func SponsoriseByCode(ctx *gin.Context, db *gorm.DB) {
 	}
 	
 	// Set user to sponsorised
-	user, err := session.GetUserSession(ctx)
+	userId, err := jwtActions.GetUserIdFromToken(ctx)
 	if err != nil {
+		ctx.JSON(400, "User not found in session")
+		return
+	}
+
+	var user = model.User{
+		IDUser: int32(userId),
+	}
+	db.First(&user)
+	if user.IDUser == 0 {
 		ctx.JSON(400, "User not found in session")
 		return
 	}
@@ -47,7 +56,6 @@ func SponsoriseByCode(ctx *gin.Context, db *gorm.DB) {
 		ctx.JSON(400, "You cannot sponsorise yourself")
 		return
 	}
-
 	user.AlreadySponsored = true
 	db.Save(&user)
 
@@ -65,14 +73,20 @@ func SponsoriseByCode(ctx *gin.Context, db *gorm.DB) {
 //	@Failure		400	{string}	string	"msg":	"User not found in session"
 //	@Router			/myCode [get]
 func GetMyCode(ctx *gin.Context, db *gorm.DB) {
-	user, err := session.GetUserSession(ctx)
+	userId, err := jwtActions.GetUserIdFromToken(ctx)
 	if err != nil {
 		ctx.JSON(400, "User not found in session")
 		return
 	}
+	var user model.User
+	if err := db.First(&model.User{
+		IDUser: int32(userId),
+	}).First(&user).Error; err != nil {
+		ctx.JSON(400, "User not found in bdd")
+		return
+	}
 	if user.SponsorshipCode == "" {
 		ctx.JSON(400, "No code found")
-		return
 	}
 	ctx.JSON(200, user.SponsorshipCode)
 }
