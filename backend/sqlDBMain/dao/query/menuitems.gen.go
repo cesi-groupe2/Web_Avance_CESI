@@ -31,7 +31,7 @@ func newMenuitem(db *gorm.DB, opts ...gen.DOOption) menuitem {
 	_menuitem.Name = field.NewString(tableName, "name")
 	_menuitem.Description = field.NewString(tableName, "description")
 	_menuitem.Price = field.NewFloat64(tableName, "price")
-	_menuitem.Image = field.NewString(tableName, "image")
+	_menuitem.Image = field.NewBytes(tableName, "image")
 	_menuitem.CreatedAt = field.NewTime(tableName, "created_at")
 	_menuitem.IDRestaurant = field.NewInt32(tableName, "id_restaurant")
 
@@ -48,7 +48,7 @@ type menuitem struct {
 	Name         field.String
 	Description  field.String
 	Price        field.Float64
-	Image        field.String
+	Image        field.Bytes
 	CreatedAt    field.Time
 	IDRestaurant field.Int32
 
@@ -71,7 +71,7 @@ func (m *menuitem) updateTableName(table string) *menuitem {
 	m.Name = field.NewString(table, "name")
 	m.Description = field.NewString(table, "description")
 	m.Price = field.NewFloat64(table, "price")
-	m.Image = field.NewString(table, "image")
+	m.Image = field.NewBytes(table, "image")
 	m.CreatedAt = field.NewTime(table, "created_at")
 	m.IDRestaurant = field.NewInt32(table, "id_restaurant")
 

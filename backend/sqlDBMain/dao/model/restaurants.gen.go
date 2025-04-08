@@ -11,7 +11,7 @@ type Restaurant struct {
 	IDRestaurant          int32   `gorm:"column:id_restaurant;primaryKey;autoIncrement:true" json:"id_restaurant"`
 	Name                  string  `gorm:"column:name;not null" json:"name"`
 	Address               string  `gorm:"column:address;not null" json:"address"`
-	Picture               string  `gorm:"column:picture" json:"picture"`
+	Picture               []byte  `gorm:"column:picture" json:"picture"`
 	LocalisationLatitude  float64 `gorm:"column:localisation_latitude" json:"localisation_latitude"`
 	LocalisationLongitude float64 `gorm:"column:localisation_longitude" json:"localisation_longitude"`
 	Phone                 string  `gorm:"column:phone" json:"phone"`

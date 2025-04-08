@@ -257,9 +257,23 @@ const WebPageDAccueil = () => {
           <HeroSubtitle>
             C'est easy, commandez, détendez vous, dégustez !
           </HeroSubtitle>
-          <Button onClick={handleButtonClick}>
-            {getButtonText()}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button
+              onClick={handleButtonClick}
+              disabled={isLoading}
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium"
+            >
+              {getButtonText()}
+            </Button>
+            {isAuthenticated && userRole === "2" && hasRestaurant && (
+              <Button
+                onClick={() => navigate("/restaurant/edit")}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium"
+              >
+                Modifier mon restaurant
+              </Button>
+            )}
+          </div>
         </HeroContent>
       </HeroSection>
       

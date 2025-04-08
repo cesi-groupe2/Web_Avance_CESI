@@ -621,7 +621,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "image": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "name": {
                     "type": "string"
@@ -656,7 +659,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "picture": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         }

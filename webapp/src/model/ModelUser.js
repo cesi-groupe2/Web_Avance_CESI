@@ -81,7 +81,7 @@ class ModelUser {
                 obj['phone'] = ApiClient.convertToType(data['phone'], 'String');
             }
             if (data.hasOwnProperty('profil_picture')) {
-                obj['profil_picture'] = ApiClient.convertToType(data['profil_picture'], 'String');
+                obj['profil_picture'] = ApiClient.convertToType(data['profil_picture'], ['Number']);
             }
             if (data.hasOwnProperty('sponsorship_code')) {
                 obj['sponsorship_code'] = ApiClient.convertToType(data['sponsorship_code'], 'String');
@@ -128,9 +128,9 @@ class ModelUser {
         if (data['phone'] && !(typeof data['phone'] === 'string' || data['phone'] instanceof String)) {
             throw new Error("Expected the field `phone` to be a primitive type in the JSON string but got " + data['phone']);
         }
-        // ensure the json data is a string
-        if (data['profil_picture'] && !(typeof data['profil_picture'] === 'string' || data['profil_picture'] instanceof String)) {
-            throw new Error("Expected the field `profil_picture` to be a primitive type in the JSON string but got " + data['profil_picture']);
+        // ensure the json data is an array
+        if (!Array.isArray(data['profil_picture'])) {
+            throw new Error("Expected the field `profil_picture` to be an array in the JSON data but got " + data['profil_picture']);
         }
         // ensure the json data is a string
         if (data['sponsorship_code'] && !(typeof data['sponsorship_code'] === 'string' || data['sponsorship_code'] instanceof String)) {
@@ -201,7 +201,7 @@ ModelUser.prototype['password_hash'] = undefined;
 ModelUser.prototype['phone'] = undefined;
 
 /**
- * @member {String} profil_picture
+ * @member {Array.<Number>} profil_picture
  */
 ModelUser.prototype['profil_picture'] = undefined;
 

@@ -142,7 +142,7 @@ export default class PublicApi {
      * @param {String} lastname Lastname
      * @param {String} role Role
      * @param {Object} opts Optional parameters
-     * @param {String} [picture] Picture
+     * @param {File} [picture] Picture
      * @param {String} [phone] Phone
      * @param {String} [deliveryAdress] Delivery adress
      * @param {String} [facturationAdress] Facturation adress

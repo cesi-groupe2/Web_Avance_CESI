@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares/jwtActions"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
@@ -153,6 +154,12 @@ func CreateRestaurant(ctx *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// get the picture from the request
+	picture, err := utils.PictureFromForm(ctx, "picture")
+	if err != nil {
+		picture = []byte{}
+	}
+
 	// Parse the opening_hours JSON into the model.OpeningHours struct.
 	var openingHours model.OpeningHours
 	if err := json.Unmarshal([]byte(openingHoursStr), &openingHours); err != nil {
@@ -185,7 +192,7 @@ func CreateRestaurant(ctx *gin.Context, db *gorm.DB) {
 		LocalisationLatitude:  localisationLatitudeFloat,
 		LocalisationLongitude: localisationLongitudeFloat,
 		OpeningHours:          openingHoursStr,
-		Picture:               "",
+		Picture:               picture,
 	}
 
 	result := db.Create(&restaurant)

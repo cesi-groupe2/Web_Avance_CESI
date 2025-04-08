@@ -144,11 +144,11 @@ export default class RestaurantApi {
      * @param {String} localisationLatitude Latitude of the restaurant
      * @param {String} localisationLongitude Longitude of the restaurant
      * @param {File} picture Picture of the restaurant
-     * @param {String} opening_hours Opening hours of the restaurant
+     * @param {string} dayOpeningHours Day opening hours of the restaurant
      * @param {module:api/RestaurantApi~restaurantNewPostCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/ModelRestaurant}
      */
-    restaurantNewPost(name, phone, address, localisationLatitude, localisationLongitude, picture, opening_hours,	 callback) {
+    restaurantNewPost(name, phone, address, localisationLatitude, localisationLongitude, picture, dayOpeningHours, callback) {
       let postBody = null;
       // verify the required parameter 'name' is set
       if (name === undefined || name === null) {
@@ -174,10 +174,9 @@ export default class RestaurantApi {
       if (picture === undefined || picture === null) {
         throw new Error("Missing the required parameter 'picture' when calling restaurantNewPost");
       }
-
-      // verify the required parameter 'opening_hours' is set
-      if (opening_hours === undefined || opening_hours === null) {
-        throw new Error("Missing the required parameter 'opening_hours' when calling restaurantNewPost");
+      // verify the required parameter 'dayOpeningHours' is set
+      if (dayOpeningHours === undefined || dayOpeningHours === null) {
+        throw new Error("Missing the required parameter 'dayOpeningHours' when calling restaurantNewPost");
       }
 
       let pathParams = {
@@ -193,7 +192,7 @@ export default class RestaurantApi {
         'localisation_latitude': localisationLatitude,
         'localisation_longitude': localisationLongitude,
         'picture': picture,
-        'opening_hours': opening_hours,
+        'opening_hours': dayOpeningHours
       };
 
       let authNames = ['BearerAuth'];

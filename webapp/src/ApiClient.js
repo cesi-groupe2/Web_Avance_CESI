@@ -562,7 +562,12 @@ class ApiClient {
                 } else if (Array.isArray(type)) {
                     // for array type like: ['String']
                     var itemType = type[0];
-
+                    
+                    // Si data n'est pas un tableau, on le convertit en tableau
+                    if (!Array.isArray(data)) {
+                        data = [data];
+                    }
+                    
                     return data.map((item) => {
                         return ApiClient.convertToType(item, itemType);
                     });

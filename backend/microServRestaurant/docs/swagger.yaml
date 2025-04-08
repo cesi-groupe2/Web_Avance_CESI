@@ -18,7 +18,9 @@ definitions:
       id_restaurant:
         type: integer
       image:
-        type: string
+        items:
+          type: integer
+        type: array
       name:
         type: string
       price:
@@ -41,7 +43,9 @@ definitions:
       phone:
         type: string
       picture:
-        type: string
+        items:
+          type: integer
+        type: array
     type: object
 host: localhost:8052
 info:

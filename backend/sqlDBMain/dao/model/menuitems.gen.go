@@ -5,22 +5,65 @@
 package model
 
 import (
+	"bytes"
+	"encoding/base64"
 	"time"
 )
 
 const TableNameMenuitem = "menuitems"
 
-// Menuitem mapped from table <menuitems>
-type Menuitem struct {
-	IDMenuItem   int32     `gorm:"column:id_menu_item;primaryKey;autoIncrement:true" json:"id_menu_item"`
-	Name         string    `gorm:"column:name;not null" json:"name"`
-	Description  string    `gorm:"column:description" json:"description"`
-	Price        float64   `gorm:"column:price;not null" json:"price"`
-	Image        string    `gorm:"column:image" json:"image"`
-	CreatedAt    time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
-	IDRestaurant int32     `gorm:"column:id_restaurant;not null" json:"id_restaurant"`
+// Base64Image est un type personnalisé pour gérer les images en base64
+type Base64Image []byte
+
+// MarshalJSON implémente l'interface json.Marshaler
+func (b Base64Image) MarshalJSON() ([]byte, error) {
+	if len(b) == 0 {
+		return []byte(`""`), nil
+	}
+	
+	// Si l'image est déjà en base64 avec préfixe, la retourner telle quelle
+	if bytes.HasPrefix(b, []byte("data:image")) {
+		return b, nil
+	}
+	
+	// Sinon, encoder en base64 avec préfixe
+	encoded := base64.StdEncoding.EncodeToString(b)
+	return []byte(`"data:image/jpeg;base64,` + encoded + `"`), nil
 }
 
+// UnmarshalJSON implémente l'interface json.Unmarshaler
+func (b *Base64Image) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 || string(data) == `""` {
+		*b = Base64Image{}
+		return nil
+	}
+	
+	// Supprimer les guillemets
+	data = bytes.Trim(data, `"`)
+	
+	// Si c'est déjà une image base64 avec préfixe
+	if bytes.HasPrefix(data, []byte("data:image")) {
+		*b = Base64Image(data)
+		return nil
+	}
+	
+	// Sinon, stocker les données brutes
+	*b = Base64Image(data)
+	return nil
+}
+
+// Menuitem mapped from table <menuitems>
+type Menuitem struct {
+	IDMenuItem   int32      `gorm:"column:id_menu_item;primaryKey;autoIncrement:true" json:"id_menu_item"`
+	Name         string     `gorm:"column:name;not null" json:"name"`
+	Description  string     `gorm:"column:description" json:"description"`
+	Price        float64    `gorm:"column:price;not null" json:"price"`
+	Image        Base64Image `gorm:"column:image" json:"image"`
+	CreatedAt    time.Time  `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
+	IDRestaurant int32      `gorm:"column:id_restaurant;not null" json:"id_restaurant"`
+}
+
+// TableName Menuitem's table name
 func (*Menuitem) TableName() string {
 	return TableNameMenuitem
 }

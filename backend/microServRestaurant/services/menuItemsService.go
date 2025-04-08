@@ -2,12 +2,15 @@ package restaurantService
 
 import (
 	"fmt"
+	"log"
 	"strconv"
+	"bytes"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"encoding/base64"
 )
 
 // GetMenuItemsByRestaurantId godoc
@@ -25,6 +28,19 @@ func GetMenuItemsByRestaurantId(ctx *gin.Context, db *gorm.DB) {
 	restaurantId := ctx.Param("restaurantId")
 	var menuItems []model.Menuitem
 	db.Where(fmt.Sprintf("%s = ?", columns.MenuitemColumnIDRestaurant), restaurantId).Find(&menuItems)
+
+	// Convertir les images en base64
+	for i := range menuItems {
+		if len(menuItems[i].Image) > 0 {
+			// Vérifier si l'image est déjà en base64 avec préfixe
+			if !bytes.HasPrefix(menuItems[i].Image, []byte("data:image")) {
+				menuItems[i].Image = []byte("data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(menuItems[i].Image))
+			}
+		} else {
+			log.Printf("Aucune image trouvée pour l'item %d", menuItems[i].IDMenuItem)
+		}
+	}
+
 	ctx.JSON(200, menuItems)
 }
 
@@ -130,28 +146,27 @@ func UpdateMenuItem(ctx *gin.Context, db *gorm.DB) {
 
 	restaurantId, err := strconv.Atoi(restaurantIdStr)
 	if err != nil {
+		log.Println("Error converting restaurantId to int:", err)
 		ctx.JSON(400, gin.H{"error": "Invalid restaurant id"})
 		return
 	}
 
 	menuItemId, err := strconv.Atoi(menuItemIdStr)
 	if err != nil {
+		log.Println("Error converting menuItemId to int:", err)
 		ctx.JSON(400, gin.H{"error": "Invalid menu item id"})
 		return
 	}
 
 	var menuItem model.Menuitem
 	if err := db.Where(fmt.Sprintf("%s = ? AND %s = ?", columns.MenuitemColumnIDMenuItem, columns.MenuitemColumnIDRestaurant), menuItemId, restaurantId).First(&menuItem).Error; err != nil {
+		log.Println("Error finding menu item:", err)
 		ctx.JSON(404, gin.H{"error": "Menu item not found"})
 		return
 	}
 
-	if err := ctx.ShouldBindJSON(&menuItem); err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid menu item"})
-		return
-	}
-
 	if err := db.Save(&menuItem).Error; err != nil {
+		log.Println("Error saving menu item:", err)
 		ctx.JSON(500, gin.H{"error": "Failed to update menu item"})
 		return
 	}

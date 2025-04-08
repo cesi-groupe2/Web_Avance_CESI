@@ -8,6 +8,7 @@ import Register from "./pages/Auth/Register/Register";
 import RestaurantList from "./pages/Restaurant/List/RestaurantList";
 import RestaurantDetails from "./pages/Restaurant/Details/RestaurantDetails";
 import CreateRestaurant from "./pages/Restaurant/Create/CreateRestaurant";
+import EditRestaurant from "./pages/Restaurant/Edit/EditRestaurant";
 import RestaurantMenu from "./pages/Restaurant/Menu/RestaurantMenu";
 import Checkout from "./pages/Order/Checkout/Checkout";
 import Tracking from "./pages/Order/Tracking/Tracking";
@@ -35,6 +36,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <CreateRestaurant />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/restaurant/edit"
+        element={
+          <ProtectedRoute requiredRole="2">
+            <EditRestaurant />
           </ProtectedRoute>
         }
       />
