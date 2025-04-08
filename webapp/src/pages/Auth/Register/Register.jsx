@@ -308,7 +308,7 @@ const Register = () => {
                   active={formData.role === "2"}
                   onClick={() => handleRoleSelect("2")}
                 >
-                  Restaurant
+                  Restaurateur
                 </UserTypeButton>
               </UserTypeOption>
               <UserTypeOption>

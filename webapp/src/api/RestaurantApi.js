@@ -144,10 +144,11 @@ export default class RestaurantApi {
      * @param {String} localisationLatitude Latitude of the restaurant
      * @param {String} localisationLongitude Longitude of the restaurant
      * @param {File} picture Picture of the restaurant
+     * @param {String} opening_hours Opening hours of the restaurant
      * @param {module:api/RestaurantApi~restaurantNewPostCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/ModelRestaurant}
      */
-    restaurantNewPost(name, phone, address, localisationLatitude, localisationLongitude, picture, callback) {
+    restaurantNewPost(name, phone, address, localisationLatitude, localisationLongitude, picture, opening_hours,	 callback) {
       let postBody = null;
       // verify the required parameter 'name' is set
       if (name === undefined || name === null) {
@@ -174,6 +175,11 @@ export default class RestaurantApi {
         throw new Error("Missing the required parameter 'picture' when calling restaurantNewPost");
       }
 
+      // verify the required parameter 'opening_hours' is set
+      if (opening_hours === undefined || opening_hours === null) {
+        throw new Error("Missing the required parameter 'opening_hours' when calling restaurantNewPost");
+      }
+
       let pathParams = {
       };
       let queryParams = {
@@ -186,7 +192,8 @@ export default class RestaurantApi {
         'address': address,
         'localisation_latitude': localisationLatitude,
         'localisation_longitude': localisationLongitude,
-        'picture': picture
+        'picture': picture,
+        'opening_hours': opening_hours,
       };
 
       let authNames = ['BearerAuth'];

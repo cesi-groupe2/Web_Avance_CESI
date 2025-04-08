@@ -22,28 +22,68 @@ const CreateRestaurant = () => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, userRole, hasRestaurant } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    name: '',
-    picture: '',
-    phone: '',
-    address: '',
-    localisation_latitude: '',
-    localisation_longitude: '',
-    opening_hours: {
-      monday: { open: '', close: '', isClosed: false },
-      tuesday: { open: '', close: '', isClosed: false },
-      wednesday: { open: '', close: '', isClosed: false },
-      thursday: { open: '', close: '', isClosed: false },
-      friday: { open: '', close: '', isClosed: false },
-      saturday: { open: '', close: '', isClosed: false },
-      sunday: { open: '', close: '', isClosed: false }
+  const [formData, setFormData] = useState(() => {
+    // Récupérer les données sauvegardées du localStorage
+    const savedData = localStorage.getItem('restaurantFormData');
+    if (savedData) {
+      return JSON.parse(savedData);
     }
+    // Si pas de données sauvegardées, utiliser les valeurs par défaut
+    return {
+      name: '',
+      picture: '',
+      phone: '',
+      address: '',
+      localisation_latitude: '',
+      localisation_longitude: '',
+      opening_hours: {
+        monday: { open: '', close: '', isClosed: false },
+        tuesday: { open: '', close: '', isClosed: false },
+        wednesday: { open: '', close: '', isClosed: false },
+        thursday: { open: '', close: '', isClosed: false },
+        friday: { open: '', close: '', isClosed: false },
+        saturday: { open: '', close: '', isClosed: false },
+        sunday: { open: '', close: '', isClosed: false }
+      }
+    };
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
-  const [mapPosition, setMapPosition] = useState([48.8566, 2.3522]); // Paris par défaut
+  const [previewImage, setPreviewImage] = useState(() => {
+    // Restaurer l'aperçu de l'image si elle existe
+    const savedImage = localStorage.getItem('restaurantImagePreview');
+    return savedImage || null;
+  });
+  const [mapPosition, setMapPosition] = useState(() => {
+    // Restaurer la position de la carte si elle existe
+    const savedPosition = localStorage.getItem('restaurantMapPosition');
+    return savedPosition ? JSON.parse(savedPosition) : [48.8566, 2.3522];
+  });
   const [searchTimeout, setSearchTimeout] = useState(null);
+
+  // Sauvegarder les données dans le localStorage à chaque modification
+  useEffect(() => {
+    localStorage.setItem('restaurantFormData', JSON.stringify(formData));
+  }, [formData]);
+
+  // Sauvegarder la position de la carte
+  useEffect(() => {
+    localStorage.setItem('restaurantMapPosition', JSON.stringify(mapPosition));
+  }, [mapPosition]);
+
+  // Sauvegarder l'aperçu de l'image
+  useEffect(() => {
+    if (previewImage) {
+      localStorage.setItem('restaurantImagePreview', previewImage);
+    }
+  }, [previewImage]);
+
+  // Nettoyer le localStorage après la création réussie du restaurant
+  const clearFormData = () => {
+    localStorage.removeItem('restaurantFormData');
+    localStorage.removeItem('restaurantImagePreview');
+    localStorage.removeItem('restaurantMapPosition');
+  };
 
   const steps = [
     { number: 1, title: 'Informations de base', description: 'Nom, photo et téléphone' },
@@ -281,7 +321,19 @@ const CreateRestaurant = () => {
 
       // Préparation des horaires d'ouverture au format JSON
       const openingHoursStr = JSON.stringify(formData.opening_hours);
+      console.log('adresse:', address);
       
+      // Création d'un objet FormData pour envoyer les données
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', name);
+      formDataToSend.append('phone', phone);
+      formDataToSend.append('address', address);
+      formDataToSend.append('localisation_latitude', localisationLatitude);
+      formDataToSend.append('localisation_longitude', localisationLongitude);
+      formDataToSend.append('opening_hours', openingHoursStr);
+      if (picture) {
+        formDataToSend.append('picture', picture);
+      }
 
       // Appel de l'API avec les paramètres requis
       const response = await new Promise((resolve, reject) => {
@@ -304,6 +356,7 @@ const CreateRestaurant = () => {
       });
 
       console.log('Restaurant créé avec succès:', response.data);
+      clearFormData(); // Nettoyer le localStorage après la création réussie
       navigate('/restaurant/menuitems');
     } catch (error) {
       console.error('Erreur lors de la création du restaurant:', error);
