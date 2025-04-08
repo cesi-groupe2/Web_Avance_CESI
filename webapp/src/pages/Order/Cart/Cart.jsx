@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useCart } from '../../../contexts/CartContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import Header from '../../../components/Header';
-import Button from '../../../components/Button';
+import Button from '../../../components/Button/Button';
 import { FiPlus, FiMinus, FiTrash2 } from 'react-icons/fi';
 
 const CartContainer = styled.div`

@@ -7,12 +7,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func HandlerMicroServRestaurantRoads(server *gin.Engine , sqlClient *gorm.DB) *gin.RouterGroup {
+func HandlerMicroServRestaurantRoads(server *gin.Engine, sqlClient *gorm.DB) *gin.RouterGroup {
 	restaurant := server.Group("/restaurant", middlewares.AuthMiddleware())
 	restaurant.GET("/:restaurantId", func(ctx *gin.Context) {
 		restaurantService.GetRestaurantById(ctx, sqlClient)
 	})
-	restaurant.GET("/nearby", func(ctx *gin.Context) {
+	restaurant.GET("/nearby/:latitude/:longitude/:kmAround", func(ctx *gin.Context) {
 		restaurantService.GetNearbyRestaurants(ctx, sqlClient)
 	})
 	restaurant.GET("/my", func(ctx *gin.Context) {

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useFavorites } from '../../../contexts/FavoritesContext';
 import Header from '../../../components/Header';
-import Button from '../../../components/Button';
+import Button from '../../../components/Button/Button';
 import { FiHeart, FiClock, FiStar } from 'react-icons/fi';
 
 const FavoritesContainer = styled.div`
