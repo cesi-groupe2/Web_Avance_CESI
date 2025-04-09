@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FiMapPin, FiPhone, FiClock, FiImage, FiNavigation, FiArrowLeft, FiCheck } from 'react-icons/fi';
 import Header from '../../../components/Header';
 import { useAuth } from '../../../contexts/AuthContext';
 import RestaurantApi from '../../../api/RestaurantApi';
+import ModelRestaurant from '../../../model/ModelRestaurant';
 import logo from '../../../assets/logo.png';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
@@ -60,6 +61,23 @@ const CreateRestaurant = () => {
     return savedPosition ? JSON.parse(savedPosition) : [48.8566, 2.3522];
   });
   const [searchTimeout, setSearchTimeout] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const mapRef = useRef(null);
+
+  // Ordre des jours pour l'affichage
+  const daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  
+  // Noms des jours en français
+  const daysNames = {
+    monday: 'Lundi',
+    tuesday: 'Mardi',
+    wednesday: 'Mercredi',
+    thursday: 'Jeudi',
+    friday: 'Vendredi',
+    saturday: 'Samedi',
+    sunday: 'Dimanche'
+  };
 
   // Sauvegarder les données dans le localStorage à chaque modification
   useEffect(() => {
@@ -160,26 +178,27 @@ const CreateRestaurant = () => {
 
     // Créer un nouveau timeout pour la recherche
     const timeout = setTimeout(() => {
-      if (value.length > 5) { // Ne chercher que si l'adresse a une longueur minimale
-        fetchCoordinates();
+      if (value.length > 3) { // Ne chercher que si l'adresse a une longueur minimale
+        fetchAddressSuggestions(value);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
       }
-    }, 1000); // Attendre 1 seconde après la dernière frappe
+    }, 300); // Attendre 300ms après la dernière frappe
 
     setSearchTimeout(timeout);
   };
 
-  const fetchCoordinates = async () => {
-    if (!formData.address) return;
+  const fetchAddressSuggestions = async (query) => {
     try {
       setLoading(true);
-      console.log('Recherche de coordonnées pour:', formData.address);
       
       // Construction de la requête avec plus de détails
-      const searchQuery = `${formData.address}, France`;
+      const searchQuery = `${query}, France`;
       const url = new URL('https://nominatim.openstreetmap.org/search');
       url.searchParams.append('format', 'json');
       url.searchParams.append('q', searchQuery);
-      url.searchParams.append('limit', '1');
+      url.searchParams.append('limit', '5');
       url.searchParams.append('addressdetails', '1');
       url.searchParams.append('countrycodes', 'fr');
       url.searchParams.append('accept-language', 'fr');
@@ -195,36 +214,53 @@ const CreateRestaurant = () => {
       }
       
       const data = await response.json();
-      console.log('Réponse de Nominatim:', data);
       
       if (data && data.length > 0) {
-        const { lat, lon } = data[0];
-        console.log('Coordonnées trouvées:', { lat, lon });
-        
-        // Mise à jour de la position sur la carte
-        const newPosition = [parseFloat(lat), parseFloat(lon)];
-        setMapPosition(newPosition);
-        
-        // Mise à jour des coordonnées dans le formulaire
-        setFormData(prev => ({
-          ...prev,
-          localisation_latitude: lat,
-          localisation_longitude: lon
-        }));
-
-        // Zoom sur la position
-        const map = document.querySelector('.leaflet-container');
-        if (map) {
-          map._leaflet_map.setView(newPosition, 16);
-        }
+        setSuggestions(data);
+        setShowSuggestions(true);
       } else {
-        setError('Adresse non trouvée. Veuillez vérifier l\'adresse et réessayer.');
+        setSuggestions([]);
+        setShowSuggestions(false);
       }
     } catch (error) {
-      console.error('Erreur lors de la récupération des coordonnées:', error);
-      setError('Impossible de localiser cette adresse. Veuillez réessayer.');
+      console.error('Erreur lors de la récupération des suggestions:', error);
+      setSuggestions([]);
+      setShowSuggestions(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    const { display_name, lat, lon, address } = suggestion;
+    
+    // Construction de l'adresse complète avec le numéro
+    let fullAddress = '';
+    if (address) {
+      const parts = [];
+      if (address.house_number) parts.push(address.house_number);
+      if (address.road) parts.push(address.road);
+      if (address.city || address.town || address.village) parts.push(address.city || address.town || address.village);
+      if (address.postcode) parts.push(address.postcode);
+      fullAddress = parts.join(', ');
+    } else {
+      fullAddress = display_name;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      address: fullAddress,
+      localisation_latitude: lat,
+      localisation_longitude: lon
+    }));
+    
+    setMapPosition([parseFloat(lat), parseFloat(lon)]);
+    setSuggestions([]);
+    setShowSuggestions(false);
+    
+    // Zoom sur la position si la carte est disponible
+    if (mapRef.current) {
+      mapRef.current.setView([parseFloat(lat), parseFloat(lon)], 16);
     }
   };
 
@@ -291,7 +327,7 @@ const CreateRestaurant = () => {
   const handleNext = () => {
     if (validateStep()) {
       if (currentStep === 2) {
-        fetchCoordinates();
+        fetchAddressSuggestions(formData.address);
       }
       setCurrentStep(prev => Math.min(prev + 1, steps.length));
     }
@@ -303,65 +339,66 @@ const CreateRestaurant = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateStep()) return;
-
     setLoading(true);
     setError('');
 
     try {
-      const restaurantApi = new RestaurantApi();
-      
-      // Préparation des données pour l'API
-      const name = formData.name;
-      const phone = formData.phone;
-      const address = formData.address;
-      const localisationLatitude = formData.localisation_latitude;
-      const localisationLongitude = formData.localisation_longitude;
-      const picture = formData.picture instanceof File ? formData.picture : null;
+      // Convertir les coordonnées en float64
+      const latitude = parseFloat(formData.localisation_latitude);
+      const longitude = parseFloat(formData.localisation_longitude);
 
-      // Préparation des horaires d'ouverture au format JSON
-      const openingHoursStr = JSON.stringify(formData.opening_hours);
-      console.log('adresse:', address);
-      
-      // Création d'un objet FormData pour envoyer les données
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', name);
-      formDataToSend.append('phone', phone);
-      formDataToSend.append('address', address);
-      formDataToSend.append('localisation_latitude', localisationLatitude);
-      formDataToSend.append('localisation_longitude', localisationLongitude);
-      formDataToSend.append('opening_hours', openingHoursStr);
-      if (picture) {
-        formDataToSend.append('picture', picture);
+      // Vérifier si les coordonnées sont valides
+      if (isNaN(latitude) || isNaN(longitude)) {
+        setError('Les coordonnées de localisation ne sont pas valides');
+        setLoading(false);
+        return;
       }
 
-      // Appel de l'API avec les paramètres requis
-      const response = await new Promise((resolve, reject) => {
-        restaurantApi.restaurantNewPost(
-          name,
-          phone,
-          address,
-          localisationLatitude,
-          localisationLongitude,
-          picture,
-          openingHoursStr,
-          (error, data, response) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve({ data, response });
-            }
-          }
-        );
-      });
+      const api = new RestaurantApi();
+      
+      // Créer un objet ModelRestaurant
+      const restaurantData = new ModelRestaurant();
+      restaurantData.name = formData.name;
+      restaurantData.phone = formData.phone;
+      restaurantData.address = formData.address;
+      restaurantData.localisation_latitude = latitude; // Utiliser la valeur convertie
+      restaurantData.localisation_longitude = longitude; // Utiliser la valeur convertie
+      restaurantData.opening_hours = JSON.stringify(formData.opening_hours);
+      
+      // Si l'image a changé, la traiter séparément
+      if (previewImage && previewImage !== formData.picture) {
+        // Convertir l'image en base64 si nécessaire
+        const imageData = previewImage;
+        restaurantData.picture = imageData;
+      }
 
-      console.log('Restaurant créé avec succès:', response.data);
-      clearFormData(); // Nettoyer le localStorage après la création réussie
-      navigate('/restaurant/menuitems');
-    } catch (error) {
-      console.error('Erreur lors de la création du restaurant:', error);
-      setError(error.message || 'Une erreur est survenue lors de la création du restaurant');
-    } finally {
+      console.log('Création du restaurant avec les données:', restaurantData);
+
+      // Appeler l'API avec la méthode correcte
+      api.restaurantNewPost(
+        restaurantData.name,
+        restaurantData.phone,
+        restaurantData.address,
+        restaurantData.localisation_latitude,
+        restaurantData.localisation_longitude,
+        restaurantData.picture,
+        restaurantData.opening_hours,
+        (error, data) => {
+          if (error) {
+            console.error('Erreur lors de la création du restaurant:', error);
+            setError('Erreur lors de la création du restaurant');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('Restaurant créé avec succès:', data);
+          clearFormData();
+          navigate('/restaurant/menu');
+        }
+      );
+    } catch (err) {
+      console.error('Erreur lors de la création du restaurant:', err);
+      setError('Erreur lors de la création du restaurant');
       setLoading(false);
     }
   };
@@ -522,16 +559,52 @@ const CreateRestaurant = () => {
                       name="address"
                       value={formData.address}
                       onChange={handleAddressChange}
+                      onFocus={() => formData.address.length > 3 && setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                       required
                       placeholder="Adresse complète du restaurant (ex: 3 Rue de Bretagne, Paris)"
                       className="w-full pl-10 pr-4 py-3 border border-[#e0e0e0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00a082] focus:border-transparent transition-all duration-200 bg-white"
-                      autoComplete="street-address"
+                      autoComplete="off"
                     />
                     <FiMapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#666]" />
+                    
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div className="absolute z-10 w-full bottom-full mb-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {suggestions.map((suggestion, index) => {
+                          const { display_name, address } = suggestion;
+                          const mainPart = address ? 
+                            `${address.house_number || ''} ${address.road || ''}`.trim() :
+                            display_name.split(',')[0];
+                          const secondaryPart = address ?
+                            `${address.city || address.town || address.village || ''}, ${address.postcode || ''}`.trim() :
+                            display_name.split(',').slice(1).join(',').trim();
+                          
+                          return (
+                            <div
+                              key={index}
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleSuggestionClick(suggestion)}
+                            >
+                              <div className="font-medium">{mainPart}</div>
+                              <div className="text-sm text-gray-500">{secondaryPart}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    
+                    {loading && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <svg className="animate-spin h-5 w-5 text-[#00a082]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
+                    )}
                   </div>
-                  {loading && (
-                    <div className="text-sm text-[#666] mt-1">
-                      Recherche de l'adresse en cours...
+                  {error && (
+                    <div className="text-sm text-red-600 mt-1">
+                      {error}
                     </div>
                   )}
                 </div>
@@ -544,8 +617,8 @@ const CreateRestaurant = () => {
                     <MapContainer 
                       center={mapPosition} 
                       zoom={13} 
-                      className="w-full h-[400px] rounded-lg shadow-md"
-                      style={{ zIndex: 1 }}
+                      style={{ height: '400px', width: '100%' }}
+                      ref={mapRef}
                     >
                       <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -588,42 +661,63 @@ const CreateRestaurant = () => {
 
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-[#333] mb-4">Horaires d'ouverture</h3>
-                {Object.entries(formData.opening_hours).map(([day, hours]) => (
-                  <div key={day} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                    <label className="text-sm font-medium text-[#333] capitalize">
-                      {day}
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="time"
-                        value={hours.open}
-                        onChange={(e) => handleOpeningHoursChange(day, 'ouverture', e.target.value)}
-                        className="w-full px-3 py-2 border border-[#e0e0e0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00a082] focus:border-transparent"
-                        disabled={hours.isClosed}
-                      />
-                      <span className="text-[#666]">à</span>
-                      <input
-                        type="time"
-                        value={hours.close}
-                        onChange={(e) => handleOpeningHoursChange(day, 'fermeture', e.target.value)}
-                        className="w-full px-3 py-2 border border-[#e0e0e0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00a082] focus:border-transparent"
-                        disabled={hours.isClosed}
-                      />
-                    </div>
-                    <div className="flex items-center">
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={hours.isClosed}
-                          onChange={() => handleDayClosed(day)}
-                          className="w-4 h-4 text-[#00a082] border-[#e0e0e0] rounded focus:ring-[#00a082]"
-                        />
-                        <span className="text-sm text-[#666]">Fermé ce jour</span>
-                      </label>
-                    </div>
-                  </div>
-                ))}
+                <div className="flex items-center space-x-2 mb-4">
+                  <FiClock className="text-[#00a082] text-xl" />
+                  <h3 className="text-lg font-medium text-[#333]">Horaires d'ouverture</h3>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm border border-[#e0e0e0] overflow-hidden">
+                  {daysOrder.map((day, index) => {
+                    const hours = formData.opening_hours[day];
+                    return (
+                      <div key={day} className={`flex flex-col md:flex-row items-center p-4 ${index !== 6 ? 'border-b border-[#e0e0e0]' : ''}`}>
+                        <div className="w-full md:w-1/3 flex items-center justify-between md:justify-start md:space-x-4 mb-4 md:mb-0">
+                          <div className="w-24 text-left">
+                            <span className="text-sm font-medium text-[#333]">
+                              {daysNames[day]}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <label className="inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={hours.isClosed}
+                                onChange={() => handleDayClosed(day)}
+                                className="sr-only peer"
+                              />
+                              <div className="relative w-11 h-6 bg-[#e0e0e0] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#00a082]/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-[#e0e0e0] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00a082]"></div>
+                            </label>
+                            <span className="text-sm font-medium text-[#666] whitespace-nowrap">Fermé</span>
+                          </div>
+                        </div>
+                        <div className="w-full md:w-2/3 flex items-center space-x-4">
+                          <div className="flex-1">
+                            <div className="relative">
+                              <input
+                                type="time"
+                                value={hours.open}
+                                onChange={(e) => handleOpeningHoursChange(day, 'ouverture', e.target.value)}
+                                className={`w-full px-4 py-2.5 border border-[#e0e0e0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00a082] focus:border-transparent transition-colors ${hours.isClosed ? 'bg-[#f9f9f9] text-[#999]' : 'bg-white'}`}
+                                disabled={hours.isClosed}
+                              />
+                            </div>
+                          </div>
+                          <span className="text-[#666]">à</span>
+                          <div className="flex-1">
+                            <div className="relative">
+                              <input
+                                type="time"
+                                value={hours.close}
+                                onChange={(e) => handleOpeningHoursChange(day, 'fermeture', e.target.value)}
+                                className={`w-full px-4 py-2.5 border border-[#e0e0e0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00a082] focus:border-transparent transition-colors ${hours.isClosed ? 'bg-[#f9f9f9] text-[#999]' : 'bg-white'}`}
+                                disabled={hours.isClosed}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
