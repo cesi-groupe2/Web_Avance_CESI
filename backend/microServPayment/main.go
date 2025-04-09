@@ -49,12 +49,12 @@ func main() {
 	// Initialiser le groupe de routes pour le paiement
 	paymentGroup := routes.HandlerMicroServPaymentRoads(microServBase.Server, microServBase.Database)
 
-	// Correction ici : utiliser paymentGroup pour InitSwagger()
-	microServBase.InitSwagger(paymentGroup)
-
 	// Définir l'adresse et le port du microservice
 	address := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_PAYMENT_ADDR_ENV, "localhost")
 	port := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_PAYMENT_PORT_ENV, "8006")
+
+	// Correction ici : utiliser paymentGroup pour InitSwagger()
+	microServBase.InitSwagger(paymentGroup, address, port)
 
 	// Démarrer le serveur
 	microServBase.RunServer(address, port)

@@ -12,7 +12,7 @@ const (
 	MONGO_PORT_ENV                      = "MONGO_PORT"
 	MONGO_INITDB_ROOT_USERNAME          = "MONGO_INITDB_ROOT_USERNAME"
 	MONGO_INITDB_ROOT_PASSWORD          = "MONGO_INITDB_ROOT_PASSWORD"
-	MONGO_DATABASE                      = "MONGO_DATABASE"
+	MONGO_DATABASE_ENV                      = "MONGO_DATABASE"
 	MYSQL_USER_ENV                      = "MYSQL_USER"
 	MYSQL_PASSWORD_ENV                  = "MYSQL_PASSWORD"
 	MYSQL_ADDRESS_ENV                   = "MYSQL_ADDRESS"
@@ -32,6 +32,7 @@ const (
 	GMAIL_ADDR_ENV                      = "GMAIL_ADDR"
 	SMTP_HOST_ENV                       = "SMTP_HOST"
 	SMTP_PORT_ENV                       = "SMTP_PORT"
+	STRIPE_SECRET_KEY_ENV				= "STRIPE_SECRET_KEY"
 	FRONTEND_URL_ENV                    = "FRONTEND_URL"
 	ENV_MODE                            = "ENV_MODE"
 )
