@@ -1,5 +1,35 @@
 basePath: /
-host: localhost:7001
+definitions:
+  model.User:
+    properties:
+      already_sponsored:
+        type: boolean
+      created_at:
+        type: string
+      delivery_adress:
+        type: string
+      email:
+        type: string
+      facturation_adress:
+        type: string
+      first_name:
+        type: string
+      id_role:
+        type: integer
+      id_user:
+        type: integer
+      last_name:
+        type: string
+      password_hash:
+        type: string
+      phone:
+        type: string
+      profil_picture:
+        type: string
+      sponsorship_code:
+        type: string
+    type: object
+host: localhost:8001
 info:
   contact:
     email: benjamin.guerre@viacesi.fr
@@ -9,6 +39,31 @@ info:
   title: Swagger Easeat Auth API
   version: "1.0"
 paths:
+  /{code}:
+    get:
+      consumes:
+      - application/json
+      description: Sponsorise a user with sponsorship code
+      parameters:
+      - description: Sponsorship code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: "msg\":\t\"ok"
+          schema:
+            type: string
+        "400":
+          description: "msg\":\t\"User not found in session"
+          schema:
+            type: string
+      summary: Sponsorise a user by code
+      tags:
+      - sponso
   /auth/logout:
     post:
       consumes:
@@ -18,10 +73,33 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'msg": "ok'
+          description: "msg\":\t\"ok"
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Logout the user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "401":
+          description: "msg\":\t\"User not found"
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get the current user
       tags:
       - auth
   /auth/refreshToken:
@@ -39,16 +117,102 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'msg": "ok'
+          description: "msg\":\t\"ok"
           schema:
             type: string
         "401":
-          description: 'msg": "Token is required'
+          description: "msg\":\t\"Token is required"
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Refresh the JWT token
       tags:
       - auth
+  /auth/resetPwd/{userId}:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Reset password
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: New password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: "msg\":\t\"ok"
+          schema:
+            type: string
+        "400":
+          description: "msg\":\t\"Password is required"
+          schema:
+            type: string
+        "401":
+          description: "msg\":\t\"User not found !"
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Reset password
+      tags:
+      - auth
+  /myCode:
+    get:
+      consumes:
+      - application/json
+      description: Get my sponsorship code
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: "msg\":\t\"ok"
+          schema:
+            type: string
+        "400":
+          description: "msg\":\t\"User not found in session"
+          schema:
+            type: string
+      summary: Get my sponsorship code
+      tags:
+      - sponso
+  /public/forgotPassword:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Forgot password, send an email to the user
+      parameters:
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: "msg\":\t\"ok"
+          schema:
+            type: string
+        "400":
+          description: "msg\":\t\"Email is required"
+          schema:
+            type: string
+        "401":
+          description: "msg\":\t\"User not found !"
+          schema:
+            type: string
+      summary: Forgot password, send an email to the user
+      tags:
+      - public
   /public/login:
     post:
       consumes:
@@ -69,12 +233,12 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'user": model.User, "token": string'
+          description: "user\":\tmodel.User,\t\"token\":\tstring"
           schema:
             additionalProperties: true
             type: object
         "401":
-          description: 'msg": "User not found !'
+          description: "msg\":\t\"User not found !"
           schema:
             type: string
       summary: Login a user
@@ -131,11 +295,11 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'msg": "ok'
+          description: "msg\":\t\"ok"
           schema:
             type: string
         "400":
-          description: 'msg": "Role is required'
+          description: "msg\":\t\"Role is required"
           schema:
             type: string
       summary: Register a new user

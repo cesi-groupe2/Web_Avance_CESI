@@ -22,39 +22,53 @@ jobs:
           go-version: "1.21"
 
       - name: Install dependencies
-        run: go mod tidy
+        run:  |
+                cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+                go mod tidy
 
       - name: Run tests
-        run: go test ./... -v
+        run: |
+          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+          go test ./... -v
+
   lint:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Checkout code
-           uses: actions/checkout@v3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+  
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"  # Use stable Go version for compatibility
+  
+      - name: Clean Go environment
+        run: |
+          go clean -modcache
+          rm -rf $GOPATH/pkg
+  
+      - name: Install latest golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/bin latest
+  
+      - name: Install dependencies
+        run: |
+          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+          go mod tidy
+          go mod vendor
+  
+      - name: Run lint in debug mode
+        run: |
+          cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
+          golangci-lint run --verbose --timeout=5m ./...
 
-         - name: Set up Go
-           uses: actions/setup-go@v4
-           with:
-             go-version: "1.21"
-
-
-
-         - name: Install golangci-lint
-           run: |
-             curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
-
-         - name: Install dependencies
-           run: |
-                  cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/rest/
-                  go mod tidy
-                  go get -u github.com/swaggo/gin-swagger
-                  go get -u github.com/swaggo/files
-                  go mod tidy  # Nettoyer à nouveau
-                  go mod vendor  # Ajouter le dossier vendor pour éviter les problèmes
-              
-
-         - name: Run lint
-           run: |
-               cd /home/runner/work/Web_Avance_CESI/Web_Avance_CESI/backend/apiGateway/
-               golangci-lint run ./...
- 
+  build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        - name: Run k6 local test
+          uses: grafana/k6-action@v0.3.1
+          with:
+            filename: my-load-test.js
+            flags: --vus 50 --duration 10s

@@ -21,6 +21,11 @@ const docTemplate = `{
     "paths": {
         "/auth/logout": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Logout the user",
                 "consumes": [
                     "application/json"
@@ -34,7 +39,41 @@ const docTemplate = `{
                 "summary": "Logout the user",
                 "responses": {
                     "200": {
-                        "description": "msg\": \"ok",
+                        "description": "msg\":\t\"ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get the current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get the current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "401": {
+                        "description": "msg\":\t\"User not found",
                         "schema": {
                             "type": "string"
                         }
@@ -44,6 +83,11 @@ const docTemplate = `{
         },
         "/auth/refreshToken": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Refresh the JWT token",
                 "consumes": [
                     "application/x-www-form-urlencoded"
@@ -66,13 +110,142 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "msg\": \"ok",
+                        "description": "msg\":\t\"ok",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
-                        "description": "msg\": \"Token is required",
+                        "description": "msg\":\t\"Token is required",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/resetPwd/{userId}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Reset password",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Reset password",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "New password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "msg\":\t\"ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "msg\":\t\"Password is required",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "msg\":\t\"User not found !",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/myCode": {
+            "get": {
+                "description": "Get my sponsorship code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sponso"
+                ],
+                "summary": "Get my sponsorship code",
+                "responses": {
+                    "200": {
+                        "description": "msg\":\t\"ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "msg\":\t\"User not found in session",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/forgotPassword": {
+            "post": {
+                "description": "Forgot password, send an email to the user",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Forgot password, send an email to the user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "msg\":\t\"ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "msg\":\t\"Email is required",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "msg\":\t\"User not found !",
                         "schema": {
                             "type": "string"
                         }
@@ -111,14 +284,14 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "user\": model.User, \"token\": string",
+                        "description": "user\":\tmodel.User,\t\"token\":\tstring",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "401": {
-                        "description": "msg\": \"User not found !",
+                        "description": "msg\":\t\"User not found !",
                         "schema": {
                             "type": "string"
                         }
@@ -202,17 +375,101 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "msg\": \"ok",
+                        "description": "msg\":\t\"ok",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "msg\": \"Role is required",
+                        "description": "msg\":\t\"Role is required",
                         "schema": {
                             "type": "string"
                         }
                     }
+                }
+            }
+        },
+        "/{code}": {
+            "get": {
+                "description": "Sponsorise a user with sponsorship code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sponso"
+                ],
+                "summary": "Sponsorise a user by code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sponsorship code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "msg\":\t\"ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "msg\":\t\"User not found in session",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "already_sponsored": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "delivery_adress": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "facturation_adress": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id_role": {
+                    "type": "integer"
+                },
+                "id_user": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password_hash": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profil_picture": {
+                    "type": "string"
+                },
+                "sponsorship_code": {
+                    "type": "string"
                 }
             }
         }
@@ -230,7 +487,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:7001",
+	Host:             "localhost:8001",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Swagger Easeat Auth API",

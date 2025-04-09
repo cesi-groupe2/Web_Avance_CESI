@@ -38,6 +38,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.DeliveryAdress = field.NewString(tableName, "delivery_adress")
 	_user.FacturationAdress = field.NewString(tableName, "facturation_adress")
 	_user.IDRole = field.NewInt32(tableName, "id_role")
+	_user.SponsorshipCode = field.NewString(tableName, "sponsorship_code")
+	_user.AlreadySponsored = field.NewBool(tableName, "already_sponsored")
 
 	_user.fillFieldMap()
 
@@ -59,6 +61,8 @@ type user struct {
 	DeliveryAdress    field.String
 	FacturationAdress field.String
 	IDRole            field.Int32
+	SponsorshipCode   field.String
+	AlreadySponsored  field.Bool
 
 	fieldMap map[string]field.Expr
 }
@@ -86,6 +90,8 @@ func (u *user) updateTableName(table string) *user {
 	u.DeliveryAdress = field.NewString(table, "delivery_adress")
 	u.FacturationAdress = field.NewString(table, "facturation_adress")
 	u.IDRole = field.NewInt32(table, "id_role")
+	u.SponsorshipCode = field.NewString(table, "sponsorship_code")
+	u.AlreadySponsored = field.NewBool(table, "already_sponsored")
 
 	u.fillFieldMap()
 
@@ -110,7 +116,7 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 11)
+	u.fieldMap = make(map[string]field.Expr, 13)
 	u.fieldMap["id_user"] = u.IDUser
 	u.fieldMap["email"] = u.Email
 	u.fieldMap["password_hash"] = u.PasswordHash
@@ -122,6 +128,8 @@ func (u *user) fillFieldMap() {
 	u.fieldMap["delivery_adress"] = u.DeliveryAdress
 	u.fieldMap["facturation_adress"] = u.FacturationAdress
 	u.fieldMap["id_role"] = u.IDRole
+	u.fieldMap["sponsorship_code"] = u.SponsorshipCode
+	u.fieldMap["already_sponsored"] = u.AlreadySponsored
 }
 
 func (u user) clone(db *gorm.DB) user {

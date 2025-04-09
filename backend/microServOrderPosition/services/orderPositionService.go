@@ -12,17 +12,17 @@ import (
 )
 
 // GetLastPositionByOrderID godoc
-// @Summary Get the last position of an order by its id
-// @Description Get the last position of an order by its id
-// @Tags OrderPosition
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param orderID path int true "Order ID"
-// @Success 200 {object} mongoModels.OrderPositionHistory
-// @Failure 400 {object} string
-// @Failure 500 {object} string
-// @Router /lastPosition/{orderID} [get]
+//	@Summary		Get the last position of an order by its id
+//	@Description	Get the last position of an order by its id
+//	@Tags			OrderPosition
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			orderID	path		int	true	"Order ID"
+//	@Success		200		{object}	mongoModels.OrderPositionHistory
+//	@Failure		400		{object}	string
+//	@Failure		500		{object}	string
+//	@Router			/lastPosition/{orderID} [get]
 func GetLastPositionByOrderID(ctx *gin.Context, database *mongo.Database) {
 	orderID, err := strconv.Atoi(ctx.Param("orderID"))
 	if err != nil {
@@ -43,17 +43,17 @@ func GetLastPositionByOrderID(ctx *gin.Context, database *mongo.Database) {
 }
 
 // CreateOrderPosition godoc
-// @Summary Create an order position
-// @Description Create an order position
-// @Tags OrderPosition
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param orderPositionHistory body mongoModels.OrderPositionHistory true "Order Position"
-// @Success 200 {object} string
-// @Failure 400 {object} string
-// @Failure 500 {object} string
-// @Router / [post]
+//	@Summary		Create an order position
+//	@Description	Create an order position
+//	@Tags			OrderPosition
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			orderPositionHistory	body		mongoModels.OrderPositionHistory	true	"Order Position"
+//	@Success		200						{object}	string
+//	@Failure		400						{object}	string
+//	@Failure		500						{object}	string
+//	@Router			/ [post]
 func CreateOrderPosition(ctx *gin.Context, database *mongo.Database) {
 	var orderPositionHistory mongoModels.OrderPositionHistory
 	err := ctx.BindJSON(&orderPositionHistory)
@@ -74,17 +74,17 @@ func CreateOrderPosition(ctx *gin.Context, database *mongo.Database) {
 }
 
 // CreateOrderPositionLite godoc
-// @Summary Create an order position with less order position informations
-// @Description Create an order position with less order position informations, only the order id, and the position are required
-// @Tags OrderPosition
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param orderPositionHistory body mongoModels.OrderPositionHistory true "Order Position"
-// @Success 200 {object} string
-// @Failure 400 {object} string
-// @Failure 500 {object} string
-// @Router /createLite [post]
+//	@Summary		Create an order position with less order position informations
+//	@Description	Create an order position with less order position informations, only the order id, and the position are required
+//	@Tags			OrderPosition
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			orderPositionHistory	body		mongoModels.OrderPositionHistory	true	"Order Position"
+//	@Success		200						{object}	string
+//	@Failure		400						{object}	string
+//	@Failure		500						{object}	string
+//	@Router			/createLite [post]
 func CreateOrderPositionLite(ctx *gin.Context, database *mongo.Database) {
 	var orderPositionHistory mongoModels.OrderPositionHistory
 	err := ctx.BindJSON(&orderPositionHistory)
@@ -107,17 +107,17 @@ func CreateOrderPositionLite(ctx *gin.Context, database *mongo.Database) {
 }
 
 // GetJourneyByOrderID godoc
-// @Summary Get the journey of an order by its id
-// @Description Get the journey of an order by its id
-// @Tags OrderPosition
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param orderID path int true "Order ID"
-// @Success 200 {object} []mongoModels.OrderPositionHistory
-// @Failure 400 {object} string
-// @Failure 500 {object} string
-// @Router /journey/{orderID} [get]
+//	@Summary		Get the journey of an order by its id
+//	@Description	Get the journey of an order by its id
+//	@Tags			OrderPosition
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			orderID	path		int	true	"Order ID"
+//	@Success		200		{object}	[]mongoModels.OrderPositionHistory
+//	@Failure		400		{object}	string
+//	@Failure		500		{object}	string
+//	@Router			/journey/{orderID} [get]
 func GetJourneyByOrderID(ctx *gin.Context, database *mongo.Database) {
 	orderID, err := strconv.Atoi(ctx.Param("orderID"))
 	if err != nil {

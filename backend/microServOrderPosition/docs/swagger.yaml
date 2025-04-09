@@ -48,6 +48,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Create an order position
       tags:
       - OrderPosition
@@ -79,6 +81,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Create an order position with less order position informations
       tags:
       - OrderPosition
@@ -110,6 +114,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Get the journey of an order by its id
       tags:
       - OrderPosition
@@ -139,6 +145,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Get the last position of an order by its id
       tags:
       - OrderPosition

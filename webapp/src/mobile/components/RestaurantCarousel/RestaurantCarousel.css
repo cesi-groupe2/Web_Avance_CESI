@@ -1,0 +1,37 @@
+.keen-slider {
+  position: relative;
+  margin-bottom: 2.5rem;
+}
+
+.carousel-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.carousel-info {
+  padding: 10px;
+  text-align: center;
+}
+
+.carousel-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.carousel-details,
+.carousel-rating {
+  font-size: 14px;
+  color: #666;
+}

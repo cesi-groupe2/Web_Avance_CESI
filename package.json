@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "go": "^3.0.1"
+    "go": "^3.0.1",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^5.0.0"
   }
 }

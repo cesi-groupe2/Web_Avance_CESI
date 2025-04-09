@@ -1,0 +1,35 @@
+.menu-item-editable {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    background-color: #fff;
+  }
+  
+  .menu-texts {
+    flex: 1;
+  }
+  
+  .menu-name {
+    font-weight: bold;
+    font-size: 15px;
+  }
+  
+  .menu-price {
+    font-weight: bold;
+    margin: 0.3rem 0;
+  }
+  
+  .menu-desc {
+    font-size: 13px;
+    color: #444;
+  }
+  
+  .menu-thumb {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-left: 1rem;
+  }
+  

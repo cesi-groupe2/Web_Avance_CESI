@@ -21,18 +21,6 @@ type Menuitem struct {
 	IDRestaurant int32     `gorm:"column:id_restaurant;not null" json:"id_restaurant"`
 }
 
-// Column names for Menuitem defined as constants for consistency and immutability.
-const (
-	MenuitemColumnIDMenuItem   = "id_menu_item"
-	MenuitemColumnName         = "name"
-	MenuitemColumnDescription  = "description"
-	MenuitemColumnPrice        = "price"
-	MenuitemColumnImage        = "image"
-	MenuitemColumnCreatedAt    = "created_at"
-	MenuitemColumnIDRestaurant = "id_restaurant"
-)
-
-// TableName Menuitem's table name
 func (*Menuitem) TableName() string {
 	return TableNameMenuitem
 }

@@ -15,6 +15,11 @@
     "paths": {
         "/": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create an order position",
                 "consumes": [
                     "application/json"
@@ -61,6 +66,11 @@
         },
         "/createLite": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create an order position with less order position informations, only the order id, and the position are required",
                 "consumes": [
                     "application/json"
@@ -107,6 +117,11 @@
         },
         "/journey/{orderID}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get the journey of an order by its id",
                 "consumes": [
                     "application/json"
@@ -154,6 +169,11 @@
         },
         "/lastPosition/{orderID}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get the last position of an order by its id",
                 "consumes": [
                     "application/json"
