@@ -328,7 +328,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "file",
                         "description": "Picture",
                         "name": "picture",
                         "in": "formData"
@@ -466,7 +466,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "profil_picture": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "sponsorship_code": {
                     "type": "string"

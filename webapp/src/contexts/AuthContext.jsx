@@ -4,6 +4,7 @@ import PublicApi from "../api/PublicApi";
 import AuthApi from "../api/AuthApi";
 import ModelUser from "../model/ModelUser";
 import HandlersLoginRequest from "../model/HandlersLoginRequest";
+import RestaurantApi from "../api/RestaurantApi";
 
 // Initialiser les APIs
 const publicApi = new PublicApi();
@@ -200,30 +201,68 @@ export const AuthProvider = ({ children }) => {
         
         console.log("Données utilisateur récupérées depuis l'API:", userData);
         
-        // Formater les données utilisateur pour assurer la cohérence en front-end
-        const formattedUserData = {
-          ...userData,
-          // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
-          FirstName: userData.first_name || "",
-          LastName: userData.last_name || "",
-          Email: userData.email || "",
-          Phone: userData.phone || "",
-          DeliveryAdress: userData.delivery_adress || "",
-          FacturationAdress: userData.facturation_adress || "",
-          role: userData.id_role?.toString() || "1",
+        // Récupérer le restaurant de l'utilisateur si c'est un restaurateur
+        if (userData.id_role === 2) {
+          const restaurantApi = new RestaurantApi();
+          restaurantApi.restaurantMyGet((error, restaurants) => {
+            if (error) {
+              console.error("Erreur lors de la récupération du restaurant:", error);
+            } else if (restaurants && restaurants.length > 0) {
+              userData.restaurantId = restaurants[0].id_restaurant;
+            }
             
-          // S'assurer que first_name et last_name sont définis
-          first_name: userData.first_name || userData.FirstName || "",
-          last_name: userData.last_name || userData.LastName || ""
-        };
-        
-        console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
-        
-        // Mettre à jour le localStorage avec les données fraîches
-        localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
-        localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
-        setCurrentUser(formattedUserData);
-        setLoading(false);
+            // Formater les données utilisateur pour assurer la cohérence en front-end
+            const formattedUserData = {
+              ...userData,
+              // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
+              FirstName: userData.first_name || "",
+              LastName: userData.last_name || "",
+              Email: userData.email || "",
+              Phone: userData.phone || "",
+              DeliveryAdress: userData.delivery_adress || "",
+              FacturationAdress: userData.facturation_adress || "",
+              role: userData.id_role?.toString() || "1",
+              restaurantId: userData.restaurantId,
+                
+              // S'assurer que first_name et last_name sont définis
+              first_name: userData.first_name || userData.FirstName || "",
+              last_name: userData.last_name || userData.LastName || ""
+            };
+            
+            console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
+            
+            // Mettre à jour le localStorage avec les données fraîches
+            localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
+            localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
+            setCurrentUser(formattedUserData);
+            setLoading(false);
+          });
+        } else {
+          // Formater les données utilisateur pour assurer la cohérence en front-end
+          const formattedUserData = {
+            ...userData,
+            // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
+            FirstName: userData.first_name || "",
+            LastName: userData.last_name || "",
+            Email: userData.email || "",
+            Phone: userData.phone || "",
+            DeliveryAdress: userData.delivery_adress || "",
+            FacturationAdress: userData.facturation_adress || "",
+            role: userData.id_role?.toString() || "1",
+              
+            // S'assurer que first_name et last_name sont définis
+            first_name: userData.first_name || userData.FirstName || "",
+            last_name: userData.last_name || userData.LastName || ""
+          };
+          
+          console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
+          
+          // Mettre à jour le localStorage avec les données fraîches
+          localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
+          localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
+          setCurrentUser(formattedUserData);
+          setLoading(false);
+        }
       });
     } catch (error) {
       console.error("Erreur d'authentification:", error);

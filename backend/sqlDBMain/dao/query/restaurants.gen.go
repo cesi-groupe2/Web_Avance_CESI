@@ -30,7 +30,7 @@ func newRestaurant(db *gorm.DB, opts ...gen.DOOption) restaurant {
 	_restaurant.IDRestaurant = field.NewInt32(tableName, "id_restaurant")
 	_restaurant.Name = field.NewString(tableName, "name")
 	_restaurant.Address = field.NewString(tableName, "address")
-	_restaurant.Picture = field.NewString(tableName, "picture")
+	_restaurant.Picture = field.NewBytes(tableName, "picture")
 	_restaurant.LocalisationLatitude = field.NewFloat64(tableName, "localisation_latitude")
 	_restaurant.LocalisationLongitude = field.NewFloat64(tableName, "localisation_longitude")
 	_restaurant.Phone = field.NewString(tableName, "phone")
@@ -48,7 +48,7 @@ type restaurant struct {
 	IDRestaurant          field.Int32
 	Name                  field.String
 	Address               field.String
-	Picture               field.String
+	Picture               field.Bytes
 	LocalisationLatitude  field.Float64
 	LocalisationLongitude field.Float64
 	Phone                 field.String
@@ -72,7 +72,7 @@ func (r *restaurant) updateTableName(table string) *restaurant {
 	r.IDRestaurant = field.NewInt32(table, "id_restaurant")
 	r.Name = field.NewString(table, "name")
 	r.Address = field.NewString(table, "address")
-	r.Picture = field.NewString(table, "picture")
+	r.Picture = field.NewBytes(table, "picture")
 	r.LocalisationLatitude = field.NewFloat64(table, "localisation_latitude")
 	r.LocalisationLongitude = field.NewFloat64(table, "localisation_longitude")
 	r.Phone = field.NewString(table, "phone")

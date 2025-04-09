@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares/jwtActions"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
@@ -81,6 +82,73 @@ func GetRestaurantById(ctx *gin.Context, db *gorm.DB) {
 	ctx.JSON(200, restaurant)
 }
 
+// UpdateRestaurant godoc
+//	@Summary		Update a restaurant
+//	@Description	Update a restaurant
+//	@Tags			restaurant
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			restaurantId	path		string				true	"Restaurant ID"
+//	@Param			restaurant		body		model.Restaurant	true	"Restaurant object"
+//	@Success		200				{object}	model.Restaurant
+//	@Failure		400				{object}	map[string]string
+//	@Failure		404				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Router			/restaurant/{restaurantId} [put]
+func UpdateRestaurant(ctx *gin.Context, db *gorm.DB) {
+	restaurantId := ctx.Param("restaurantId")
+
+	var restaurant model.Restaurant
+	if err := db.Where(fmt.Sprintf("%s = ?", columns.RestaurantColumnIDRestaurant), restaurantId).First(&restaurant).Error; err != nil {
+		log.Println("Error finding restaurant:", err)
+		ctx.JSON(404, gin.H{"error": "Restaurant not found"})
+		return
+	}
+
+	// Update restaurant fields using a temporary struct to handle string to float conversion for localisation fields
+	var tempRestaurant struct {
+		Name                  string          `json:"name"`
+		Phone                 string          `json:"phone"`
+		Address               string          `json:"address"`
+		LocalisationLatitude  string          `json:"localisation_latitude"`
+		LocalisationLongitude string          `json:"localisation_longitude"`
+		OpeningHours          string          `json:"opening_hours"`
+		Picture               json.RawMessage `json:"picture"`
+	}
+	if err := ctx.ShouldBindJSON(&tempRestaurant); err != nil {
+		log.Println("Error binding JSON:", err)
+		ctx.JSON(400, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	restaurant.Name = tempRestaurant.Name
+	restaurant.Phone = tempRestaurant.Phone
+	restaurant.Address = tempRestaurant.Address
+	restaurant.OpeningHours = tempRestaurant.OpeningHours
+	restaurant.Picture = []byte(tempRestaurant.Picture)
+
+	var errConv error
+	restaurant.LocalisationLatitude, errConv = strconv.ParseFloat(tempRestaurant.LocalisationLatitude, 64)
+	if errConv != nil {
+		log.Println("Invalid latitude:", errConv)
+		ctx.JSON(400, gin.H{"error": "Invalid latitude"})
+		return
+	}
+	restaurant.LocalisationLongitude, errConv = strconv.ParseFloat(tempRestaurant.LocalisationLongitude, 64)
+	if errConv != nil {
+		log.Println("Invalid longitude:", errConv)
+		ctx.JSON(400, gin.H{"error": "Invalid longitude"})
+		return
+	}
+	if err := db.Save(&restaurant).Error; err != nil {
+		log.Println("Error saving restaurant:", err)
+		ctx.JSON(500, gin.H{"error": "Failed to update restaurant"})
+		return
+	}
+	ctx.JSON(200, restaurant)
+}
+	
 // GetMyRestaurants godoc
 //	@Summary		Get the restaurants owned by the user
 //	@Description	Get the restaurants owned by the user
@@ -153,6 +221,12 @@ func CreateRestaurant(ctx *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// get the picture from the request
+	picture, err := utils.PictureFromForm(ctx, "picture")
+	if err != nil {
+		picture = []byte{}
+	}
+
 	// Parse the opening_hours JSON into the model.OpeningHours struct.
 	var openingHours model.OpeningHours
 	if err := json.Unmarshal([]byte(openingHoursStr), &openingHours); err != nil {
@@ -185,7 +259,7 @@ func CreateRestaurant(ctx *gin.Context, db *gorm.DB) {
 		LocalisationLatitude:  localisationLatitudeFloat,
 		LocalisationLongitude: localisationLongitudeFloat,
 		OpeningHours:          openingHoursStr,
-		Picture:               "",
+		Picture:               picture,
 	}
 
 	result := db.Create(&restaurant)
