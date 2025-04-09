@@ -386,7 +386,19 @@ const Header = () => {
           <Logo src={logo} alt="EasEat" onClick={handleLogoClick} />
         </LogoLink>
         <NavLinks>
-          <NavLink to="/restaurants">Restaurants</NavLink>
+          {isAuthenticated ? (
+            <NavLink to="/restaurants">Restaurants</NavLink>
+          ) : (
+            <NavLink as="button" onClick={() => navigate("/login")} style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontSize: 'inherit'
+            }}>
+              Restaurants
+            </NavLink>
+          )}
         </NavLinks>
         <Actions>
           {isAuthenticated ? (
@@ -435,11 +447,11 @@ const Header = () => {
             </CloseButton>
           </MobileMenuHeader>
           <MobileNavLinks>
-            <MobileNavLink to="/restaurants" onClick={closeMenu}>
-              Restaurants
-            </MobileNavLink>
             {isAuthenticated ? (
               <>
+                <MobileNavLink to="/restaurants" onClick={closeMenu}>
+                  Restaurants
+                </MobileNavLink>
                 <MobileNavLink to="/profile" onClick={closeMenu}>
                   Mon profil
                 </MobileNavLink>
@@ -457,14 +469,19 @@ const Header = () => {
                 </MobileNavLink>
               </>
             ) : (
-              <MobileAuthButtons>
-                <MobileLoginButton to="/login" onClick={closeMenu}>
-                  Connexion
-                </MobileLoginButton>
-                <MobileRegisterButton to="/register" onClick={closeMenu}>
-                  Inscription
-                </MobileRegisterButton>
-              </MobileAuthButtons>
+              <>
+                <MobileNavLink as="button" onClick={() => { closeMenu(); navigate("/login"); }} style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left' }}>
+                  Restaurants
+                </MobileNavLink>
+                <MobileAuthButtons>
+                  <MobileLoginButton to="/login" onClick={closeMenu}>
+                    Connexion
+                  </MobileLoginButton>
+                  <MobileRegisterButton to="/register" onClick={closeMenu}>
+                    Inscription
+                  </MobileRegisterButton>
+                </MobileAuthButtons>
+              </>
             )}
           </MobileNavLinks>
         </MobileMenu>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Input from "../../../components/Input";
 import Button from "../../../components/Button";
@@ -111,6 +111,7 @@ const ErrorMessage = styled.div`
 const Login = () => {
   const { login, isAuthenticated, currentUser, token } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -125,9 +126,13 @@ const Login = () => {
     
     if (loginSuccessful && isAuthenticated) {
       console.log("Redirection après connexion réussie");
-      navigate("/");
+      // Get the redirect path from location state or default to home
+      const { state } = location;
+      const redirectPath = state?.from || "/";
+      console.log("Redirection vers:", redirectPath);
+      navigate(redirectPath);
     }
-  }, [isAuthenticated, currentUser, loginSuccessful, navigate]);
+  }, [isAuthenticated, currentUser, loginSuccessful, navigate, location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
