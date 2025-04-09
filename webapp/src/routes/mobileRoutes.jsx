@@ -9,6 +9,7 @@ import RestaurantPageMobile from '../mobile/pages/RestaurantPageMobile/Restauran
 import HomeRestaurateurPageMobile from "../mobile/pages/HomeRestaurateurPageMobile/HomeRestaurateurPageMobile";
 import MyRestaurantPageMobile from "../mobile/pages/MyRestaurantPageMobile/MyRestaurantPageMobile";
 import AddArticlePageMobile from "../mobile/pages/AddArticlePageMobile/AddArticlePageMobile";
+import PaymentPageMobile from "../mobile/pages/Pay/App";
 
 const mobileRoutes = [
   { path: "/", element: <HomePageMobile /> },
@@ -21,6 +22,7 @@ const mobileRoutes = [
   { path: '/home-restaurateur', element: <HomeRestaurateurPageMobile /> },
   { path: '/my-restaurant', element: <MyRestaurantPageMobile /> },
   { path: '/add-article', element: <AddArticlePageMobile /> },
+  { path: "/payment", element: <PaymentPageMobile /> },
 ];
 
 export default mobileRoutes;
