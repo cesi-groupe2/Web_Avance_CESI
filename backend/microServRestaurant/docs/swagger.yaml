@@ -1,4 +1,4 @@
-basePath: /restaurant
+basePath: /
 definitions:
   model.DayOpeningHours:
     properties:
@@ -84,6 +84,52 @@ paths:
       security:
       - BearerAuth: []
       summary: Get a restaurant by its id
+      tags:
+      - restaurant
+    put:
+      consumes:
+      - application/json
+      description: Update a restaurant
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: restaurantId
+        required: true
+        type: string
+      - description: Restaurant object
+        in: body
+        name: restaurant
+        required: true
+        schema:
+          $ref: '#/definitions/model.Restaurant'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Restaurant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a restaurant
       tags:
       - restaurant
   /restaurant/{restaurantId}/menuitems:

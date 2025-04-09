@@ -34,7 +34,7 @@ func GetMenuItemsByRestaurantId(ctx *gin.Context, db *gorm.DB) {
 		if len(menuItems[i].Image) > 0 {
 			// Vérifier si l'image est déjà en base64 avec préfixe
 			if !bytes.HasPrefix(menuItems[i].Image, []byte("data:image")) {
-				menuItems[i].Image = []byte("data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(menuItems[i].Image))
+				menuItems[i].Image = []byte(base64.StdEncoding.EncodeToString(menuItems[i].Image))
 			}
 		} else {
 			log.Printf("Aucune image trouvée pour l'item %d", menuItems[i].IDMenuItem)

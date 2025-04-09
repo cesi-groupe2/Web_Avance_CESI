@@ -291,6 +291,54 @@ export default class RestaurantApi {
         authNames, contentTypes, accepts, returnType, null, callback
       );
     }
+  
+    /**
+     * Callback function to receive the result of the restaurantRestaurantIdPut operation.
+     * @callback module:api/RestaurantApi~restaurantRestaurantIdPutCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/ModelRestaurant} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Update a restaurant
+     * Update a restaurant
+     * @param {String} restaurantId Restaurant ID
+     * @param {module:model/ModelRestaurant} restaurant Restaurant object
+     * @param {module:api/RestaurantApi~restaurantRestaurantIdPutCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link module:model/ModelRestaurant}
+     */
+    restaurantRestaurantIdPut(restaurantId, restaurant, callback) {
+      let postBody = restaurant;
+      // verify the required parameter 'restaurantId' is set
+      if (restaurantId === undefined || restaurantId === null) {
+        throw new Error("Missing the required parameter 'restaurantId' when calling restaurantRestaurantIdPut");
+      }
+      // verify the required parameter 'restaurant' is set
+      if (restaurant === undefined || restaurant === null) {
+        throw new Error("Missing the required parameter 'restaurant' when calling restaurantRestaurantIdPut");
+      }
+
+      let pathParams = {
+        'restaurantId': restaurantId
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = ['BearerAuth'];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = ModelRestaurant;
+      return this.apiClient.callApi(
+        '/restaurant/{restaurantId}', 'PUT',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, null, callback
+      );
+    }
 
 
 }
