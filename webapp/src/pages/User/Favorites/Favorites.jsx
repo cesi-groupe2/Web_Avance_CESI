@@ -5,6 +5,7 @@ import { useFavorites } from '../../../contexts/FavoritesContext';
 import Header from '../../../components/Header';
 import Button from '../../../components/Button/Button';
 import { FiHeart, FiClock, FiStar } from 'react-icons/fi';
+import dodoImage from '../../../assets/dodo.jpg';
 
 const FavoritesContainer = styled.div`
   max-width: 1200px;
@@ -30,6 +31,13 @@ const EmptyFavoritesText = styled.p`
   font-size: 1.2rem;
   margin-bottom: 1.5rem;
   color: #666;
+`;
+
+const EmptyFavoritesImage = styled.img`
+  max-width: 300px;
+  margin: 2rem auto;
+  display: block;
+  border-radius: 8px;
 `;
 
 const RestaurantsGrid = styled.div`
@@ -168,7 +176,8 @@ const Favorites = () => {
         <FavoritesContainer>
           <FavoritesTitle>Mes Restaurants Favoris</FavoritesTitle>
           <EmptyFavoritesMessage>
-            <EmptyFavoritesText>Vous n'avez pas encore de restaurants favoris</EmptyFavoritesText>
+            <EmptyFavoritesText>(à implementer)</EmptyFavoritesText>
+              <EmptyFavoritesImage src={dodoImage} alt="Dodo <3" />
             <Button as={Link} to="/restaurants">
               Découvrir des restaurants
             </Button>

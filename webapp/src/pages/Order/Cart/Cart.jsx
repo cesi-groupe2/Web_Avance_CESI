@@ -238,7 +238,7 @@ const Cart = () => {
         <CartContainer>
           <CartTitle>Mon Panier</CartTitle>
           <EmptyCartMessage>
-            <EmptyCartText>Votre panier est vide</EmptyCartText>
+            <EmptyCartText>Panier troué (à implémenter)</EmptyCartText>
             <Button as={Link} to="/restaurants">
               Parcourir les restaurants
             </Button>
