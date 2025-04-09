@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import PropTypes from "prop-types";
-import { FiClock, FiStar, FiHeart } from "react-icons/fi";
+import { FiClock, FiMapPin, FiPhone } from "react-icons/fi";
 
 const Card = styled(Link)`
   display: flex;
@@ -26,6 +26,7 @@ const ImageContainer = styled.div`
   position: relative;
   height: 180px;
   overflow: hidden;
+  background-color: #f5f5f5;
 `;
 
 const RestaurantImage = styled.img`
@@ -36,43 +37,6 @@ const RestaurantImage = styled.img`
   
   ${Card}:hover & {
     transform: scale(1.05);
-  }
-`;
-
-const PromoTag = styled.div`
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background-color: #FF5A5F;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-`;
-
-const FavoriteButton = styled.button`
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background-color: white;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  
-  svg {
-    color: ${props => props.isFavorite ? '#FF5A5F' : '#666'};
-    font-size: 16px;
-  }
-  
-  &:hover svg {
-    color: #FF5A5F;
   }
 `;
 
@@ -90,121 +54,145 @@ const RestaurantName = styled.h3`
   color: #333;
 `;
 
-const Categories = styled.p`
+const RestaurantDescription = styled.p`
   font-size: 14px;
   color: #666;
   margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
-const InfoRow = styled.div`
+const RestaurantMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
+const MetaItem = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  color: #666;
+  font-size: 14px;
   
   svg {
-    margin-right: 6px;
-    font-size: 16px;
+    margin-right: 8px;
     color: #00a082;
   }
 `;
 
-const Rating = styled.div`
-  display: flex;
-  align-items: center;
-  
-  svg {
-    color: #FFD700;
+const formatOpeningHours = (hoursJson) => {
+  try {
+    console.log('Horaires reçus:', hoursJson);
+    
+    // Si hoursJson est déjà un objet, pas besoin de le parser
+    const hours = typeof hoursJson === 'string' ? JSON.parse(hoursJson) : hoursJson;
+    
+    if (!hours || typeof hours !== 'object') {
+      console.log('Format d\'horaires invalide:', hours);
+      return "Horaires non disponibles";
+    }
+
+    const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const todayHours = hours[days[today]];
+    
+    console.log('Horaires du jour:', todayHours);
+    
+    if (!todayHours) {
+      console.log('Pas d\'horaires pour aujourd\'hui');
+      return "Horaires non disponibles";
+    }
+    
+    if (todayHours.isClosed) {
+      return "Fermé aujourd'hui";
+    }
+    
+    return `Ouvert aujourd'hui ${todayHours.open} - ${todayHours.close}`;
+  } catch (error) {
+    console.error('Erreur lors du parsing des horaires:', error, hoursJson);
+    return "Horaires non disponibles";
   }
-`;
+};
 
-const DeliveryTime = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: 16px;
-`;
-
-const DeliveryFee = styled.div`
-  font-size: 14px;
-  color: ${props => props.isFree ? '#00a082' : '#666'};
-  font-weight: ${props => props.isFree ? '600' : '400'};
-  margin-top: 8px;
-`;
+const formatCoordinates = (lat, lon) => {
+  try {
+    console.log('Coordonnées reçues:', { lat, lon });
+    
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(lon);
+    
+    if (isNaN(latitude) || isNaN(longitude)) {
+      console.log('Coordonnées invalides:', { latitude, longitude });
+      return "Coordonnées non disponibles";
+    }
+    
+    return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+  } catch (error) {
+    console.error('Erreur lors du formatage des coordonnées:', error, { lat, lon });
+    return "Coordonnées non disponibles";
+  }
+};
 
 // Composant de carte de restaurant
 const RestaurantCard = ({ 
-  id, 
+  id_restaurant, 
   name, 
-  imageUrl, 
-  categories, 
-  rating, 
-  deliveryTime, 
-  deliveryFee, 
-  promotion, 
-  isFavorite, 
-  onToggleFavorite 
+  address, 
+  picture, 
+  phone, 
+  opening_hours,
+  localisation_latitude,
+  localisation_longitude
 }) => {
-  const handleFavoriteClick = (e) => {
-    e.preventDefault();
-    onToggleFavorite(id);
-  };
-
-  const isFreeDelivery = deliveryFee === 0;
-
+  console.log('Props reçues:', { id_restaurant, name, address, picture, phone, opening_hours, localisation_latitude, localisation_longitude });
+  
   return (
-    <Card to={`/restaurants/${id}`}>
+    <Card to={`/restaurant/${id_restaurant}`}>
       <ImageContainer>
-        <RestaurantImage src={imageUrl} alt={name} />
-        {promotion && <PromoTag>{promotion}</PromoTag>}
-        <FavoriteButton 
-          isFavorite={isFavorite} 
-          onClick={handleFavoriteClick}
-          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-        >
-          <FiHeart fill={isFavorite ? "#FF5A5F" : "none"} />
-        </FavoriteButton>
+        <RestaurantImage 
+          src={picture} 
+          alt={name} 
+          onError={() => {
+            console.log('Erreur de chargement de l\'image:', picture);
+          }}
+        />
       </ImageContainer>
       
       <ContentContainer>
         <RestaurantName>{name}</RestaurantName>
-        <Categories>{categories.join(" • ")}</Categories>
-        
-        <InfoRow>
-          <Rating>
-            <FiStar />
-            <span>{rating.toFixed(1)}</span>
-          </Rating>
-          
-          <DeliveryTime>
-            <FiClock />
-            <span>{deliveryTime} min</span>
-          </DeliveryTime>
-        </InfoRow>
-        
-        <DeliveryFee isFree={isFreeDelivery}>
-          {isFreeDelivery ? "Livraison gratuite" : `Livraison ${deliveryFee.toFixed(2)} €`}
-        </DeliveryFee>
+        <RestaurantDescription>{address}</RestaurantDescription>
+        <RestaurantMeta>
+          <MetaItem>
+            <FiPhone /> {phone}
+          </MetaItem>
+          <MetaItem>
+            <FiClock /> {formatOpeningHours(opening_hours)}
+          </MetaItem>
+          <MetaItem>
+            <FiMapPin /> {formatCoordinates(localisation_latitude, localisation_longitude)}
+          </MetaItem>
+        </RestaurantMeta>
       </ContentContainer>
     </Card>
   );
 };
 
 RestaurantCard.propTypes = {
-  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  id_restaurant: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
-  imageUrl: PropTypes.string.isRequired,
-  categories: PropTypes.arrayOf(PropTypes.string).isRequired,
-  rating: PropTypes.number.isRequired,
-  deliveryTime: PropTypes.number.isRequired,
-  deliveryFee: PropTypes.number.isRequired,
-  promotion: PropTypes.string,
-  isFavorite: PropTypes.bool,
-  onToggleFavorite: PropTypes.func
+  address: PropTypes.string.isRequired,
+  picture: PropTypes.string,
+  phone: PropTypes.string.isRequired,
+  opening_hours: PropTypes.string.isRequired,
+  localisation_latitude: PropTypes.number.isRequired,
+  localisation_longitude: PropTypes.number.isRequired
 };
 
 RestaurantCard.defaultProps = {
-  promotion: null,
-  isFavorite: false,
-  onToggleFavorite: () => {}
+  picture: ''
 };
 
 export default RestaurantCard; 

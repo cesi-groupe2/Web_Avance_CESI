@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Header from "../../../components/Header";
 import RestaurantCard from "../../../components/RestaurantCard/RestaurantCard";
 import { useAuth } from "../../../contexts/AuthContext";
-import { FiSearch, FiFilter, FiSliders, FiHeart, FiClock, FiStar, FiMapPin } from "react-icons/fi";
+import { FiSearch, FiFilter, FiSliders, FiHeart, FiClock, FiStar, FiMapPin, FiPhone } from "react-icons/fi";
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../../../contexts/FavoritesContext';
 import RestaurantApi from "../../../api/RestaurantApi";
@@ -165,11 +165,35 @@ const RestaurantName = styled.h3`
 const RestaurantDescription = styled.p`
   color: #666;
   font-size: 0.9rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+`;
+
+const RestaurantPhone = styled.div`
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    margin-right: 0.3rem;
+  }
+`;
+
+const RestaurantHours = styled.div`
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    margin-right: 0.3rem;
+  }
 `;
 
 const RestaurantMeta = styled.div`
@@ -268,88 +292,53 @@ const RestaurantList = () => {
     const fetchRestaurants = async () => {
       setLoading(true);
       try {
-        // Dans un cas réel, vous utiliseriez l'API de géolocalisation pour obtenir les coordonnées
-        const latitude = 48.856614; // Paris
-        const longitude = 2.3522219;
-        const kmAround = 10;
-        
-        // Utilisation de l'API Restaurant
-        restaurantApi.restaurantNearbyLatitudeLongitudeKmAroundGet(
-          latitude.toString(), 
-          longitude.toString(), 
-          kmAround.toString(), 
-          (error, data, response) => {
+        // Si l'utilisateur est authentifié et est un restaurateur, on affiche ses restaurants
+        if (isAuthenticated && userRole === 'restaurant') {
+          restaurantApi.restaurantMyGet((error, data, response) => {
             if (error) {
               console.error('Erreur API:', error);
-              throw new Error('Erreur lors de la récupération des restaurants');
+              setError('Erreur lors de la récupération de vos restaurants');
+              setRestaurants([]);
+            } else {
+              console.log('Restaurants récupérés:', data);
+              setRestaurants(data || []);
             }
-            
-            console.log('Restaurants récupérés:', data);
-            setRestaurants(data || []);
             setLoading(false);
-          }
-        );
+          });
+        } else {
+          // Sinon, on affiche les restaurants à proximité
+          // Dans un cas réel, vous utiliseriez l'API de géolocalisation pour obtenir les coordonnées
+          const latitude = 48.856614; // Paris
+          const longitude = 2.3522219;
+          const kmAround = 10000;
+          
+          restaurantApi.restaurantNearbyLatitudeLongitudeKmAroundGet(
+            latitude.toString(), 
+            longitude.toString(), 
+            kmAround.toString(), 
+            (error, data, response) => {
+              if (error) {
+                console.error('Erreur API:', error);
+                setError('Erreur lors de la récupération des restaurants à proximité');
+                setRestaurants([]);
+              } else {
+                console.log('Restaurants récupérés:', data);
+                setRestaurants(data || []);
+              }
+              setLoading(false);
+            }
+          );
+        }
       } catch (error) {
         console.error('Erreur:', error);
-        setError(error.message);
-        
-        // Données de secours en cas d'erreur
-        setRestaurants([
-          {
-            id_restaurant: 1,
-            name: "Le Petit Bistro",
-            description: "Cuisine française traditionnelle dans un cadre chaleureux et convivial.",
-            picture: "https://via.placeholder.com/400x200?text=Le+Petit+Bistro",
-            rating: 4.7,
-            deliveryTime: "25-40 min"
-          },
-          {
-            id_restaurant: 2,
-            name: "Sushi Express",
-            description: "Les meilleurs sushis de la ville, préparés avec des ingrédients frais et de qualité.",
-            picture: "https://via.placeholder.com/400x200?text=Sushi+Express",
-            rating: 4.5,
-            deliveryTime: "20-35 min"
-          },
-          {
-            id_restaurant: 3,
-            name: "Pizza Napoli",
-            description: "Pizzas authentiques cuites au feu de bois, comme à Naples.",
-            picture: "https://via.placeholder.com/400x200?text=Pizza+Napoli",
-            rating: 4.8,
-            deliveryTime: "30-45 min"
-          },
-          {
-            id_restaurant: 4,
-            name: "Burger Palace",
-            description: "Des burgers gourmets avec des ingrédients de qualité et des frites maison.",
-            picture: "https://via.placeholder.com/400x200?text=Burger+Palace",
-            rating: 4.6,
-            deliveryTime: "15-30 min"
-          },
-          {
-            id_restaurant: 5,
-            name: "Thai Spice",
-            description: "Cuisine thaïlandaise authentique aux saveurs exotiques et épicées.",
-            picture: "https://via.placeholder.com/400x200?text=Thai+Spice",
-            rating: 4.4,
-            deliveryTime: "35-50 min"
-          },
-          {
-            id_restaurant: 6,
-            name: "Pasta & Co",
-            description: "Pâtes fraîches et sauces maison, comme dans les meilleures trattorias italiennes.",
-            picture: "https://via.placeholder.com/400x200?text=Pasta+%26+Co",
-            rating: 4.3,
-            deliveryTime: "25-40 min"
-          }
-        ]);
+        setError('Une erreur est survenue lors de la récupération des restaurants');
+        setRestaurants([]);
         setLoading(false);
       }
     };
     
     fetchRestaurants();
-  }, []);
+  }, [isAuthenticated, userRole]);
   
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -375,6 +364,24 @@ const RestaurantList = () => {
     restaurant.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     restaurant.address?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  const formatOpeningHours = (hoursJson) => {
+    try {
+      const hours = JSON.parse(hoursJson);
+      const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const todayHours = hours[days[today]];
+      
+      if (todayHours.isClosed) {
+        return "Fermé aujourd'hui";
+      }
+      
+      return `Ouvert aujourd'hui ${todayHours.open} - ${todayHours.close}`;
+    } catch (error) {
+      console.error('Erreur lors du parsing des horaires:', error);
+      return "Horaires non disponibles";
+    }
+  };
   
   if (loading) {
     return (
@@ -420,33 +427,16 @@ const RestaurantList = () => {
           <RestaurantsGrid>
             {filteredRestaurants.map((restaurant) => (
               <CardWrapper key={restaurant.id_restaurant}>
-                <RestaurantCard>
-                  <RestaurantLink to={`/restaurant/${restaurant.id_restaurant}`}>
-                    <RestaurantImage 
-                      src={restaurant.picture || 'https://via.placeholder.com/400x200?text=Restaurant'} 
-                      alt={restaurant.name}
-                    />
-                    <RestaurantInfo>
-                      <RestaurantName>{restaurant.name}</RestaurantName>
-                      <RestaurantDescription>{restaurant.address}</RestaurantDescription>
-                      <RestaurantMeta>
-                        <div>
-                          <FiClock /> {restaurant.opening_hours || "30-45 min"}
-                        </div>
-                        <RestaurantRating>
-                          <FiStar /> {restaurant.rating || "4.5"}
-                        </RestaurantRating>
-                      </RestaurantMeta>
-                    </RestaurantInfo>
-                  </RestaurantLink>
-                </RestaurantCard>
-                <FavoriteButton 
-                  isFavorite={isFavorite(restaurant.id_restaurant)}
-                  onClick={(e) => handleFavoriteToggle(e, restaurant)}
-                  aria-label={isFavorite(restaurant.id_restaurant) ? "Retirer des favoris" : "Ajouter aux favoris"}
-                >
-                  <FiHeart />
-                </FavoriteButton>
+                <RestaurantCard
+                  id_restaurant={restaurant.id_restaurant}
+                  name={restaurant.name}
+                  address={restaurant.address}
+                  picture={restaurant.picture}
+                  phone={restaurant.phone}
+                  opening_hours={restaurant.opening_hours}
+                  localisation_latitude={restaurant.localisation_latitude}
+                  localisation_longitude={restaurant.localisation_longitude}
+                />
               </CardWrapper>
             ))}
           </RestaurantsGrid>

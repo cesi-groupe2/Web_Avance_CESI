@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { FiStar, FiClock, FiHeart, FiShoppingBag, FiPlus, FiMinus, FiChevronRight } from "react-icons/fi";
+import { FiStar, FiClock, FiHeart, FiShoppingBag, FiPlus, FiMinus, FiChevronRight, FiTrash2 } from "react-icons/fi";
 import Header from "../../../components/Header";
 import Button from "../../../components/Button";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useCart } from "../../../contexts/CartContext";
 import RestaurantApi from "../../../api/RestaurantApi";
 import { useFavorites } from '../../../contexts/FavoritesContext';
 
@@ -368,18 +369,39 @@ const SummaryRow = styled.div`
   }
 `;
 
+// Add new styled component for RemoveButton
+const RemoveButton = styled.button`
+  display: flex;
+  align-items: center;
+  color: #d32f2f;
+  background: none;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 5px;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+  
+  svg {
+    margin-right: 4px;
+  }
+`;
+
 const RestaurantDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+  const { cartItems, addItem, updateItemQuantity, removeItem, getCartTotal } = useCart();
   
   const [restaurant, setRestaurant] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [cart, setCart] = useState([]);
   
   // Charger les détails du restaurant et les éléments du menu
   useEffect(() => {
@@ -439,40 +461,38 @@ const RestaurantDetails = () => {
   
   // Ajouter un élément au panier
   const addToCart = (item) => {
-    const existingItemIndex = cart.findIndex(cartItem => cartItem.id_menu_item === item.id_menu_item);
-    
-    if (existingItemIndex !== -1) {
-      // L'élément existe déjà dans le panier, augmenter la quantité
-      const updatedCart = [...cart];
-      updatedCart[existingItemIndex].quantity += 1;
-      setCart(updatedCart);
-    } else {
-      // Nouvel élément, l'ajouter au panier
-      setCart([...cart, { ...item, quantity: 1 }]);
-    }
+    addItem({
+      id: item.id_menu_item,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      description: item.description,
+      quantity: 1
+    }, restaurant);
   };
   
   // Augmenter la quantité d'un élément du panier
   const increaseQuantity = (itemId) => {
-    const updatedCart = cart.map(item => 
-      item.id_menu_item === itemId ? { ...item, quantity: item.quantity + 1 } : item
-    );
-    setCart(updatedCart);
+    const item = cartItems.find(item => item.id === itemId);
+    if (item) {
+      updateItemQuantity(itemId, item.quantity + 1);
+    }
   };
   
   // Diminuer la quantité d'un élément du panier
   const decreaseQuantity = (itemId) => {
-    const updatedCart = cart.map(item => 
-      item.id_menu_item === itemId && item.quantity > 1 
-        ? { ...item, quantity: item.quantity - 1 } 
-        : item
-    ).filter(item => !(item.id_menu_item === itemId && item.quantity === 1));
-    
-    setCart(updatedCart);
+    const item = cartItems.find(item => item.id === itemId);
+    if (item) {
+      if (item.quantity > 1) {
+        updateItemQuantity(itemId, item.quantity - 1);
+      } else {
+        removeItem(itemId);
+      }
+    }
   };
   
   // Calculer le sous-total du panier
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = getCartTotal();
   
   // Frais de livraison fixes pour l'instant
   const deliveryFee = 2.99;
@@ -489,15 +509,7 @@ const RestaurantDetails = () => {
     }
     
     // Rediriger vers la page de paiement
-    navigate("/checkout", { 
-      state: { 
-        cart, 
-        restaurant, 
-        subtotal,
-        deliveryFee,
-        total 
-      }
-    });
+    navigate("/order/checkout");
   };
   
   // Basculer le restaurant comme favori
@@ -507,6 +519,11 @@ const RestaurantDetails = () => {
     } else {
       addFavorite(restaurant);
     }
+  };
+
+  // Function to explicitly handle removing an item from cart
+  const handleRemoveItem = (itemId) => {
+    removeItem(itemId);
   };
 
   if (loading) {
@@ -605,23 +622,35 @@ const RestaurantDetails = () => {
               Votre commande
             </CartTitle>
             
-            {cart.length === 0 ? (
+            {cartItems.length === 0 ? (
               <CartEmpty>Votre panier est vide</CartEmpty>
             ) : (
               <>
                 <CartItems>
-                  {cart.map(item => (
-                    <CartItem key={item.id_menu_item}>
+                  {cartItems.map(item => (
+                    <CartItem key={item.id}>
                       <CartItemInfo>
                         <CartItemName>{item.name}</CartItemName>
-                        <CartItemPrice>{item.price?.toFixed(2) || "0.00"} €</CartItemPrice>
+                        <CartItemPrice>{(item.price * item.quantity).toFixed(2)} €</CartItemPrice>
+                        <RemoveButton onClick={(e) => {
+                          e.stopPropagation(); // Prevent event bubbling
+                          handleRemoveItem(item.id);
+                        }}>
+                          <FiTrash2 size={12} /> Supprimer
+                        </RemoveButton>
                       </CartItemInfo>
                       <CartItemQuantity>
-                        <button onClick={() => decreaseQuantity(item.id_menu_item)}>
+                        <button onClick={(e) => {
+                          e.stopPropagation(); // Prevent event bubbling
+                          decreaseQuantity(item.id);
+                        }}>
                           <FiMinus size={12} />
                         </button>
                         <span>{item.quantity}</span>
-                        <button onClick={() => increaseQuantity(item.id_menu_item)}>
+                        <button onClick={(e) => {
+                          e.stopPropagation(); // Prevent event bubbling
+                          increaseQuantity(item.id);
+                        }}>
                           <FiPlus size={12} />
                         </button>
                       </CartItemQuantity>

@@ -70,8 +70,7 @@ export const CartProvider = ({ children }) => {
     
     // Vérifier si l'article existe déjà dans le panier
     const existingItemIndex = cartItems.findIndex(
-      cartItem => cartItem.id === item.id && 
-      JSON.stringify(cartItem.options) === JSON.stringify(item.options || {})
+      cartItem => cartItem.id === item.id
     );
     
     if (existingItemIndex !== -1) {
@@ -85,9 +84,9 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const updateItemQuantity = (itemId, quantity, options = {}) => {
+  const updateItemQuantity = (itemId, quantity) => {
     const updatedCartItems = cartItems.map(item => {
-      if (item.id === itemId && JSON.stringify(item.options) === JSON.stringify(options)) {
+      if (item.id === itemId) {
         return { ...item, quantity };
       }
       return item;
@@ -96,9 +95,9 @@ export const CartProvider = ({ children }) => {
     setCartItems(updatedCartItems);
   };
 
-  const removeItem = (itemId, options = {}) => {
+  const removeItem = (itemId) => {
     const updatedCartItems = cartItems.filter(
-      item => !(item.id === itemId && JSON.stringify(item.options) === JSON.stringify(options))
+      item => !(item.id === itemId)
     );
     
     setCartItems(updatedCartItems);

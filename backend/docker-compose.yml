@@ -125,6 +125,7 @@ services:
     container_name: gateway
     ports:
       - "80:80"
+      - "8080:80"
     volumes:
       - ./apiGateway/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:

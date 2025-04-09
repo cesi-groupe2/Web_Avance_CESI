@@ -101,6 +101,7 @@ func main() {
 	http.HandleFunc("/auth/", handleProxy("http://localhost:8001"))
 	http.HandleFunc("/public/", handleProxy("http://localhost:8001"))
 	http.HandleFunc("/restaurant/", handleProxy("http://localhost:8004"))
+	http.HandleFunc("/order/", handleProxy("http://localhost:8002"))
 
 	log.Println("🚀 API Gateway Easeat en écoute sur :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

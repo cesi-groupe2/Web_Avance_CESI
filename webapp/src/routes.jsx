@@ -29,8 +29,22 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       
-      <Route path="/restaurants" element={<RestaurantList />} />
-      <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+      <Route
+        path="/restaurants"
+        element={
+          <ProtectedRoute redirectTo="/login">
+            <RestaurantList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/restaurant/:id"
+        element={
+          <ProtectedRoute redirectTo="/login">
+            <RestaurantDetails />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/restaurant/create"
         element={
@@ -76,16 +90,16 @@ const AppRoutes = () => {
       <Route
         path="/order/checkout"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <Checkout />
           </ProtectedRoute>
         }
       />
       
       <Route
-        path="/order/tracking/:orderNumber"
+        path="/order/tracking/:orderId"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <Tracking />
           </ProtectedRoute>
         }
@@ -94,7 +108,7 @@ const AppRoutes = () => {
       <Route
         path="/profile"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <Profile />
           </ProtectedRoute>
         }
@@ -103,7 +117,7 @@ const AppRoutes = () => {
       <Route
         path="/orders"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <OrderHistory />
           </ProtectedRoute>
         }
@@ -112,7 +126,7 @@ const AppRoutes = () => {
       <Route
         path="/favorites"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <Favorites />
           </ProtectedRoute>
         }
@@ -123,4 +137,4 @@ const AppRoutes = () => {
   );
 };
 
-export default AppRoutes;
+export default AppRoutes; 
