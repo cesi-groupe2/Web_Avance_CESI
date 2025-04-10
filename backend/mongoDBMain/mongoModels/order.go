@@ -12,15 +12,16 @@ import (
 )
 
 type Order struct {
-	OrderID          bson.ObjectID `bson:"_id" json:"_id"`
-	DeliveryPersonId int           `bson:"delivery_person_id" json:"delivery_person_id"`
-	CustomerId       int           `bson:"customer_id" json:"customer_id"`
-	RestaurantId     int           `bson:"restaurant_id" json:"restaurant_id"`
-	items            []interface{} `bson:"items" json:"items"`
-	CreatedAt        time.Time     `bson:"created_at" json:"created_at"`
-	DeliveryAt       time.Time     `bson:"delivery_at" json:"delivery_at"`
-	Status           OrderStatus   `bson:"status" json:"status"`
+	OrderID bson.ObjectID `bson:"_id" json:"_id"`
+	DeliveryPersonId int `bson:"delivery_person_id" json:"delivery_person_id"`
+	CustomerId int `bson:"customer_id" json:"customer_id"`
+	RestaurantId int `bson:"restaurant_id" json:"restaurant_id"`
+	items []interface{} `bson:"items" json:"items"`
+	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+	DeliveryAt time.Time `bson:"delivery_at" json:"delivery_at"`
+	Status OrderStatus `bson:"status" json:"status"`
 }
+
 
 func (order *Order) GetOrderById(ctx *gin.Context, database *mongo.Database) error {
 	// get order by id
