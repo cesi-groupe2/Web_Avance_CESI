@@ -490,81 +490,43 @@ const Checkout = () => {
         additional_info: formData.additionalInfo || ""
       };
 
-      // Création de la commande
-      const orderResponse = await orderApi.rootPost(orderData);
-      if (!orderResponse || !orderResponse.id) {
-        throw new Error("Erreur lors de la création de la commande");
-      }
-
-      // 2. Paiement avec le microservice
-      const amount = total; // Montant en euros
-      const paymentData = {
-        order_id: orderResponse.id,
-        amount: amount
-      };
-
-      console.log("Données de paiement envoyées:", paymentData);
-
-      const apiCall = new ApiClient();
-      const paymentRes = await apiCall.callApi(
-        "http://localhost:8006/payment/", // Utilisation du port 8006 pour le microservice de paiement
-        "POST",
-        JSON.stringify(paymentData),
-        {}, // Query params
-        {}, // Path params
-        {}, // Cookie params
-        null, // Form params
-        ['BearerAuth'],
-        [], // Auth names
-        ['application/json'], // Content types
-        { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-        }, // Headers
-        null, // Body
-        async (data, error) => {
-          if (error) {
-            console.error("Erreur détaillée:", error);
-            if (error.response) {
-              try {
-                const errorText = await error.response.text();
-                console.error("Réponse d'erreur brute:", errorText);
-                throw new Error(errorText || "Erreur lors de la création du paiement");
-              } catch (e) {
-                console.error("Erreur lors de la lecture de la réponse:", e);
-                throw new Error("Erreur lors de la création du paiement");
-              }
+      // Notifier le restaurateur de la nouvelle commande
+      try {
+        const notificationResponse = await fetch(`${import.meta.env.VITE_API_URL}/notifications/restaurant`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            restaurant_id: restaurant?.id,
+            message: `Nouvelle commande de ${formData.firstName} ${formData.lastName}`,
+            order_details: {
+              items: orderItems,
+              total: total,
+              delivery_address: orderData.delivery_address
             }
-            throw new Error(error.message || "Erreur lors de la création du paiement");
-          }
+          })
+        });
+
+        if (!notificationResponse.ok) {
+          console.error("Erreur lors de l'envoi de la notification au restaurateur");
         }
-      );
-
-      if (!paymentRes.ok) {
-        const errorText = await paymentRes.text();
-        console.error("Erreur serveur:", errorText);
-        throw new Error(errorText || "Erreur lors de la création du paiement");
+      } catch (notificationError) {
+        console.error("Erreur lors de l'envoi de la notification:", notificationError);
       }
-
-      const paymentResult = await paymentRes.json();
-
-      if (!paymentResult.client_secret) {
-        console.error("Données de réponse manquantes:", paymentResult);
-        throw new Error("Clé secrète de paiement manquante dans la réponse");
-      }
-
-      // 3. Confirmation du paiement avec Stripe
-      const result = await stripe.confirmCardPayment(paymentResult.client_secret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: `${formData.firstName} ${formData.lastName}`,
-            email: formData.email
-          }
+      
+      // Appel à l'API pour créer la commande
+      orderApi.rootPost(orderData, (error, data, response) => {
+        setIsLoading(false);
+        
+        if (error) {
+          console.error("Erreur lors de la création de la commande:", error);
+          setMessage({
+            type: "error",
+            text: "Une erreur est survenue lors de la création de votre commande. Veuillez réessayer."
+          });
+          return;
         }
       });
 

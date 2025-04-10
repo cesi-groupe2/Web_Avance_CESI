@@ -1,69 +1,85 @@
 package roads
 
 import (
+	"context"
+	"net/http"
+	"time"
+
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServNotifications/models"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServNotifications/services"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// HandlerMicroServNotificationsRoads initializes the routes for the notification microservice
-func HandlerMicroServNotificationsRoads(server *gin.Engine, database *mongo.Database) *gin.RouterGroup {
-	notificationGroup := server.Group("/notifications")
+type NotificationService interface {
+	CreateNotification(ctx context.Context, db *mongo.Database, notification *models.Notification) error
+	GetRestaurantNotifications(ctx context.Context, db *mongo.Database, restaurantID string) ([]models.Notification, error)
+	MarkNotificationAsRead(ctx context.Context, db *mongo.Database, notificationID string) error
+}
 
+var notificationService NotificationService = &services.NotificationServiceImpl{}
+
+func SetupRoutes(r *gin.Engine, db *mongo.Database) {
 	// Routes pour les notifications
-	notificationGroup.GET("/:userId", GetNotifications)
-	notificationGroup.POST("/", CreateNotification)
-	notificationGroup.DELETE("/:id", DeleteNotification)
-	notificationGroup.GET("/unread/:userId", GetUnreadNotifications)
-	notificationGroup.PUT("/:id/read", MarkNotificationAsRead)
+	r.POST("/notifications", func(c *gin.Context) {
+		createNotification(c, db)
+	})
 
-	return notificationGroup
-}
+	r.GET("/notifications/restaurant/:restaurantId", func(c *gin.Context) {
+		getRestaurantNotifications(c, db)
+	})
 
-// GetNotifications handles GET requests to retrieve notifications for a user
-func GetNotifications(c *gin.Context) {
-	userId := c.Param("userId")
-	c.JSON(200, gin.H{
-		"status":  "success",
-		"message": "Get notifications for user " + userId,
-		// TODO: Implement actual notification retrieval
+	r.PUT("/notifications/:id/read", func(c *gin.Context) {
+		markNotificationAsRead(c, db)
 	})
 }
 
-// CreateNotification handles POST requests to create a new notification
-func CreateNotification(c *gin.Context) {
-	c.JSON(201, gin.H{
-		"status":  "success",
-		"message": "Notification created",
-		// TODO: Implement actual notification creation
-	})
+func createNotification(c *gin.Context, db *mongo.Database) {
+	var notification models.Notification
+	if err := c.ShouldBindJSON(&notification); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	notification.CreatedAt = time.Now()
+	notification.UpdatedAt = time.Now()
+	notification.IsRead = false
+
+	if err := notificationService.CreateNotification(c.Request.Context(), db, &notification); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, notification)
 }
 
-// DeleteNotification handles DELETE requests to delete a notification
-func DeleteNotification(c *gin.Context) {
-	notificationId := c.Param("id")
-	c.JSON(200, gin.H{
-		"status":  "success",
-		"message": "Notification deleted: " + notificationId,
-		// TODO: Implement actual notification deletion
-	})
+func getRestaurantNotifications(c *gin.Context, db *mongo.Database) {
+	restaurantID := c.Param("restaurantId")
+	if restaurantID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "restaurantId is required"})
+		return
+	}
+
+	notifications, err := notificationService.GetRestaurantNotifications(c.Request.Context(), db, restaurantID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, notifications)
 }
 
-// GetUnreadNotifications handles GET requests to retrieve unread notifications for a user
-func GetUnreadNotifications(c *gin.Context) {
-	userId := c.Param("userId")
-	c.JSON(200, gin.H{
-		"status":  "success",
-		"message": "Get unread notifications for user " + userId,
-		// TODO: Implement actual unread notification retrieval
-	})
-}
+func markNotificationAsRead(c *gin.Context, db *mongo.Database) {
+	notificationID := c.Param("id")
+	if notificationID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "notification id is required"})
+		return
+	}
 
-// MarkNotificationAsRead handles PUT requests to mark a notification as read
-func MarkNotificationAsRead(c *gin.Context) {
-	notificationId := c.Param("id")
-	c.JSON(200, gin.H{
-		"status":  "success",
-		"message": "Notification marked as read: " + notificationId,
-		// TODO: Implement actual notification marking
-	})
+	if err := notificationService.MarkNotificationAsRead(c.Request.Context(), db, notificationID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Notification marked as read"})
 }

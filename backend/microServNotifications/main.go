@@ -3,11 +3,16 @@ package main
 // command: swag init -g main.go -d ./,services,../mongoDBMain
 
 import (
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
-	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
+	"context"
+	"log"
+	"os"
+
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServNotifications/roads"
 	// "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServNotifications/docs"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // @title           Swagger Easeat Notifications microservice
@@ -27,18 +32,36 @@ import (
 // @description     Use /login to get your token and use it here
 
 func main() {
-	microServNotif := microservbase.MicroServMongo{}
-	microServNotif.InitServer()
-	microServNotif.InitDbClient()
-	roads.HandlerMicroServNotificationsRoads(microServNotif.Server, microServNotif.Database)
-
-	address := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_NOTIFICATIONS_ADDR_ENV, "localhost")
-	portEnv := utils.GetEnvValueOrDefaultStr(constants.MICRO_SERV_NOTIFICATIONS_PORT_ENV, "8006")
-	port, err := utils.GetAvailablePort(portEnv)
-	if err != nil {
-		panic(err)
+	// Charger les variables d'environnement
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
 	}
 
-	// docs.SwaggerInfo.Host = microServNotif.InitSwagger(notificationGroup, address, port)
-	microServNotif.RunServer(address, port)
+	// Connexion à MongoDB
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(context.Background())
+
+	// Vérifier la connexion
+	err = client.Ping(context.Background(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db := client.Database("notifications_db")
+
+	// Configuration de Gin
+	r := gin.Default()
+
+	// Configuration des routes
+	roads.SetupRoutes(r, db)
+
+	// Démarrer le serveur
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8082"
+	}
+	r.Run(":" + port)
 }

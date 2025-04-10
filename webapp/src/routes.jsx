@@ -19,6 +19,7 @@ import OrderHistory from "./pages/User/Orders/OrderHistory";
 import Cart from "./pages/Order/Cart/Cart";
 import Favorites from "./pages/User/Favorites/Favorites";
 import DeliveryStatus from "./pages/DeliveryPerson/DeliveryStatus";
+import Dashboard from "./pages/Restaurant/Dashboard/Dashboard";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./contexts/AuthContext";
@@ -53,7 +54,7 @@ const AppRoutes = () => {
       <Route
         path="/restaurant/create"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['restaurant_owner']}>
             <CreateRestaurant />
           </ProtectedRoute>
         }
@@ -144,6 +145,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute requiredRole="3">
             <DeliveryStatus />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/restaurant/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['restaurant_owner']}>
+            <Dashboard />
           </ProtectedRoute>
         }
       />

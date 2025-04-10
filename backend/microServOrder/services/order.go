@@ -11,6 +11,7 @@ import (
 )
 
 // GetALLOrder godoc
+//
 //	@Summary		Get all orders
 //	@Description	Get all orders
 //	@Tags			order
@@ -30,19 +31,20 @@ func GetAllOrder(ctx *gin.Context, database *mongo.Database) {
 		ctx.JSON(400, gin.H{"error": "Invalid limit parameter"})
 		return
 	}
-    // get all orders
-    orders, err := mongoModels.GetAllOrder(ctx, database, limit)
+	// get all orders
+	orders, err := mongoModels.GetAllOrder(ctx, database, limit)
 	if err != nil {
 		log.Printf("Error getting orders: %v", err)
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	// Return the orders
 	ctx.JSON(200, orders)
 }
 
 // GetOrderById godoc
+//
 //	@Summary		Get order by id
 //	@Description	Get order by id
 //	@Tags			order
@@ -75,6 +77,7 @@ func GetOrderById(ctx *gin.Context, database *mongo.Database) {
 }
 
 // CreateOrder godoc
+//
 //	@Summary		Create an order
 //	@Description	Create an order
 //	@Tags			order
@@ -103,6 +106,7 @@ func CreateOrder(ctx *gin.Context, database *mongo.Database) {
 }
 
 // UpdateOrder godoc
+//
 //	@Summary		Update an order
 //	@Description	Update an order
 //	@Tags			order
@@ -132,6 +136,7 @@ func UpdateOrder(ctx *gin.Context, database *mongo.Database) {
 }
 
 // DeleteOrder godoc
+//
 //	@Summary		Delete an order
 //	@Description	Delete an order
 //	@Tags			order
@@ -149,7 +154,7 @@ func DeleteOrder(ctx *gin.Context, database *mongo.Database) {
 		ctx.JSON(400, gin.H{"error": "Invalid order ID"})
 		return
 	}
-	
+
 	order := mongoModels.Order{
 		OrderID: orderObjId,
 	}
@@ -160,12 +165,12 @@ func DeleteOrder(ctx *gin.Context, database *mongo.Database) {
 		return
 	}
 
-
 	// Return success
 	ctx.JSON(200, "done")
 }
 
 // UpdateToNextStatus godoc
+//
 //	@Summary		Update an order to the next status
 //	@Description	Update an order to the next status
 //	@Tags			order
@@ -209,6 +214,7 @@ func UpdateToNextStatus(ctx *gin.Context, database *mongo.Database) {
 }
 
 // GetHistoryOrderByUserId godoc
+//
 //	@Summary		Get order history by user ID
 //	@Description	Get order history by user ID
 //	@Tags			order
