@@ -64,15 +64,14 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 		ctx.JSON(400, "Password is required")
 		return
 	}
-	picture := ctx.PostForm("picture")
 	firstname := ctx.PostForm("firstname")
 	lastname := ctx.PostForm("lastname")
 	phone := ctx.PostForm("phone")
 	deliveryAdress := ctx.PostForm("deliveryAdress")
 	facturationAdress := ctx.PostForm("facturationAdress")
-	picture, err := utils.PictureFromForm(ctx, "picture")
+	pictureBytes, err := utils.PictureFromForm(ctx, "picture")
 	if err != nil {
-		picture = []byte{}
+		pictureBytes = []byte{}
 	}
 	role := ctx.PostForm("role")
 	if role == "" {
@@ -100,7 +99,7 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 	newUser := model.User{
 		Email:             email,
 		PasswordHash:      string(pwd),
-		ProfilPicture:     picture,
+		ProfilPicture:     pictureBytes,
 		FirstName:         firstname,
 		LastName:          lastname,
 		Phone:             phone,
@@ -316,10 +315,67 @@ func DeleteAccount(ctx *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// Transaction pour garantir l'intégrité des données
+	tx := db.Begin()
+
+	// Vérifier si l'utilisateur est un restaurateur (id_role == 2)
+	if currentUser.IDRole == 2 {
+		log.Println("Utilisateur est un restaurateur, suppression des relations et des restaurants")
+
+		// 1. Trouver les restaurants possédés par l'utilisateur
+		var restaurants []int32
+		if err := tx.Table("posseder").
+			Select("id_restaurant").
+			Where("id_user = ?", currentUser.IDUser).
+			Pluck("id_restaurant", &restaurants).Error; err != nil {
+			tx.Rollback()
+			log.Println("Erreur lors de la récupération des restaurants:", err)
+			ctx.JSON(500, "Failed to retrieve user's restaurants")
+			return
+		}
+
+		// 2. Supprimer les entrées de menus (menuitems) liées aux restaurants
+		if len(restaurants) > 0 {
+			log.Printf("Suppression des menus pour les restaurants: %v", restaurants)
+			if err := tx.Exec("DELETE FROM menuitems WHERE id_restaurant IN (?)", restaurants).Error; err != nil {
+				tx.Rollback()
+				log.Println("Erreur lors de la suppression des menus:", err)
+				ctx.JSON(500, "Failed to delete restaurant's menu items")
+				return
+			}
+		}
+
+		// 3. Supprimer les relations dans la table posseder
+		if err := tx.Exec("DELETE FROM posseder WHERE id_user = ?", currentUser.IDUser).Error; err != nil {
+			tx.Rollback()
+			log.Println("Erreur lors de la suppression des relations posseder:", err)
+			ctx.JSON(500, "Failed to delete restaurant relations")
+			return
+		}
+
+		// 4. Supprimer les restaurants
+		if len(restaurants) > 0 {
+			log.Printf("Suppression des restaurants: %v", restaurants)
+			if err := tx.Exec("DELETE FROM restaurants WHERE id_restaurant IN (?)", restaurants).Error; err != nil {
+				tx.Rollback()
+				log.Println("Erreur lors de la suppression des restaurants:", err)
+				ctx.JSON(500, "Failed to delete restaurants")
+				return
+			}
+		}
+	}
+
 	// Supprimer l'utilisateur
-	result = db.Delete(&currentUser)
-	if result.Error != nil {
-		log.Println("Failed to delete user:", result.Error)
+	if err := tx.Delete(&currentUser).Error; err != nil {
+		tx.Rollback()
+		log.Println("Failed to delete user:", err)
+		ctx.JSON(500, "Failed to delete account")
+		return
+	}
+
+	// Commit de la transaction
+	if err := tx.Commit().Error; err != nil {
+		log.Println("Error during transaction commit:", err)
 		ctx.JSON(500, "Failed to delete account")
 		return
 	}

@@ -340,5 +340,47 @@ export default class RestaurantApi {
       );
     }
 
+    /**
+     * Callback function to receive the result of the restaurantRestaurantIdDelete operation.
+     * @callback module:api/RestaurantApi~restaurantRestaurantIdDeleteCallback
+     * @param {String} error Error message, if any.
+     * @param {Object.<String, String>} data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * Delete a restaurant
+     * Delete a restaurant by its id
+     * @param {String} restaurantId Restaurant ID
+     * @param {module:api/RestaurantApi~restaurantRestaurantIdDeleteCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link Object.<String, String>}
+     */
+    restaurantRestaurantIdDelete(restaurantId, callback) {
+      let postBody = null;
+      // verify the required parameter 'restaurantId' is set
+      if (restaurantId === undefined || restaurantId === null) {
+        throw new Error("Missing the required parameter 'restaurantId' when calling restaurantRestaurantIdDelete");
+      }
+
+      let pathParams = {
+        'restaurantId': restaurantId
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = ['BearerAuth'];
+      let contentTypes = [];
+      let accepts = ['application/json'];
+      let returnType = {'String': 'String'};
+      return this.apiClient.callApi(
+        '/restaurant/{restaurantId}', 'DELETE',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, null, callback
+      );
+    }
 
 }

@@ -16,6 +16,7 @@ import (
 )
 
 // GetNearbyRestaurants godoc
+//
 //	@Summary		Get nearby restaurants
 //	@Description	Get nearby restaurants from the user's location
 //	@Tags			restaurant
@@ -60,6 +61,7 @@ func GetNearbyRestaurants(ctx *gin.Context, db *gorm.DB) {
 }
 
 // GetRestaurantById godoc
+//
 //	@Summary		Get a restaurant by its id
 //	@Description	Get a restaurant by its id
 //	@Tags			restaurant
@@ -83,6 +85,7 @@ func GetRestaurantById(ctx *gin.Context, db *gorm.DB) {
 }
 
 // UpdateRestaurant godoc
+//
 //	@Summary		Update a restaurant
 //	@Description	Update a restaurant
 //	@Tags			restaurant
@@ -148,8 +151,9 @@ func UpdateRestaurant(ctx *gin.Context, db *gorm.DB) {
 	}
 	ctx.JSON(200, restaurant)
 }
-	
+
 // GetMyRestaurants godoc
+//
 //	@Summary		Get the restaurants owned by the user
 //	@Description	Get the restaurants owned by the user
 //	@Tags			restaurant
@@ -190,6 +194,7 @@ func GetMyRestaurants(ctx *gin.Context, db *gorm.DB) {
 }
 
 // CreateRestaurant godoc
+//
 //	@Summary		Create a new restaurant
 //	@Description	Create a new restaurant
 //	@Tags			restaurant
@@ -287,4 +292,82 @@ func CreateRestaurant(ctx *gin.Context, db *gorm.DB) {
 		return
 	}
 	ctx.JSON(201, restaurant)
+}
+
+// DeleteRestaurant godoc
+//
+//	@Summary		Delete a restaurant
+//	@Description	Delete a restaurant by its id
+//	@Tags			restaurant
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			restaurantId	path		string	true	"Restaurant ID"
+//	@Success		200				{object}	map[string]string
+//	@Failure		400				{object}	map[string]string
+//	@Failure		403				{object}	map[string]string
+//	@Failure		404				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Router			/restaurant/{restaurantId} [delete]
+func DeleteRestaurant(ctx *gin.Context, db *gorm.DB) {
+	restaurantId := ctx.Param("restaurantId")
+
+	// Vérifier que le restaurant existe
+	var restaurant model.Restaurant
+	if err := db.Where(fmt.Sprintf("%s = ?", columns.RestaurantColumnIDRestaurant), restaurantId).First(&restaurant).Error; err != nil {
+		log.Println("Error finding restaurant:", err)
+		ctx.JSON(404, gin.H{"error": "Restaurant not found"})
+		return
+	}
+
+	// Vérifier que l'utilisateur est bien le propriétaire du restaurant
+	userId, err := jwtActions.GetUserIdFromToken(ctx)
+	if err != nil {
+		log.Println("Error getting user ID from token:", err)
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var posseder model.Posseder
+	if err := db.Where(fmt.Sprintf("%s = ? AND %s = ?", columns.PosserderColumnIDRestaurant, columns.PosserderColumnIDPosserder), restaurantId, userId).First(&posseder).Error; err != nil {
+		log.Println("Error checking restaurant ownership:", err)
+		ctx.JSON(403, gin.H{"error": "You are not the owner of this restaurant"})
+		return
+	}
+
+	// Commencer une transaction pour garantir l'intégrité des données
+	tx := db.Begin()
+
+	// 1. Supprimer tous les menus liés au restaurant
+	if err := tx.Where(fmt.Sprintf("%s = ?", columns.MenuitemColumnIDRestaurant), restaurantId).Delete(&model.Menuitem{}).Error; err != nil {
+		tx.Rollback()
+		log.Println("Error deleting menu items:", err)
+		ctx.JSON(500, gin.H{"error": "Failed to delete menu items"})
+		return
+	}
+
+	// 2. Supprimer les relations dans la table posseder
+	if err := tx.Where(fmt.Sprintf("%s = ?", columns.PosserderColumnIDRestaurant), restaurantId).Delete(&model.Posseder{}).Error; err != nil {
+		tx.Rollback()
+		log.Println("Error deleting posseder relations:", err)
+		ctx.JSON(500, gin.H{"error": "Failed to delete restaurant relations"})
+		return
+	}
+
+	// 3. Supprimer le restaurant
+	if err := tx.Delete(&restaurant).Error; err != nil {
+		tx.Rollback()
+		log.Println("Error deleting restaurant:", err)
+		ctx.JSON(500, gin.H{"error": "Failed to delete restaurant"})
+		return
+	}
+
+	// Valider la transaction
+	if err := tx.Commit().Error; err != nil {
+		log.Println("Error committing transaction:", err)
+		ctx.JSON(500, gin.H{"error": "Failed to delete restaurant"})
+		return
+	}
+
+	ctx.JSON(200, gin.H{"message": "Restaurant deleted successfully"})
 }

@@ -15,6 +15,9 @@ func HandlerMicroServRestaurantRoads(server *gin.Engine, sqlClient *gorm.DB) *gi
 	restaurant.PUT("/:restaurantId", func(ctx *gin.Context) {
 		restaurantService.UpdateRestaurant(ctx, sqlClient)
 	})
+	restaurant.DELETE("/:restaurantId", func(ctx *gin.Context) {
+		restaurantService.DeleteRestaurant(ctx, sqlClient)
+	})
 	restaurant.GET("/nearby/:latitude/:longitude/:kmAround", func(ctx *gin.Context) {
 		restaurantService.GetNearbyRestaurants(ctx, sqlClient)
 	})
