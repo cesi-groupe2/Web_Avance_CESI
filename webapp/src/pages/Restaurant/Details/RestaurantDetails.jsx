@@ -489,7 +489,7 @@ const RestaurantDetails = () => {
     }
     
     // Rediriger vers la page de paiement
-    navigate("/checkout", { 
+    navigate("/order/checkout", { 
       state: { 
         cart, 
         restaurant, 
