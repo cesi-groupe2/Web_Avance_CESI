@@ -33,7 +33,7 @@ import (
 
 func main() {
 	// Initialiser Stripe avec la clé secrète
-	err := godotenv.Load("../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Erreur: Impossible de charger le fichier .env")
 	}
