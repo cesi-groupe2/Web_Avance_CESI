@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiMapPin, FiPhone, FiClock, FiImage, FiNavigation, FiArrowLeft, FiSave } from 'react-icons/fi';
+import { FiMapPin, FiPhone, FiClock, FiImage, FiNavigation, FiArrowLeft, FiSave, FiTrash2, FiAlertTriangle } from 'react-icons/fi';
 import Header from '../../../components/Header';
 import { useAuth } from '../../../contexts/AuthContext';
 import RestaurantApi from '../../../api/RestaurantApi';
@@ -46,6 +46,7 @@ const EditRestaurant = () => {
   const [addressLoading, setAddressLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const mapRef = useRef(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Ordre des jours pour l'affichage
   const daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -393,11 +394,60 @@ const EditRestaurant = () => {
         }
         
         console.log('Restaurant mis à jour avec succès:', data);
-        navigate('/restaurant/menu');
+        navigate('/restaurant/edit');
       });
     } catch (err) {
       console.error('Erreur lors de la mise à jour du restaurant:', err);
       setError('Erreur lors de la mise à jour du restaurant');
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteRestaurant = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      if (!restaurant || !restaurant.id_restaurant) {
+        setError('ID du restaurant non trouvé');
+        setLoading(false);
+        return;
+      }
+
+      const api = new RestaurantApi();
+      
+      console.log('Tentative de suppression du restaurant avec ID:', restaurant.id_restaurant);
+      
+      api.restaurantRestaurantIdDelete(restaurant.id_restaurant, (error, data, response) => {
+        if (error) {
+          console.error('Erreur lors de la suppression du restaurant:', error);
+          console.error('Code HTTP:', error.status || 'inconnu');
+          console.error('Réponse:', response?.text || 'aucune réponse');
+          
+          // Message d'erreur plus descriptif selon le code d'erreur
+          if (error.status === 404) {
+            setError('Restaurant non trouvé (404). Vérifiez que le restaurant existe bien.');
+          } else if (error.status === 403) {
+            setError('Vous n\'avez pas les droits pour supprimer ce restaurant (403).');
+          } else {
+            setError(`Erreur lors de la suppression du restaurant (${error.status || 'inconnu'})`);
+          }
+          
+          setLoading(false);
+          // Ne pas fermer la modal pour permettre à l'utilisateur de réessayer
+          return;
+        }
+        
+        console.log('Restaurant supprimé avec succès:', data);
+        navigate('/');
+      });
+    } catch (err) {
+      console.error('Erreur technique lors de la suppression du restaurant:', err);
+      setError('Erreur technique lors de la suppression du restaurant');
       setLoading(false);
     }
   };
@@ -661,7 +711,16 @@ const EditRestaurant = () => {
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-between">
+            <button
+              type="button"
+              onClick={handleDeleteRestaurant}
+              className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+            >
+              <FiTrash2 />
+              <span>Supprimer le restaurant</span>
+            </button>
+
             <button
               type="submit"
               disabled={loading}
@@ -672,6 +731,34 @@ const EditRestaurant = () => {
             </button>
           </div>
         </form>
+
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="flex items-center text-red-500 mb-4">
+                <FiAlertTriangle className="text-2xl mr-2" />
+                <h3 className="text-xl font-semibold">Confirmation de suppression</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Êtes-vous sûr de vouloir supprimer ce restaurant ? Cette action est irréversible et entraînera la suppression de tous les menus associés.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded transition-colors"
+                >
+                  Supprimer définitivement
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

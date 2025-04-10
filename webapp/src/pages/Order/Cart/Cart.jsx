@@ -243,7 +243,7 @@ const Cart = () => {
         <CartContainer>
           <CartTitle>Mon Panier</CartTitle>
           <EmptyCartMessage>
-            <EmptyCartText>Panier troué (à implémenter)</EmptyCartText>
+            <EmptyCartText>Panier troué</EmptyCartText>
             <Button as={Link} to="/restaurants">
               Parcourir les restaurants
             </Button>
