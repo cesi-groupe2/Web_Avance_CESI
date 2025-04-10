@@ -19,7 +19,7 @@ import (
 //	@contact.email	benjamin.guerre@viacesi.fr
 
 //	@host		localhost:8052
-//	@BasePath	/restaurant
+//	@BasePath	/
 
 //	@SecurityDefinitions.apiKey	BearerAuth
 //	@in							header

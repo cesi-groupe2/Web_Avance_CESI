@@ -287,7 +287,7 @@ const UserMenuDropdown = styled.div`
   border-radius: 8px;
   padding: 8px 0;
   z-index: 1000;
-  display: ${(props) => (props.isOpen ? "block" : "none")};
+  display: ${(props) => (props.$isOpen ? "block" : "none")};
 `;
 
 const UserMenuItem = styled(Link)`
@@ -386,7 +386,19 @@ const Header = () => {
           <Logo src={logo} alt="EasEat" onClick={handleLogoClick} />
         </LogoLink>
         <NavLinks>
-          <NavLink to="/restaurants">Restaurants</NavLink>
+          {isAuthenticated ? (
+            <NavLink to="/restaurants">Restaurants</NavLink>
+          ) : (
+            <NavLink as="button" onClick={() => navigate("/login")} style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontSize: 'inherit'
+            }}>
+              Restaurants
+            </NavLink>
+          )}
         </NavLinks>
         <Actions>
           {isAuthenticated ? (
@@ -402,10 +414,21 @@ const Header = () => {
                 <UserMenuButton onClick={toggleUserMenu}>
                   {currentUser?.FirstName || "Mon Profil"}
                 </UserMenuButton>
-                <UserMenuDropdown isOpen={userMenuOpen}>
+                <UserMenuDropdown $isOpen={userMenuOpen}>
                   <UserMenuItem to="/profile" onClick={closeUserMenu}>Mon profil</UserMenuItem>
+                  {currentUser.id_role === 2 && currentUser.restaurantId && (
+                    <UserMenuItem to={`/restaurant/edit`} onClick={closeUserMenu}>
+                      Modifier mon restaurant
+                    </UserMenuItem>
+                  )}
+                  {currentUser.id_role !== 2 && (
+                    <UserMenuItem to="/restaurant/create" onClick={closeUserMenu}>
+                      Créer mon restaurant
+                    </UserMenuItem>
+                  )}
                   <UserMenuItem to="/favorites" onClick={closeUserMenu}>Mes favoris</UserMenuItem>
                   <UserMenuItem to="/orders" onClick={closeUserMenu}>Mes commandes</UserMenuItem>
+                  <UserMenuItem to="/cart" onClick={closeUserMenu}>Mon panier {cartItems.length > 0 && `(${cartItems.length})`}</UserMenuItem>
                   <UserMenuLogout onClick={handleLogout}>Déconnexion</UserMenuLogout>
                 </UserMenuDropdown>
               </UserMenu>
@@ -435,14 +458,30 @@ const Header = () => {
             </CloseButton>
           </MobileMenuHeader>
           <MobileNavLinks>
-            <MobileNavLink to="/restaurants" onClick={closeMenu}>
-              Restaurants
-            </MobileNavLink>
             {isAuthenticated ? (
               <>
+                <MobileNavLink to="/restaurants" onClick={closeMenu}>
+                  Restaurants
+                </MobileNavLink>
                 <MobileNavLink to="/profile" onClick={closeMenu}>
                   Mon profil
                 </MobileNavLink>
+                {currentUser.id_role === 2 && currentUser.restaurantId && (
+                  <MobileNavLink
+                    to={`/restaurant/edit`}
+                    onClick={closeMenu}
+                  >
+                    Modifier mon restaurant
+                  </MobileNavLink>
+                )}
+                {currentUser.id_role !== 2 && (
+                  <MobileNavLink
+                    to="/restaurant/create"
+                    onClick={closeMenu}
+                  >
+                    Créer mon restaurant
+                  </MobileNavLink>
+                )}
                 <MobileNavLink to="/favorites" onClick={closeMenu}>
                   Mes favoris
                 </MobileNavLink>
@@ -457,14 +496,19 @@ const Header = () => {
                 </MobileNavLink>
               </>
             ) : (
-              <MobileAuthButtons>
-                <MobileLoginButton to="/login" onClick={closeMenu}>
-                  Connexion
-                </MobileLoginButton>
-                <MobileRegisterButton to="/register" onClick={closeMenu}>
-                  Inscription
-                </MobileRegisterButton>
-              </MobileAuthButtons>
+              <>
+                <MobileNavLink as="button" onClick={() => { closeMenu(); navigate("/login"); }} style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left' }}>
+                  Restaurants
+                </MobileNavLink>
+                <MobileAuthButtons>
+                  <MobileLoginButton to="/login" onClick={closeMenu}>
+                    Connexion
+                  </MobileLoginButton>
+                  <MobileRegisterButton to="/register" onClick={closeMenu}>
+                    Inscription
+                  </MobileRegisterButton>
+                </MobileAuthButtons>
+              </>
             )}
           </MobileNavLinks>
         </MobileMenu>

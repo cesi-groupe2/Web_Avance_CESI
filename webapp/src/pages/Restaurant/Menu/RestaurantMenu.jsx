@@ -19,7 +19,7 @@ const RestaurantMenu = () => {
     name: '',
     description: '',
     price: '',
-    image: ''
+    image: null
   });
   const [editingItem, setEditingItem] = useState(null);
 
@@ -67,6 +67,7 @@ const RestaurantMenu = () => {
             setMenuItems(menuData || []);
             setLoading(false);
           });
+          console.log('Menu items après ajout:', menuItems);
         });
       } catch (err) {
         console.error('Erreur:', err);
@@ -92,8 +93,29 @@ const RestaurantMenu = () => {
       name: '',
       description: '',
       price: '',
-      image: ''
+      image: null
     });
+  };
+
+  const handleImageChange = (e, isEditing = false) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (isEditing) {
+          setEditingItem(prev => ({
+            ...prev,
+            image: reader.result
+          }));
+        } else {
+          setNewItem(prev => ({
+            ...prev,
+            image: reader.result
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmitAdd = async (e) => {
@@ -108,13 +130,13 @@ const RestaurantMenu = () => {
 
       console.log('Envoi des données:', itemData);
 
-      const api = new MenuitemApi
+      const api = new MenuitemApi();
       api.restaurantRestaurantIdMenuitemsNewPost(restaurantId, itemData, (error, response) => {
         if (error) {
           console.error('Erreur lors de l\'ajout:', error);
           setError(`Erreur lors de l'ajout: ${error.message || 'Erreur inconnue'}`);
           return;
-        }
+        } 
         
         console.log('Réponse de l\'API:', response);
         setMenuItems(prev => [...prev, response]);
@@ -123,7 +145,7 @@ const RestaurantMenu = () => {
           name: '',
           description: '',
           price: '',
-          image: ''
+          image: null
         });
       });
     } catch (err) {
@@ -189,6 +211,17 @@ const RestaurantMenu = () => {
     }
   };
 
+  const getImagePreview = (imageData) => {
+    if (!imageData) return null;
+    if (typeof imageData === 'string') {
+      if (imageData.startsWith('data:image')) {
+        return imageData;
+      }
+      return null;
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -232,67 +265,74 @@ const RestaurantMenu = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Carte d'ajout ou formulaire */}
             {showAddForm ? (
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Ajouter un élément</h3>
-                  <button
-                    onClick={handleCancelAdd}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <FiX className="w-5 h-5" />
-                  </button>
-                </div>
-                <form onSubmit={handleSubmitAdd} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Nom *</label>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-4">Ajouter un nouvel élément</h2>
+                <form onSubmit={handleSubmitAdd}>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Nom
+                    </label>
                     <input
                       type="text"
                       value={newItem.name}
-                      onChange={(e) => setNewItem({...newItem, name: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                      onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Description
+                    </label>
                     <textarea
                       value={newItem.description}
-                      onChange={(e) => setNewItem({...newItem, description: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                      onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Prix *</label>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Prix
+                    </label>
                     <input
                       type="number"
                       step="0.01"
-                      min="0"
                       value={newItem.price}
-                      onChange={(e) => setNewItem({...newItem, price: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                      onChange={(e) => setNewItem(prev => ({ ...prev, price: e.target.value }))}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Image (URL)</label>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Image
+                    </label>
                     <input
-                      type="text"
-                      value={newItem.image}
-                      onChange={(e) => setNewItem({...newItem, image: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageChange(e)}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
+                    {newItem.image && (
+                      <img 
+                        src={getImagePreview(newItem.image)} 
+                        alt="Aperçu" 
+                        className="mt-2 w-32 h-32 object-cover rounded"
+                      />
+                    )}
                   </div>
-                  <div className="flex justify-end space-x-3">
+                  <div className="flex justify-end gap-2">
                     <button
                       type="button"
                       onClick={handleCancelAdd}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                      className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                       Annuler
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                      className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                       Ajouter
                     </button>
@@ -313,89 +353,126 @@ const RestaurantMenu = () => {
 
             {/* Liste des éléments existants */}
             {menuItems.map((item) => (
-              <div key={item.id_menu_item}>
-                {editingItem?.id_menu_item === item.id_menu_item ? (
-                  <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Modifier l'élément</h3>
-                      <button
-                        onClick={handleCancelEdit}
-                        className="text-gray-500 hover:text-gray-700"
-                      >
-                        <FiX className="w-5 h-5" />
-                      </button>
-                    </div>
-                    <form onSubmit={(e) => {
-                      e.preventDefault();
-                      handleSaveEdit(editingItem);
-                    }} className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Nom *</label>
-                        <input
-                          type="text"
-                          value={editingItem.name}
-                          onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea
-                          value={editingItem.description}
-                          onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Prix *</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={editingItem.price}
-                          onChange={(e) => setEditingItem({...editingItem, price: e.target.value})}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Image (URL)</label>
-                        <input
-                          type="text"
-                          value={editingItem.image}
-                          onChange={(e) => setEditingItem({...editingItem, image: e.target.value})}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                        />
-                      </div>
-                      <div className="flex justify-end space-x-3">
-                        <button
-                          type="button"
-                          onClick={handleCancelEdit}
-                          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                        >
-                          Annuler
-                        </button>
-                        <button
-                          type="submit"
-                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                        >
-                          Enregistrer
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                ) : (
-                  <MenuItemCard
-                    item={item}
-                    onEdit={handleEditMenuItem}
-                    onDelete={handleDeleteMenuItem}
-                  />
-                )}
+              <div key={item.id_menu_item} className="relative">
+                <MenuItemCard
+                  item={item}
+                  onEdit={handleEditMenuItem}
+                  onDelete={handleDeleteMenuItem}
+                />
               </div>
             ))}
           </div>
         </div>
+
+        {/* Pop-up d'édition */}
+        {editingItem && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl transform transition-all duration-300 ease-in-out animate-scaleIn">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6 border-b pb-2">
+                  <h2 className="text-xl font-semibold text-gray-800">Modifier l'élément</h2>
+                  <button 
+                    onClick={handleCancelEdit}
+                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    <FiX className="w-6 h-6" />
+                  </button>
+                </div>
+                
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSaveEdit(editingItem);
+                }} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Nom
+                      </label>
+                      <input
+                        type="text"
+                        value={editingItem.name}
+                        onChange={(e) => setEditingItem(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Prix
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={editingItem.price}
+                          onChange={(e) => setEditingItem(prev => ({ ...prev, price: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                          required
+                        />
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">€</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Description
+                    </label>
+                    <textarea
+                      value={editingItem.description}
+                      onChange={(e) => setEditingItem(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 min-h-[100px] resize-y"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Image
+                    </label>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageChange(e, true)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                        />
+                      </div>
+                      {editingItem.image && (
+                        <div className="relative w-24 h-24 rounded-lg overflow-hidden shadow-md">
+                          <img 
+                            src={getImagePreview(editingItem.image)} 
+                            alt="Aperçu" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center gap-2"
+                    >
+                      <FiX className="w-4 h-4" />
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
+                    >
+                      <FiSave className="w-4 h-4" />
+                      Enregistrer
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -172,7 +172,7 @@ const WebPageDAccueil = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("État d'authentification sur la page d'accueil:", { 
+    console.debug("État d'authentification sur la page d'accueil:", { 
       isAuthenticated, 
       currentUser, 
       token,
@@ -183,7 +183,7 @@ const WebPageDAccueil = () => {
 
     // Vérifier si l'utilisateur est un restaurateur et s'il a un restaurant
     if (isAuthenticated && userRole === "2") {
-      console.log("L'utilisateur est un restaurateur, vérification de la possession d'un restaurant");
+      console.debug("L'utilisateur est un restaurateur, vérification de la possession d'un restaurant");
       setIsLoading(true);
       restaurantApi.restaurantMyGet((error, data, response) => {
         if (error) {
@@ -213,7 +213,7 @@ const WebPageDAccueil = () => {
         if (!hasRestaurant) {
           return "Ouvrir mon restaurant";
         } else {
-          return "Gérer mon menu";
+          return "Voir les articles";
         }
       } else if (userRole === "3") { // Livreur
         return "Voir mes livraisons";
@@ -232,7 +232,7 @@ const WebPageDAccueil = () => {
         if (!hasRestaurant) {
           navigate("/restaurant/create");
         } else {
-          navigate("/restaurant/menuitems");
+          navigate("/restaurant/menu");
         }
       } else if (userRole === "3") { // Livreur
         navigate("/deliveries");
@@ -257,9 +257,15 @@ const WebPageDAccueil = () => {
           <HeroSubtitle>
             C'est easy, commandez, détendez vous, dégustez !
           </HeroSubtitle>
-          <Button onClick={handleButtonClick}>
-            {getButtonText()}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button
+              onClick={handleButtonClick}
+              disabled={isLoading}
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium"
+            >
+              {getButtonText()}
+            </Button>
+          </div>
         </HeroContent>
       </HeroSection>
       

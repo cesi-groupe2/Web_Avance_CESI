@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	authservices "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/services"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares/jwtActions"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
@@ -17,6 +18,7 @@ import (
 )
 
 // Register godoc
+//
 //	@Summary		Register a new user
 //	@Description	Register a new user
 //	@Tags			public
@@ -24,7 +26,7 @@ import (
 //	@Produce		json
 //	@Param			email				formData	string	true	"Email"
 //	@Param			password			formData	string	true	"Password"
-//	@Param			picture				formData	string	false	"Picture"
+//	@Param			picture				formData	file	false	"Picture"
 //	@Param			firstname			formData	string	true	"Firstname"
 //	@Param			lastname			formData	string	true	"Lastname"
 //	@Param			phone				formData	string	false	"Phone"
@@ -63,11 +65,15 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 		return
 	}
 	picture := ctx.PostForm("picture")
-	firstname := ctx.PostForm("fistname")
+	firstname := ctx.PostForm("firstname")
 	lastname := ctx.PostForm("lastname")
 	phone := ctx.PostForm("phone")
 	deliveryAdress := ctx.PostForm("deliveryAdress")
 	facturationAdress := ctx.PostForm("facturationAdress")
+	picture, err := utils.PictureFromForm(ctx, "picture")
+	if err != nil {
+		picture = []byte{}
+	}
 	role := ctx.PostForm("role")
 	if role == "" {
 		ctx.JSON(400, "Role is required")
@@ -122,6 +128,7 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 }
 
 // Login godoc
+//
 //	@Summary		Login a user
 //	@Description	Login a user
 //	@Tags			public
@@ -181,12 +188,13 @@ func Login(ctx *gin.Context, db *gorm.DB) {
 	currentUser.PasswordHash = ""
 
 	ctx.JSON(200, gin.H{
-		"user": currentUser,
+		"user":  currentUser,
 		"token": token,
 	})
 }
 
 // RefreshToken godoc
+//
 //	@Summary		Refresh the JWT token
 //	@Description	Refresh the JWT token
 //	@Tags			auth
@@ -228,6 +236,7 @@ func RefreshToken(ctx *gin.Context) {
 }
 
 // Logout godoc
+//
 //	@Summary		Logout the user
 //	@Description	Logout the user
 //	@Tags			auth
@@ -241,6 +250,7 @@ func Logout(ctx *gin.Context) {
 }
 
 // GetMe godoc
+//
 //	@Summary		Get the current user
 //	@Description	Get the current user
 //	@Tags			auth
@@ -271,4 +281,147 @@ func GetMe(ctx *gin.Context, db *gorm.DB) {
 	log.Println(currentUser)
 
 	ctx.JSON(200, currentUser)
+}
+
+// DeleteAccount godoc
+//
+//	@Summary		Delete the current user account
+//	@Description	Delete the current user account
+//	@Tags			auth
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{string}	string	"msg":	"Account deleted successfully"
+//	@Failure		401	{string}	string	"msg":	"User not found"
+//	@Failure		500	{string}	string	"msg":	"Failed to delete account"
+//	@Router			/auth/delete-account [delete]
+func DeleteAccount(ctx *gin.Context, db *gorm.DB) {
+	userId, err := jwtActions.GetUserIdFromToken(ctx)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(401, "User not found")
+		return
+	}
+
+	log.Println("Delete account for userID:", userId)
+
+	// Trouver l'utilisateur pour vérifier qu'il existe
+	currentUser := model.User{}
+	result := db.Where(&model.User{
+		IDUser: int32(userId),
+	}).First(&currentUser)
+	if result.Error != nil {
+		log.Println(result.Error)
+		ctx.JSON(401, "User not found")
+		return
+	}
+
+	// Supprimer l'utilisateur
+	result = db.Delete(&currentUser)
+	if result.Error != nil {
+		log.Println("Failed to delete user:", result.Error)
+		ctx.JSON(500, "Failed to delete account")
+		return
+	}
+
+	log.Println("User account deleted successfully, ID:", userId)
+	ctx.JSON(200, "Account deleted successfully")
+}
+
+// UpdateProfile godoc
+//
+//	@Summary		Update the current user profile
+//	@Description	Update the current user profile
+//	@Tags			auth
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			firstname			body		string	false	"First name"
+//	@Param			lastname			body		string	false	"Last name"
+//	@Param			phone				body		string	false	"Phone"
+//	@Param			deliveryAdress		body		string	false	"Delivery address"
+//	@Param			facturationAdress	body		string	false	"Facturation address"
+//	@Success		200					{string}	string	"msg":	"Profile updated successfully"
+//	@Failure		401					{string}	string	"msg":	"User not found"
+//	@Failure		500					{string}	string	"msg":	"Failed to update profile"
+//	@Router			/auth/update-profile [post]
+func UpdateProfile(ctx *gin.Context, db *gorm.DB) {
+	// Récupérer l'ID de l'utilisateur à partir du token JWT
+	userId, err := jwtActions.GetUserIdFromToken(ctx)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(401, "User not found")
+		return
+	}
+
+	log.Println("Updating profile for userID:", userId)
+
+	// Trouver l'utilisateur pour vérifier qu'il existe
+	currentUser := model.User{}
+	result := db.Where(&model.User{
+		IDUser: int32(userId),
+	}).First(&currentUser)
+	if result.Error != nil {
+		log.Println(result.Error)
+		ctx.JSON(401, "User not found")
+		return
+	}
+
+	// Récupérer les données du body
+	var updateData struct {
+		Firstname         string `json:"firstname"`
+		Lastname          string `json:"lastname"`
+		Phone             string `json:"phone"`
+		DeliveryAdress    string `json:"deliveryAdress"`
+		FacturationAdress string `json:"facturationAdress"`
+	}
+
+	if err := ctx.ShouldBindJSON(&updateData); err != nil {
+		log.Println("Error binding JSON:", err)
+		ctx.JSON(400, "Invalid request data")
+		return
+	}
+
+	// Log des données reçues pour debug
+	log.Printf("Update profile data: %+v", updateData)
+
+	// Mettre à jour uniquement les champs fournis
+	updates := make(map[string]interface{})
+
+	if updateData.Firstname != "" {
+		updates["first_name"] = updateData.Firstname
+	}
+
+	if updateData.Lastname != "" {
+		updates["last_name"] = updateData.Lastname
+	}
+
+	if updateData.Phone != "" {
+		updates["phone"] = updateData.Phone
+	}
+
+	if updateData.DeliveryAdress != "" {
+		updates["delivery_adress"] = updateData.DeliveryAdress
+	}
+
+	if updateData.FacturationAdress != "" {
+		updates["facturation_adress"] = updateData.FacturationAdress
+	}
+
+	// Si aucun champ à mettre à jour, retourner une réponse de succès
+	if len(updates) == 0 {
+		ctx.JSON(200, "No changes to apply")
+		return
+	}
+
+	// Mettre à jour l'utilisateur
+	result = db.Model(&currentUser).Updates(updates)
+	if result.Error != nil {
+		log.Println("Failed to update user:", result.Error)
+		ctx.JSON(500, "Failed to update profile")
+		return
+	}
+
+	log.Println("User profile updated successfully, ID:", userId)
+	ctx.JSON(200, "Profile updated successfully")
 }

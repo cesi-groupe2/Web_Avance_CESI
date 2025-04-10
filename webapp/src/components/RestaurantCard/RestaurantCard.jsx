@@ -26,6 +26,7 @@ const ImageContainer = styled.div`
   position: relative;
   height: 180px;
   overflow: hidden;
+  background-color: #f5f5f5;
 `;
 
 const RestaurantImage = styled.img`
@@ -152,8 +153,11 @@ const RestaurantCard = ({
     <Card to={`/restaurant/${id_restaurant}`}>
       <ImageContainer>
         <RestaurantImage 
-          src={picture || 'https://via.placeholder.com/400x200?text=Restaurant'} 
+          src={picture} 
           alt={name} 
+          onError={() => {
+            console.log('Erreur de chargement de l\'image:', picture);
+          }}
         />
       </ImageContainer>
       

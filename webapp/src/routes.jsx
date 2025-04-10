@@ -10,6 +10,7 @@ import Register from "./pages/Auth/Register/Register";
 import RestaurantList from "./pages/Restaurant/List/RestaurantList";
 import RestaurantDetails from "./pages/Restaurant/Details/RestaurantDetails";
 import CreateRestaurant from "./pages/Restaurant/Create/CreateRestaurant";
+import EditRestaurant from "./pages/Restaurant/Edit/EditRestaurant";
 import RestaurantMenu from "./pages/Restaurant/Menu/RestaurantMenu";
 import Checkout from "./pages/Order/Checkout/Checkout";
 import Tracking from "./pages/Order/Tracking/Tracking";
@@ -32,13 +33,35 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       
-      <Route path="/restaurants" element={<RestaurantList />} />
-      <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+      <Route
+        path="/restaurants"
+        element={
+          <ProtectedRoute redirectTo="/login">
+            <RestaurantList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/restaurant/:id"
+        element={
+          <ProtectedRoute redirectTo="/login">
+            <RestaurantDetails />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/restaurant/create"
         element={
           <ProtectedRoute>
             <CreateRestaurant />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/restaurant/edit"
+        element={
+          <ProtectedRoute requiredRole="2">
+            <EditRestaurant />
           </ProtectedRoute>
         }
       />
@@ -80,9 +103,9 @@ const AppRoutes = () => {
       />
       
       <Route
-        path="/order/tracking/:orderNumber"
+        path="/order/tracking/:orderId"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <Tracking />
           </ProtectedRoute>
         }
@@ -91,7 +114,7 @@ const AppRoutes = () => {
       <Route
         path="/profile"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <Profile />
           </ProtectedRoute>
         }
@@ -100,7 +123,7 @@ const AppRoutes = () => {
       <Route
         path="/orders"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <OrderHistory />
           </ProtectedRoute>
         }
@@ -109,7 +132,7 @@ const AppRoutes = () => {
       <Route
         path="/favorites"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
+          <ProtectedRoute>
             <Favorites />
           </ProtectedRoute>
         }

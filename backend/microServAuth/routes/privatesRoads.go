@@ -11,11 +11,17 @@ func HandlerMicroServAuthPrivateRoads(server *gin.Engine, sqlClient *gorm.DB) *g
 	auth := server.Group("/auth", middlewares.AuthMiddleware())
 	auth.POST("/refreshToken", authController.RefreshToken)
 	auth.POST("/logout", authController.Logout)
-	auth.POST("/resetPwd/:userId", func (ctx *gin.Context) {
+	auth.POST("/resetPwd/:userId", func(ctx *gin.Context) {
 		authController.ResetPwd(ctx, sqlClient)
 	})
 	auth.GET("/me", func(ctx *gin.Context) {
 		authController.GetMe(ctx, sqlClient)
+	})
+	auth.DELETE("/delete-account", func(ctx *gin.Context) {
+		authController.DeleteAccount(ctx, sqlClient)
+	})
+	auth.POST("/update-profile", func(ctx *gin.Context) {
+		authController.UpdateProfile(ctx, sqlClient)
 	})
 
 	return auth

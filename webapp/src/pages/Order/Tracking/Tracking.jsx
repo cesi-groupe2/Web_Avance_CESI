@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { FiMapPin, FiClock, FiUser, FiPhone, FiBarChart2, FiPackage, FiTruck, FiHome, FiCheckCircle } from "react-icons/fi";
+import { FiClock, FiMapPin, FiUser, FiShoppingBag, FiPhone, FiMail, FiTruck, FiCheckSquare } from "react-icons/fi";
 import Header from "../../../components/Header";
-import Button from "../../../components/Button";
+import Button from "../../../components/Button/Button";
 import { useAuth } from "../../../contexts/AuthContext";
+import OrderApi from "../../../api/OrderApi";
+
+const orderApi = new OrderApi();
 
 const PageContainer = styled.div`
   display: flex;
@@ -21,7 +24,7 @@ const ContentContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: #333;
   margin-bottom: 30px;
   text-align: center;
@@ -30,589 +33,546 @@ const Title = styled.h1`
 const TrackingCard = styled.div`
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
 `;
 
-const TopSection = styled.div`
-  padding: 25px;
-  
-  @media (min-width: 768px) {
-    display: flex;
-    gap: 30px;
-  }
+const StatusHeader = styled.div`
+  text-align: center;
+  margin-bottom: 40px;
 `;
 
-const OrderInfo = styled.div`
-  flex: 1;
-  margin-bottom: 25px;
-  
-  @media (min-width: 768px) {
-    margin-bottom: 0;
-  }
-`;
-
-const OrderNumber = styled.p`
-  font-size: 0.9rem;
+const OrderNumber = styled.div`
+  font-size: 1.1rem;
   color: #666;
-  margin: 0 0 5px 0;
+  margin-bottom: 10px;
 `;
 
-const RestaurantName = styled.h2`
-  font-size: 1.3rem;
-  margin: 0 0 15px 0;
+const StatusTitle = styled.h2`
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
 `;
 
-const DeliveryInfoGrid = styled.div`
+const DeliveryTime = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00a082;
+  font-size: 1.1rem;
+  font-weight: 500;
+  
+  svg {
+    margin-right: 10px;
+  }
+`;
+
+const ProgressTracker = styled.div`
+  margin: 40px 0;
+`;
+
+const Steps = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #e0e0e0;
+    z-index: 1;
+  }
+`;
+
+const StepIcon = styled.div`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: ${props => props.active ? '#00a082' : props.completed ? '#00a082' : '#e0e0e0'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+  
+  svg {
+    font-size: 1.5rem;
+  }
+`;
+
+const StepLabels = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+`;
+
+const StepLabel = styled.div`
+  font-size: 0.9rem;
+  color: ${props => props.active ? '#00a082' : props.completed ? '#00a082' : '#666'};
+  font-weight: ${props => props.active || props.completed ? '600' : '400'};
+  width: 90px;
+  text-align: center;
+  transition: all 0.3s ease;
+`;
+
+const OrderDetailsSection = styled.div`
+  margin-top: 40px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
-  margin-bottom: 20px;
   
-  @media (min-width: 576px) {
+  @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr;
   }
 `;
 
-const InfoItem = styled.div`
+const OrderDetailsCard = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+`;
+
+const CardTitle = styled.h3`
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 20px;
   display: flex;
-  gap: 10px;
+  align-items: center;
   
   svg {
+    margin-right: 10px;
     color: #00a082;
-    min-width: 20px;
-  }
-  
-  p {
-    margin: 0;
-    font-size: 0.95rem;
-    color: #333;
-  }
-  
-  span {
-    display: block;
-    color: #666;
-    font-size: 0.85rem;
-    margin-top: 2px;
   }
 `;
 
-const MapSection = styled.div`
-  flex: 1;
-  background-color: #eee;
-  border-radius: 8px;
-  height: 200px;
-  position: relative;
-  overflow: hidden;
-  
-  @media (min-width: 768px) {
-    min-height: auto;
-  }
-`;
-
-const MapPlaceholder = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #888;
-  font-size: 1rem;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const DriverInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 15px 25px;
-  background-color: #f0f9f7;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
-`;
-
-const DriverAvatar = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #00a082;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-`;
-
-const DriverDetails = styled.div`
-  flex: 1;
-  
-  h3 {
-    font-size: 1rem;
-    margin: 0 0 5px 0;
-  }
-  
-  p {
-    font-size: 0.9rem;
-    color: #666;
-    margin: 0;
-  }
-`;
-
-const CallButton = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #00a082;
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  
-  &:hover {
-    background-color: #008868;
-  }
-`;
-
-const TrackingTimeline = styled.div`
-  padding: 25px;
-`;
-
-const TimelineTitle = styled.h3`
-  font-size: 1.1rem;
-  margin: 0 0 20px 0;
-`;
-
-const Timeline = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const TimelineItem = styled.div`
-  display: flex;
-  padding-bottom: 30px;
-  position: relative;
+const InfoRow = styled.div`
+  margin-bottom: 15px;
   
   &:last-child {
-    padding-bottom: 0;
-  }
-  
-  &:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 32px;
-    left: 12px;
-    width: 2px;
-    height: calc(100% - 32px);
-    background-color: ${props => props.completed ? '#00a082' : '#e0e0e0'};
+    margin-bottom: 0;
   }
 `;
 
-const TimelineIcon = styled.div`
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 15px;
-  z-index: 1;
-  
-  background-color: ${props => props.completed ? '#00a082' : props.active ? '#fff' : '#f0f0f0'};
-  color: ${props => props.completed ? '#fff' : props.active ? '#00a082' : '#999'};
-  border: ${props => props.active ? '2px solid #00a082' : 'none'};
-  
-  svg {
-    font-size: 14px;
-  }
-`;
-
-const TimelineContent = styled.div`
-  flex: 1;
-`;
-
-const TimelineEventTitle = styled.h4`
-  font-size: 1rem;
-  margin: 0 0 5px 0;
-  color: ${props => props.active ? '#00a082' : props.completed ? '#333' : '#999'};
-`;
-
-const TimelineEventTime = styled.p`
+const InfoLabel = styled.div`
   font-size: 0.85rem;
-  color: ${props => props.active || props.completed ? '#666' : '#999'};
-  margin: 0;
+  color: #666;
+  margin-bottom: 5px;
 `;
 
-const OrderItemsSection = styled.div`
-  padding: 25px;
-  border-top: 1px solid #e0e0e0;
+const InfoValue = styled.div`
+  font-size: 1rem;
+  color: #333;
 `;
 
-const OrderItemsTitle = styled.h3`
-  font-size: 1.1rem;
-  margin: 0 0 20px 0;
-`;
-
-const OrderItemsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+const OrderItems = styled.div`
+  margin-top: 15px;
 `;
 
 const OrderItem = styled.div`
   display: flex;
-  justify-content: space-between;
+  margin-bottom: 15px;
   
-  div:first-child {
-    display: flex;
-  }
-  
-  span:first-child {
-    color: #666;
-    margin-right: 8px;
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
+const ItemQuantity = styled.div`
+  font-weight: 600;
+  margin-right: 10px;
+  min-width: 25px;
+`;
+
+const ItemDetails = styled.div`
+  flex-grow: 1;
+`;
+
+const ItemName = styled.div`
+  font-weight: 500;
+  margin-bottom: 5px;
+`;
+
+const ItemOptions = styled.div`
+  font-size: 0.85rem;
+  color: #666;
+`;
+
+const ItemPrice = styled.div`
+  font-weight: 600;
+  margin-left: 15px;
+  min-width: 60px;
+  text-align: right;
+`;
+
+const OrderSummary = styled.div`
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+`;
+
+const SummaryRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  
+  &:last-child {
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
+  
+  button {
+    flex: 1;
+  }
+`;
+
+const LoadingState = styled.div`
+  text-align: center;
+  padding: 50px 0;
+  color: #666;
+`;
+
+const ErrorState = styled.div`
+  text-align: center;
+  padding: 50px 0;
+  color: #e74c3c;
+`;
+
 const Tracking = () => {
-  const { orderNumber } = useParams();
+  const { orderId } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { isAuthenticated, currentUser } = useAuth();
   
-  // État pour stocker les données de la commande
-  const [orderData, setOrderData] = useState(null);
-  // État pour le statut de livraison
-  const [deliveryStatus, setDeliveryStatus] = useState('preparing');
-  // État pour suivre le temps écoulé depuis la commande
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
+  const statusLabels = {
+    'pending': 'Commande reçue',
+    'confirmed': 'Commande confirmée',
+    'preparing': 'En préparation',
+    'ready': 'Prêt pour livraison',
+    'delivering': 'En cours de livraison',
+    'delivered': 'Livré',
+    'cancelled': 'Annulé'
+  };
+  
+  const statusIndex = {
+    'pending': 0,
+    'confirmed': 1,
+    'preparing': 2,
+    'ready': 2,
+    'delivering': 3,
+    'delivered': 4,
+    'cancelled': -1
+  };
+  
+  const getStatusIndex = (status) => {
+    return statusIndex[status] || 0;
+  };
+  
+  // Charger les détails de la commande
   useEffect(() => {
-    // Simulation de récupération des données de commande depuis l'API
-    // Dans une application réelle, vous feriez un appel API ici
-    const mockOrderData = {
-      orderNumber: `#${orderNumber}`,
-      restaurant: {
-        name: "Le Gourmet Français",
-        address: "123 rue de la Gastronomie, Paris"
-      },
-      orderTime: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-      estimatedDelivery: 35, // minutes
-      deliveryAddress: "156 boulevard Haussmann, Paris",
-      items: [
-        { id: 1, name: "Burger Gourmet", quantity: 2, price: 12.99 },
-        { id: 2, name: "Frites Maison", quantity: 1, price: 3.99 },
-        { id: 3, name: "Coca Cola", quantity: 2, price: 2.50 }
-      ],
-      driver: {
-        name: "Thomas M.",
-        phone: "+33612345678",
-        rating: 4.8
-      },
-      total: 34.97,
-      status: "preparing" // enum: preparing, onTheWay, nearYou, delivered
-    };
+    if (!orderId) return;
     
-    setOrderData(mockOrderData);
-    setDeliveryStatus(mockOrderData.status);
+    setLoading(true);
+    setError(null);
     
-    // Simuler les changements d'état de la livraison
-    const prepTime = 3; // en secondes pour la démo (normalement en minutes)
-    const deliveryTime = 6; // en secondes pour la démo
-    const nearbyTime = 9; // en secondes pour la démo
-    
-    setTimeout(() => {
-      setDeliveryStatus('onTheWay');
-    }, prepTime * 1000);
-    
-    setTimeout(() => {
-      setDeliveryStatus('nearYou');
-    }, nearbyTime * 1000);
-    
-    setTimeout(() => {
-      setDeliveryStatus('delivered');
-    }, (nearbyTime + deliveryTime) * 1000);
-    
-    // Mise à jour du temps écoulé
-    const timer = setInterval(() => {
-      setElapsedTime(prev => prev + 1);
-    }, 60 * 1000); // tous les minutes
-    
-    return () => clearInterval(timer);
-  }, [orderNumber]);
+    orderApi.orderIdGet(orderId, (error, data, response) => {
+      setLoading(false);
+      
+      if (error) {
+        console.error("Erreur lors de la récupération de la commande:", error);
+        setError("Impossible de charger les détails de la commande. Veuillez réessayer.");
+        return;
+      }
+      
+      setOrder(data);
+    });
+  }, [orderId]);
   
-  if (!orderData) {
+  const handleCancelOrder = () => {
+    if (!order) return;
+    
+    if (window.confirm("Êtes-vous sûr de vouloir annuler cette commande ?")) {
+      setLoading(true);
+      
+      orderApi.orderIdDelete(orderId, (error, data, response) => {
+        setLoading(false);
+        
+        if (error) {
+          console.error("Erreur lors de l'annulation de la commande:", error);
+          setError("Impossible d'annuler la commande. Veuillez réessayer.");
+          return;
+        }
+        
+        // Recharger la commande pour mettre à jour son statut
+        orderApi.orderIdGet(orderId, (error, data, response) => {
+          if (error) {
+            setError("La commande a été annulée mais nous n'avons pas pu recharger ses détails.");
+            return;
+          }
+          
+          setOrder(data);
+        });
+      });
+    }
+  };
+  
+  if (loading) {
     return (
       <PageContainer>
-        <Header isAuthenticated={!!currentUser} userRole={currentUser?.role} />
+        <Header />
         <ContentContainer>
-          <Title>Chargement des informations de livraison...</Title>
+          <LoadingState>
+            <h2>Chargement des détails de la commande...</h2>
+          </LoadingState>
         </ContentContainer>
       </PageContainer>
     );
   }
   
-  // Calculer le temps écoulé depuis la commande
-  const orderTime = new Date(orderData.orderTime);
-  const minutesElapsed = Math.floor((Date.now() - orderTime.getTime()) / (1000 * 60));
+  if (error) {
+    return (
+      <PageContainer>
+        <Header />
+        <ContentContainer>
+          <ErrorState>
+            <h2>Une erreur est survenue</h2>
+            <p>{error}</p>
+            <Button onClick={() => navigate("/")}>Retour à l'accueil</Button>
+          </ErrorState>
+        </ContentContainer>
+      </PageContainer>
+    );
+  }
   
-  // Formater l'heure pour l'affichage
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  };
+  if (!order) {
+    return (
+      <PageContainer>
+        <Header />
+        <ContentContainer>
+          <ErrorState>
+            <h2>Commande introuvable</h2>
+            <p>Nous n'avons pas pu trouver la commande demandée.</p>
+            <Button onClick={() => navigate("/")}>Retour à l'accueil</Button>
+          </ErrorState>
+        </ContentContainer>
+      </PageContainer>
+    );
+  }
   
-  // Calculer l'heure estimée de livraison
-  const estimatedDeliveryTime = new Date(orderTime.getTime() + orderData.estimatedDelivery * 60 * 1000);
-  
-  // Déterminer le statut de chaque étape
-  const timelineStatuses = {
-    ordered: { completed: true, active: false },
-    preparing: { 
-      completed: deliveryStatus !== 'ordered', 
-      active: deliveryStatus === 'preparing' 
-    },
-    onTheWay: { 
-      completed: ['nearYou', 'delivered'].includes(deliveryStatus), 
-      active: deliveryStatus === 'onTheWay' 
-    },
-    nearYou: { 
-      completed: deliveryStatus === 'delivered', 
-      active: deliveryStatus === 'nearYou' 
-    },
-    delivered: { 
-      completed: false, 
-      active: deliveryStatus === 'delivered' 
-    }
-  };
-  
-  // Générer les temps pour chaque étape (dans une application réelle, ces données viendraient du backend)
-  const timelineData = {
-    ordered: {
-      title: "Commande reçue",
-      time: formatTime(orderTime)
-    },
-    preparing: {
-      title: "Préparation en cours",
-      time: formatTime(new Date(orderTime.getTime() + 5 * 60 * 1000))
-    },
-    onTheWay: {
-      title: "En cours de livraison",
-      time: formatTime(new Date(orderTime.getTime() + 15 * 60 * 1000))
-    },
-    nearYou: {
-      title: "Presque arrivé",
-      time: formatTime(new Date(orderTime.getTime() + 30 * 60 * 1000))
-    },
-    delivered: {
-      title: "Livré",
-      time: formatTime(estimatedDeliveryTime)
-    }
-  };
-  
-  // Calculer le total de la commande
-  const subtotal = orderData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const currentStep = getStatusIndex(order.status);
+  const estimatedDeliveryTime = "30-45 minutes";
   
   return (
     <PageContainer>
-      <Header isAuthenticated={!!currentUser} userRole={currentUser?.role} />
-      
+      <Header />
       <ContentContainer>
-        <Title>Suivi de commande {orderData.orderNumber}</Title>
+        <Title>Suivi de commande</Title>
         
         <TrackingCard>
-          <TopSection>
-            <OrderInfo>
-              <OrderNumber>Commande {orderData.orderNumber}</OrderNumber>
-              <RestaurantName>{orderData.restaurant.name}</RestaurantName>
-              
-              <DeliveryInfoGrid>
-                <InfoItem>
-                  <FiMapPin />
-                  <div>
-                    <p>Restaurant</p>
-                    <span>{orderData.restaurant.address}</span>
-                  </div>
-                </InfoItem>
-                
-                <InfoItem>
-                  <FiClock />
-                  <div>
-                    <p>Heure de commande</p>
-                    <span>{formatTime(orderTime)}</span>
-                  </div>
-                </InfoItem>
-                
-                <InfoItem>
-                  <FiMapPin />
-                  <div>
-                    <p>Adresse de livraison</p>
-                    <span>{orderData.deliveryAddress}</span>
-                  </div>
-                </InfoItem>
-                
-                <InfoItem>
-                  <FiClock />
-                  <div>
-                    <p>Livraison estimée</p>
-                    <span>{formatTime(estimatedDeliveryTime)}</span>
-                  </div>
-                </InfoItem>
-              </DeliveryInfoGrid>
-              
-              {['delivered', 'nearYou', 'onTheWay'].includes(deliveryStatus) ? (
-                <Button onClick={() => {}} variant="outlined">Contacter le support</Button>
-              ) : (
-                <Button onClick={() => {}} variant="outlined">Annuler ma commande</Button>
+          <StatusHeader>
+            <OrderNumber>Commande #{orderId}</OrderNumber>
+            <StatusTitle>{statusLabels[order.status] || order.status}</StatusTitle>
+            {order.status !== 'cancelled' && order.status !== 'delivered' && (
+              <DeliveryTime>
+                <FiClock />
+                <span>Livraison estimée: {estimatedDeliveryTime}</span>
+              </DeliveryTime>
+            )}
+          </StatusHeader>
+          
+          <ProgressTracker>
+            <Steps>
+              <StepIcon completed={currentStep >= 0} active={currentStep === 0}>
+                <FiShoppingBag />
+              </StepIcon>
+              <StepIcon completed={currentStep >= 1} active={currentStep === 1}>
+                <FiCheckSquare />
+              </StepIcon>
+              <StepIcon completed={currentStep >= 2} active={currentStep === 2}>
+                <FiClock />
+              </StepIcon>
+              <StepIcon completed={currentStep >= 3} active={currentStep === 3}>
+                <FiTruck />
+              </StepIcon>
+              <StepIcon completed={currentStep >= 4} active={currentStep === 4}>
+                <FiMapPin />
+              </StepIcon>
+            </Steps>
+            
+            <StepLabels>
+              <StepLabel completed={currentStep >= 0} active={currentStep === 0}>
+                Commande reçue
+              </StepLabel>
+              <StepLabel completed={currentStep >= 1} active={currentStep === 1}>
+                Confirmée
+              </StepLabel>
+              <StepLabel completed={currentStep >= 2} active={currentStep === 2}>
+                En préparation
+              </StepLabel>
+              <StepLabel completed={currentStep >= 3} active={currentStep === 3}>
+                En livraison
+              </StepLabel>
+              <StepLabel completed={currentStep >= 4} active={currentStep === 4}>
+                Livrée
+              </StepLabel>
+            </StepLabels>
+          </ProgressTracker>
+          
+          {order.status !== 'cancelled' && order.status !== 'delivered' && (
+            <ActionButtons>
+              <Button onClick={() => window.location.reload()} variant="outline">
+                Actualiser
+              </Button>
+              {order.status === 'pending' && (
+                <Button onClick={handleCancelOrder} variant="danger">
+                  Annuler la commande
+                </Button>
               )}
-            </OrderInfo>
-            
-            <MapSection>
-              <MapPlaceholder>
-                <img 
-                  src="https://maps.googleapis.com/maps/api/staticmap?center=Paris,France&zoom=13&size=600x300&maptype=roadmap&markers=color:red%7CChamps-Elysees,Paris&key=YOUR_API_KEY" 
-                  alt="Carte de livraison" 
-                />
-              </MapPlaceholder>
-            </MapSection>
-          </TopSection>
-          
-          {['delivered', 'nearYou', 'onTheWay'].includes(deliveryStatus) && (
-            <DriverInfo>
-              <DriverAvatar>
-                <FiUser />
-              </DriverAvatar>
-              
-              <DriverDetails>
-                <h3>{orderData.driver.name}</h3>
-                <p>⭐ {orderData.driver.rating} • Votre livreur</p>
-              </DriverDetails>
-              
-              <CallButton href={`tel:${orderData.driver.phone}`}>
-                <FiPhone />
-              </CallButton>
-            </DriverInfo>
+            </ActionButtons>
           )}
-          
-          <TrackingTimeline>
-            <TimelineTitle>Suivi de livraison</TimelineTitle>
+        </TrackingCard>
+        
+        <OrderDetailsSection>
+          <OrderDetailsCard>
+            <CardTitle>
+              <FiShoppingBag />
+              Détails de la commande
+            </CardTitle>
             
-            <Timeline>
-              <TimelineItem completed={timelineStatuses.ordered.completed}>
-                <TimelineIcon completed={timelineStatuses.ordered.completed} active={timelineStatuses.ordered.active}>
-                  <FiBarChart2 />
-                </TimelineIcon>
-                <TimelineContent>
-                  <TimelineEventTitle completed={timelineStatuses.ordered.completed} active={timelineStatuses.ordered.active}>
-                    {timelineData.ordered.title}
-                  </TimelineEventTitle>
-                  <TimelineEventTime completed={timelineStatuses.ordered.completed} active={timelineStatuses.ordered.active}>
-                    {timelineData.ordered.time}
-                  </TimelineEventTime>
-                </TimelineContent>
-              </TimelineItem>
-              
-              <TimelineItem completed={timelineStatuses.preparing.completed}>
-                <TimelineIcon completed={timelineStatuses.preparing.completed} active={timelineStatuses.preparing.active}>
-                  <FiPackage />
-                </TimelineIcon>
-                <TimelineContent>
-                  <TimelineEventTitle completed={timelineStatuses.preparing.completed} active={timelineStatuses.preparing.active}>
-                    {timelineData.preparing.title}
-                  </TimelineEventTitle>
-                  <TimelineEventTime completed={timelineStatuses.preparing.completed} active={timelineStatuses.preparing.active}>
-                    {timelineData.preparing.time}
-                  </TimelineEventTime>
-                </TimelineContent>
-              </TimelineItem>
-              
-              <TimelineItem completed={timelineStatuses.onTheWay.completed}>
-                <TimelineIcon completed={timelineStatuses.onTheWay.completed} active={timelineStatuses.onTheWay.active}>
-                  <FiTruck />
-                </TimelineIcon>
-                <TimelineContent>
-                  <TimelineEventTitle completed={timelineStatuses.onTheWay.completed} active={timelineStatuses.onTheWay.active}>
-                    {timelineData.onTheWay.title}
-                  </TimelineEventTitle>
-                  <TimelineEventTime completed={timelineStatuses.onTheWay.completed} active={timelineStatuses.onTheWay.active}>
-                    {timelineData.onTheWay.time}
-                  </TimelineEventTime>
-                </TimelineContent>
-              </TimelineItem>
-              
-              <TimelineItem completed={timelineStatuses.nearYou.completed}>
-                <TimelineIcon completed={timelineStatuses.nearYou.completed} active={timelineStatuses.nearYou.active}>
-                  <FiMapPin />
-                </TimelineIcon>
-                <TimelineContent>
-                  <TimelineEventTitle completed={timelineStatuses.nearYou.completed} active={timelineStatuses.nearYou.active}>
-                    {timelineData.nearYou.title}
-                  </TimelineEventTitle>
-                  <TimelineEventTime completed={timelineStatuses.nearYou.completed} active={timelineStatuses.nearYou.active}>
-                    {timelineData.nearYou.time}
-                  </TimelineEventTime>
-                </TimelineContent>
-              </TimelineItem>
-              
-              <TimelineItem completed={timelineStatuses.delivered.completed}>
-                <TimelineIcon completed={timelineStatuses.delivered.completed} active={timelineStatuses.delivered.active}>
-                  <FiHome />
-                </TimelineIcon>
-                <TimelineContent>
-                  <TimelineEventTitle completed={timelineStatuses.delivered.completed} active={timelineStatuses.delivered.active}>
-                    {timelineData.delivered.title}
-                  </TimelineEventTitle>
-                  <TimelineEventTime completed={timelineStatuses.delivered.completed} active={timelineStatuses.delivered.active}>
-                    {timelineData.delivered.time}
-                  </TimelineEventTime>
-                </TimelineContent>
-              </TimelineItem>
-            </Timeline>
-          </TrackingTimeline>
-          
-          <OrderItemsSection>
-            <OrderItemsTitle>Détails de la commande</OrderItemsTitle>
+            <InfoRow>
+              <InfoLabel>Restaurant</InfoLabel>
+              <InfoValue>{order.restaurant_name}</InfoValue>
+            </InfoRow>
             
-            <OrderItemsList>
-              {orderData.items.map(item => (
-                <OrderItem key={item.id}>
-                  <div>
-                    <span>{item.quantity}x</span>
-                    <span>{item.name}</span>
-                  </div>
-                  <span>{(item.price * item.quantity).toFixed(2)} €</span>
+            <InfoRow>
+              <InfoLabel>Mode de livraison</InfoLabel>
+              <InfoValue>{order.delivery_method === 'express' ? 'Express' : 'Standard'}</InfoValue>
+            </InfoRow>
+            
+            <InfoRow>
+              <InfoLabel>Mode de paiement</InfoLabel>
+              <InfoValue>
+                {order.payment_method === 'card' && 'Carte bancaire'}
+                {order.payment_method === 'paypal' && 'PayPal'}
+                {order.payment_method === 'cash' && 'À la livraison'}
+              </InfoValue>
+            </InfoRow>
+            
+            <InfoRow>
+              <InfoLabel>Date de commande</InfoLabel>
+              <InfoValue>{new Date(order.created_at).toLocaleString()}</InfoValue>
+            </InfoRow>
+            
+            <OrderItems>
+              {order.items && order.items.map((item, index) => (
+                <OrderItem key={index}>
+                  <ItemQuantity>{item.quantity}x</ItemQuantity>
+                  <ItemDetails>
+                    <ItemName>{item.name}</ItemName>
+                    {item.options && Object.keys(item.options).length > 0 && (
+                      <ItemOptions>
+                        {Object.entries(item.options).map(([key, value]) => `${key}: ${value}`).join(", ")}
+                      </ItemOptions>
+                    )}
+                  </ItemDetails>
+                  <ItemPrice>{(item.price * item.quantity).toFixed(2)} €</ItemPrice>
                 </OrderItem>
               ))}
-            </OrderItemsList>
+            </OrderItems>
             
-            <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #e0e0e0' }} />
+            <OrderSummary>
+              <SummaryRow>
+                <span>Sous-total</span>
+                <span>{(order.total_price - order.delivery_fee + (order.discount || 0)).toFixed(2)} €</span>
+              </SummaryRow>
+              <SummaryRow>
+                <span>Frais de livraison</span>
+                <span>{order.delivery_fee.toFixed(2)} €</span>
+              </SummaryRow>
+              {order.discount > 0 && (
+                <SummaryRow>
+                  <span>Remise</span>
+                  <span>-{order.discount.toFixed(2)} €</span>
+                </SummaryRow>
+              )}
+              <SummaryRow>
+                <span>Total</span>
+                <span>{order.total_price.toFixed(2)} €</span>
+              </SummaryRow>
+            </OrderSummary>
+          </OrderDetailsCard>
+          
+          <OrderDetailsCard>
+            <CardTitle>
+              <FiUser />
+              Coordonnées
+            </CardTitle>
             
-            <OrderItemsList>
-              <OrderItem>
-                <div>
-                  <span>Sous-total</span>
-                </div>
-                <span>{subtotal.toFixed(2)} €</span>
-              </OrderItem>
-              <OrderItem>
-                <div>
-                  <span>Frais de livraison</span>
-                </div>
-                <span>{(orderData.total - subtotal).toFixed(2)} €</span>
-              </OrderItem>
-              <OrderItem style={{ fontWeight: 'bold', marginTop: '10px' }}>
-                <div>
-                  <span>Total</span>
-                </div>
-                <span>{orderData.total.toFixed(2)} €</span>
-              </OrderItem>
-            </OrderItemsList>
-          </OrderItemsSection>
-        </TrackingCard>
+            {order.contact_info && (
+              <>
+                <InfoRow>
+                  <InfoLabel>Nom</InfoLabel>
+                  <InfoValue>{order.contact_info.name}</InfoValue>
+                </InfoRow>
+                
+                <InfoRow>
+                  <InfoLabel>Email</InfoLabel>
+                  <InfoValue>{order.contact_info.email}</InfoValue>
+                </InfoRow>
+                
+                <InfoRow>
+                  <InfoLabel>Téléphone</InfoLabel>
+                  <InfoValue>{order.contact_info.phone}</InfoValue>
+                </InfoRow>
+              </>
+            )}
+            
+            <InfoRow>
+              <InfoLabel>Adresse de livraison</InfoLabel>
+              <InfoValue>{order.delivery_address}</InfoValue>
+            </InfoRow>
+            
+            {order.additional_info && (
+              <InfoRow>
+                <InfoLabel>Instructions complémentaires</InfoLabel>
+                <InfoValue>{order.additional_info}</InfoValue>
+              </InfoRow>
+            )}
+            
+            <ActionButtons>
+              <Button onClick={() => navigate("/")} variant="outline">
+                Retour à l'accueil
+              </Button>
+              {(order.status === 'delivered' || order.status === 'cancelled') && (
+                <Button onClick={() => navigate("/order/history")}>
+                  Voir mes commandes
+                </Button>
+              )}
+            </ActionButtons>
+          </OrderDetailsCard>
+        </OrderDetailsSection>
       </ContentContainer>
     </PageContainer>
   );
