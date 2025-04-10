@@ -17,7 +17,7 @@ func GenerateAccessToken(ctx *gin.Context, user model.User) (string, error) {
 		"userId":     user.IDUser,
 		"userRoleId": user.IDRole,
 		"iat":        time.Now().Unix(),
-		"exp":        time.Now().Add(time.Minute * 10).Unix(),
+		"exp":        time.Now().Add(time.Hour * 1).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv(constants.ACCESS_JWT_KEY_ENV)))

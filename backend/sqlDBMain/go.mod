@@ -1,4 +1,4 @@
-module sqlDB
+module github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDBMain
 
 go 1.24.1
 

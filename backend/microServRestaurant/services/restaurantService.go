@@ -109,41 +109,13 @@ func UpdateRestaurant(ctx *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// Update restaurant fields using a temporary struct to handle string to float conversion for localisation fields
-	var tempRestaurant struct {
-		Name                  string          `json:"name"`
-		Phone                 string          `json:"phone"`
-		Address               string          `json:"address"`
-		LocalisationLatitude  string          `json:"localisation_latitude"`
-		LocalisationLongitude string          `json:"localisation_longitude"`
-		OpeningHours          string          `json:"opening_hours"`
-		Picture               json.RawMessage `json:"picture"`
-	}
-	if err := ctx.ShouldBindJSON(&tempRestaurant); err != nil {
+	var restaurantUpdate model.Restaurant
+	if err := ctx.ShouldBindJSON(&restaurantUpdate); err != nil {
 		log.Println("Error binding JSON:", err)
 		ctx.JSON(400, gin.H{"error": "Invalid input"})
 		return
 	}
 
-	restaurant.Name = tempRestaurant.Name
-	restaurant.Phone = tempRestaurant.Phone
-	restaurant.Address = tempRestaurant.Address
-	restaurant.OpeningHours = tempRestaurant.OpeningHours
-	restaurant.Picture = []byte(tempRestaurant.Picture)
-
-	var errConv error
-	restaurant.LocalisationLatitude, errConv = strconv.ParseFloat(tempRestaurant.LocalisationLatitude, 64)
-	if errConv != nil {
-		log.Println("Invalid latitude:", errConv)
-		ctx.JSON(400, gin.H{"error": "Invalid latitude"})
-		return
-	}
-	restaurant.LocalisationLongitude, errConv = strconv.ParseFloat(tempRestaurant.LocalisationLongitude, 64)
-	if errConv != nil {
-		log.Println("Invalid longitude:", errConv)
-		ctx.JSON(400, gin.H{"error": "Invalid longitude"})
-		return
-	}
 	if err := db.Save(&restaurant).Error; err != nil {
 		log.Println("Error saving restaurant:", err)
 		ctx.JSON(500, gin.H{"error": "Failed to update restaurant"})
