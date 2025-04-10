@@ -27,6 +27,9 @@ func HandlerMicroServRestaurantRoads(server *gin.Engine, sqlClient *gorm.DB) *gi
 	restaurant.POST("/new", func(ctx *gin.Context) {
 		restaurantService.CreateRestaurant(ctx, sqlClient)
 	})
+	restaurant.GET("/:restaurantId/proprio", func(ctx *gin.Context) {
+		restaurantService.GetProprioByRestaurantId(ctx, sqlClient)
+	})
 
 	restaurant.GET("/:restaurantId/menuitems", func(ctx *gin.Context) {
 		restaurantService.GetMenuItemsByRestaurantId(ctx, sqlClient)

@@ -479,6 +479,32 @@ const Checkout = () => {
         },
         additional_info: formData.additionalInfo || ""
       };
+
+      // Notifier le restaurateur de la nouvelle commande
+      try {
+        const notificationResponse = await fetch(`${import.meta.env.VITE_API_URL}/notifications/restaurant`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            restaurant_id: restaurant?.id,
+            message: `Nouvelle commande de ${formData.firstName} ${formData.lastName}`,
+            order_details: {
+              items: orderItems,
+              total: total,
+              delivery_address: orderData.delivery_address
+            }
+          })
+        });
+
+        if (!notificationResponse.ok) {
+          console.error("Erreur lors de l'envoi de la notification au restaurateur");
+        }
+      } catch (notificationError) {
+        console.error("Erreur lors de l'envoi de la notification:", notificationError);
+      }
       
       // Appel à l'API pour créer la commande
       orderApi.rootPost(orderData, (error, data, response) => {

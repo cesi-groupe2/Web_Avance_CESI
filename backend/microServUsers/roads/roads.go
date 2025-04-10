@@ -9,7 +9,7 @@ import (
 
 func HandlerMicroServUsersRoads(server *gin.Engine, dbclient *gorm.DB) *gin.RouterGroup {
 	users := server.Group("/users", middlewares.AuthMiddleware())
-	users.GET("/", func(c *gin.Context) {
+	users.GET("/:id", func(c *gin.Context) {
 		userService.GetUser(c, dbclient)
 	})
 

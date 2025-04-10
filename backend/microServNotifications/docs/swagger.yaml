@@ -1,0 +1,236 @@
+basePath: /notifications
+definitions:
+  model.User:
+    properties:
+      already_sponsored:
+        type: boolean
+      created_at:
+        type: string
+      delivery_adress:
+        type: string
+      email:
+        type: string
+      facturation_adress:
+        type: string
+      first_name:
+        type: string
+      id_role:
+        type: integer
+      id_user:
+        type: integer
+      last_name:
+        type: string
+      password_hash:
+        type: string
+      phone:
+        type: string
+      profil_picture:
+        items:
+          type: integer
+        type: array
+      sponsorship_code:
+        type: string
+    type: object
+host: localhost:8006
+info:
+  contact:
+    email: benjamin.guerre@viacesi.fr
+    name: Groupe 2 FISA INFO A4 CESI (2025)
+    url: https://contact.easeat.fr
+  description: This is a microservice for managing notifications
+  title: Swagger Easeat Notifications microservice
+  version: "1.0"
+paths:
+  /notifications/client/{idClient}/notify:
+    get:
+      consumes:
+      - application/json
+      description: Notify client
+      parameters:
+      - description: Client ID
+        in: path
+        name: idClient
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Notify client
+      tags:
+      - notifications
+  /notifications/client/connectWs:
+    get:
+      consumes:
+      - application/json
+      description: Handle WebSocket connection for client notifications
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Handle WebSocket connection for client notifications
+      tags:
+      - notifications
+  /notifications/deliveryPerson/{idDeliveryPerson}/notify:
+    get:
+      consumes:
+      - application/json
+      description: Notify delivery person
+      parameters:
+      - description: Delivery Person ID
+        in: path
+        name: idDeliveryPerson
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Notify delivery person
+      tags:
+      - notifications
+  /notifications/deliveryPerson/connectWs:
+    get:
+      consumes:
+      - application/json
+      description: Handle WebSocket connection for delivery person notifications
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Handle WebSocket connection for delivery person notifications
+      tags:
+      - notifications
+  /notifications/restaurant/{idRestaurant}/notify:
+    post:
+      consumes:
+      - application/json
+      description: Notify restaurant owner
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: idRestaurant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Notify restaurant owner
+      tags:
+      - notifications
+  /notifications/restaurant/connectWs:
+    get:
+      consumes:
+      - application/json
+      description: Handle WebSocket connection for restaurant notifications
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Handle WebSocket connection for restaurant notifications
+      tags:
+      - notifications
+securityDefinitions:
+  BearerAuth:
+    description: Use /login to get your token and use it here
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

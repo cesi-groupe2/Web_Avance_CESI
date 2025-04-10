@@ -14,6 +14,7 @@
 
 import ApiClient from "../ApiClient";
 import MongoModelsOrder from '../model/MongoModelsOrder';
+import NotificationsApi from './NotificationsApi';
 
 /**
 * Order service.
@@ -329,5 +330,52 @@ export default class OrderApi {
       );
     }
 
+    /**
+     * Create a new order and notify the restaurant
+     * @param {Object} order Order object
+     * @param {String} restaurantId Restaurant ID
+     * @param {module:api/OrderApi~createOrderAndNotifyCallback} callback The callback function
+     */
+    createOrderAndNotify(order, restaurantId, callback) {
+      let postBody = order;
+      
+      // Create the order
+      this.rootPost(order, (error, data, response) => {
+        if (error) {
+          callback(error, null, response);
+          return;
+        }
+
+        // Notify the restaurant
+        const notificationsApi = new NotificationsApi();
+        notificationsApi.notificationsRestaurantIdRestaurantNotifyPost(restaurantId, (notifyError, notifyData, notifyResponse) => {
+          if (notifyError) {
+            callback(notifyError, data, response);
+            return;
+          }
+          callback(null, data, response);
+        });
+      });
+    }
+
+    /**
+     * Update order status
+     * @param {String} orderId Order ID
+     * @param {String} status New status
+     * @param {module:api/OrderApi~updateOrderStatusCallback} callback The callback function
+     */
+    updateOrderStatus(orderId, status, callback) {
+      let postBody = { status: status };
+      
+      this.orderIdGet(orderId, (error, data, response) => {
+        if (error) {
+          callback(error, null, response);
+          return;
+        }
+
+        const updatedOrder = { ...data, status: status };
+        this.rootPatch(updatedOrder, callback);
+      });
+    }
 
 }
