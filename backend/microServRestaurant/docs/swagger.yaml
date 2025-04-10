@@ -47,6 +47,37 @@ definitions:
           type: integer
         type: array
     type: object
+  model.User:
+    properties:
+      already_sponsored:
+        type: boolean
+      created_at:
+        type: string
+      delivery_adress:
+        type: string
+      email:
+        type: string
+      facturation_adress:
+        type: string
+      first_name:
+        type: string
+      id_role:
+        type: integer
+      id_user:
+        type: integer
+      last_name:
+        type: string
+      password_hash:
+        type: string
+      phone:
+        type: string
+      profil_picture:
+        items:
+          type: integer
+        type: array
+      sponsorship_code:
+        type: string
+    type: object
 host: localhost:8052
 info:
   contact:
@@ -58,6 +89,54 @@ info:
   version: "2.0"
 paths:
   /restaurant/{restaurantId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a restaurant by its id
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: restaurantId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a restaurant
+      tags:
+      - restaurant
     get:
       consumes:
       - application/json
@@ -348,6 +427,37 @@ paths:
       summary: Get menu items by restaurant id
       tags:
       - menuitem
+  /restaurant/{restaurantId}/proprio:
+    get:
+      consumes:
+      - application/json
+      description: Get restaurant owner by restaurant ID
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: restaurantId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get restaurant owner by restaurant ID
+      tags:
+      - restaurant
   /restaurant/my:
     get:
       consumes:
