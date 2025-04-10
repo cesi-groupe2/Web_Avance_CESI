@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v78"
@@ -25,11 +26,14 @@ func InitStripe() {
 }
 
 // CreatePayment gère la requête HTTP pour effectuer un paiement avec Stripe
+// CreatePayment godoc
+// @
 func CreatePayment(ctx *gin.Context, database *mongo.Database) {
 	var request PaymentRequest
 
 	// Vérification du JSON reçu
 	if err := ctx.ShouldBindJSON(&request); err != nil {
+		log.Println("JSON invzlid", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format or missing fields"})
 		return
 	}
@@ -37,6 +41,7 @@ func CreatePayment(ctx *gin.Context, database *mongo.Database) {
 	// Créer le paiement Stripe
 	paymentIntent, err := processPaymentWithStripe(request.OrderID, request.Amount)
 	if err != nil {
+		log.Println("Error creattion stripe conf:", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -44,6 +49,7 @@ func CreatePayment(ctx *gin.Context, database *mongo.Database) {
 	// Enregistrer la transaction dans MongoDB
 	err = savePaymentToDB(ctx, database, request.OrderID, request.Amount, paymentIntent.ID)
 	if err != nil {
+		log.Println("Impossible to save transactin: ", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save payment"})
 		return
 	}

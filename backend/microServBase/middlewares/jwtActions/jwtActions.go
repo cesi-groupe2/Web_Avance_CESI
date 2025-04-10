@@ -3,6 +3,7 @@ package jwtActions
 import (
 	"os"
 	"strings"
+	"log"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,7 @@ func HaveGoodSecretKey(token *jwt.Token, secretKey string) bool {
 	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return true
 	}
+	log.Println(secretKey)
 	return false
 }
 
