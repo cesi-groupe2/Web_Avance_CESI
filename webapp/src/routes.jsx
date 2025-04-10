@@ -1,5 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 import Home from "./pages/Home/Home";
 import NotFound from "./pages/NotFound/NotFound";
@@ -20,6 +22,8 @@ import DeliveryStatus from "./pages/DeliveryPerson/DeliveryStatus";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./contexts/AuthContext";
+
+const stripePromise = loadStripe("pk_test_51RAAUmPjM3vsbSp4V1QGOZvz4NzJu4SL05Hux584EwGL8tvxLqeIrEgND53merqpBXbQHB48wvZHfdoD222NRxtn00brQSG80h");
 
 const AppRoutes = () => {
   const { isAuthenticated, userRole } = useAuth();
@@ -87,12 +91,14 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      
+
       <Route
         path="/order/checkout"
         element={
-          <ProtectedRoute>
-            <Checkout />
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <Elements stripe={stripePromise}>
+              <Checkout />
+            </Elements>
           </ProtectedRoute>
         }
       />
@@ -147,4 +153,4 @@ const AppRoutes = () => {
   );
 };
 
-export default AppRoutes; 
+export default AppRoutes;
