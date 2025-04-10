@@ -101,6 +101,17 @@ services:
     networks:
       - easeat-net
 
+    servicepayment:
+    build: 
+      context:  .
+      dockerfile: ./microServPayment/Dockerfile
+    environment:
+      - MICRO_SERV_PAYMENT_ADDR=${MICRO_SERV_PAYMENT_ADDR}
+      - MICRO_SERV_PAYMENT_PORT=${MICRO_SERV_PAYMENT_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
   servicenotification:
     build: 
       context:  .

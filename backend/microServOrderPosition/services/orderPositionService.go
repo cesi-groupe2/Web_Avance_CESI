@@ -136,4 +136,3 @@ func GetJourneyByOrderID(ctx *gin.Context, database *mongo.Database) {
 
 	ctx.JSON(http.StatusOK, journey)
 }
-

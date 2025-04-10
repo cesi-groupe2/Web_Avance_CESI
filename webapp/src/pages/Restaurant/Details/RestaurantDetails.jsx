@@ -641,14 +641,14 @@ const RestaurantDetails = () => {
                       </CartItemInfo>
                       <CartItemQuantity>
                         <button onClick={(e) => {
-                          e.stopPropagation(); // Prevent event bubbling
+                          e.stopPropagation(); 
                           decreaseQuantity(item.id);
                         }}>
                           <FiMinus size={12} />
                         </button>
                         <span>{item.quantity}</span>
                         <button onClick={(e) => {
-                          e.stopPropagation(); // Prevent event bubbling
+                          e.stopPropagation(); 
                           increaseQuantity(item.id);
                         }}>
                           <FiPlus size={12} />
