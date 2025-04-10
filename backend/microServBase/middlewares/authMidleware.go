@@ -26,7 +26,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		token := c.Request.Header.Get("Authorization")
 		log.Println("Token:", token)
 		if token == "" {
-			log.Println("impossible to get token")
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "No token provided"})
 			c.Abort()
 			return
