@@ -207,7 +207,7 @@ const WebPageDAccueil = () => {
           return "Voir les articles";
         }
       } else if (userRole === "3") { // Livreur
-        return "Voir mes livraisons";
+        return "Gérer mon statut de livraison";
       } else if (userRole === "4") { // Développeur
         return "Accéder au dashboard";
       }
@@ -226,7 +226,7 @@ const WebPageDAccueil = () => {
           navigate("/restaurant/menu");
         }
       } else if (userRole === "3") { // Livreur
-        navigate("/deliveries");
+        navigate("/delivery/status");
       } else if (userRole === "4") { // Développeur
         navigate("/dashboard");
       } else {

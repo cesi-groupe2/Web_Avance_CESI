@@ -16,6 +16,7 @@ import Profile from "./pages/User/Profile/Profile";
 import OrderHistory from "./pages/User/Orders/OrderHistory";
 import Cart from "./pages/Order/Cart/Cart";
 import Favorites from "./pages/User/Favorites/Favorites";
+import DeliveryStatus from "./pages/DeliveryPerson/DeliveryStatus";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./contexts/AuthContext";
@@ -128,6 +129,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Favorites />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/delivery/status"
+        element={
+          <ProtectedRoute requiredRole="3">
+            <DeliveryStatus />
           </ProtectedRoute>
         }
       />
