@@ -1,0 +1,107 @@
+basePath: /
+definitions:
+  customModels.DeliveryPersonStatus:
+    properties:
+      idUser:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      status:
+        type: string
+    type: object
+host: localhost:8052
+info:
+  contact:
+    email: benjamin.guerre@viacesi.fr
+    name: Groupe 2 FISA INFO A4 CESI (2025)
+    url: https://contact.easeat.fr
+  description: This is a microservice for managing delivery persons
+  title: Swagger Easeat delivery persons microservice
+  version: "2.0"
+paths:
+  /deliveryperson/getStatus/nearby/{latitude}/{longitude}:
+    get:
+      consumes:
+      - application/json
+      description: Get nearby delivery persons
+      parameters:
+      - description: Latitude of the delivery person
+        in: path
+        name: latitude
+        required: true
+        type: string
+      - description: Longitude of the delivery person
+        in: path
+        name: longitude
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/customModels.DeliveryPersonStatus'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get nearby delivery persons
+      tags:
+      - deliveryPerson
+  /deliveryperson/setStatus/{status}:
+    post:
+      consumes:
+      - application/json
+      description: Set the status of a delivery person
+      parameters:
+      - description: Status of the delivery person
+        in: path
+        name: status
+        required: true
+        type: string
+      - description: Longitude of the delivery person
+        in: formData
+        name: longitude
+        required: true
+        type: string
+      - description: Latitude of the delivery person
+        in: formData
+        name: latitude
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customModels.DeliveryPersonStatus'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Set the status of a delivery person
+      tags:
+      - deliveryPerson
+securityDefinitions:
+  BearerAuth:
+    description: Use /login to get your token and use it here
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -1,0 +1,161 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a microservice for managing delivery persons",
+        "title": "Swagger Easeat delivery persons microservice",
+        "contact": {
+            "name": "Groupe 2 FISA INFO A4 CESI (2025)",
+            "url": "https://contact.easeat.fr",
+            "email": "benjamin.guerre@viacesi.fr"
+        },
+        "version": "2.0"
+    },
+    "host": "localhost:8052",
+    "basePath": "/",
+    "paths": {
+        "/deliveryperson/getStatus/nearby/{latitude}/{longitude}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get nearby delivery persons",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deliveryPerson"
+                ],
+                "summary": "Get nearby delivery persons",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Latitude of the delivery person",
+                        "name": "latitude",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Longitude of the delivery person",
+                        "name": "longitude",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/customModels.DeliveryPersonStatus"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/deliveryperson/setStatus/{status}": {
+            "post": {
+                "description": "Set the status of a delivery person",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deliveryPerson"
+                ],
+                "summary": "Set the status of a delivery person",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Status of the delivery person",
+                        "name": "status",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Longitude of the delivery person",
+                        "name": "longitude",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Latitude of the delivery person",
+                        "name": "latitude",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customModels.DeliveryPersonStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "customModels.DeliveryPersonStatus": {
+            "type": "object",
+            "properties": {
+                "idUser": {
+                    "type": "integer"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Use /login to get your token and use it here",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

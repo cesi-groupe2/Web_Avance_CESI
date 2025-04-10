@@ -42,6 +42,7 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 	// Create a new user
 	email := ctx.PostForm("email")
 	if email == "" {
+		log.Println("Email is required")
 		ctx.JSON(400, "Email is required")
 		return
 	}
@@ -53,6 +54,7 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 		return
 	}
 	if isUsed {
+		log.Println("Email already used")
 		ctx.JSON(400, "Email already used")
 		return
 	}
@@ -75,12 +77,14 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 	}
 	role := ctx.PostForm("role")
 	if role == "" {
+		log.Println("Role is required")
 		ctx.JSON(400, "Role is required")
 		return
 	}
 
 	roleInt64, err := strconv.ParseInt(role, 10, 32)
 	if err != nil {
+		log.Println("Role must be a valid number")
 		ctx.JSON(400, "Role must be a valid number")
 		return
 	}
