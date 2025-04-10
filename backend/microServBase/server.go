@@ -73,7 +73,7 @@ func (m *MicroServMongo) InitDbClient() {
 	password := utils.GetEnvValueOrDefaultStr(constants.MONGO_INITDB_ROOT_PASSWORD, "easeat")
 	host := utils.GetEnvValueOrDefaultStr(constants.MONGO_HOST_ENV, "localhost")
 	port := utils.GetEnvValueOrDefaultStr(constants.MONGO_PORT_ENV, "27017")
-	database := utils.GetEnvValueOrDefaultStr(constants.MONGO_DATABASE_ENV, "easeat")
+	database := utils.GetEnvValueOrDefaultStr(constants.MONGO_DATABASE, "easeat")
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", username, password, host, port, database)
 	log.Printf("uri: %s\n", uri)
 	var err error
@@ -89,7 +89,7 @@ func (m *MicroServMongo) InitDbClient() {
 	}
 
 	// Set database
-	databaseName := utils.GetEnvValueOrDefaultStr(constants.MONGO_DATABASE_ENV, "easeat")
+	databaseName := utils.GetEnvValueOrDefaultStr(constants.MONGO_DATABASE, "easeat")
 	m.Database = m.DbClient.Database(databaseName)
 
 	fmt.Printf("Connecté à MongoDB (%s:%s; database: %s) avec succès!\n", host, port, databaseName)

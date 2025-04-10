@@ -3,7 +3,6 @@ package authservices
 import (
 	"os"
 	"time"
-	"log"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"

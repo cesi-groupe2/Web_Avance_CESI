@@ -101,7 +101,6 @@ func main() {
 	http.HandleFunc("/auth/", handleProxy("http://localhost:8001"))
 	http.HandleFunc("/public/", handleProxy("http://localhost:8001"))
 	http.HandleFunc("/restaurant/", handleProxy("http://localhost:8004"))
-	http.HandleFunc("/payment/", handleProxy("http://localhost:8006"))
 	http.HandleFunc("/order/", handleProxy("http://localhost:8002"))
 	http.HandleFunc("/deliveryperson/", handleProxy("http://localhost:8008"))
 

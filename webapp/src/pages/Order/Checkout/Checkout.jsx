@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FiCreditCard, FiMapPin, FiClock, FiInfo, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import Header from "../../../components/Header";
@@ -9,15 +8,8 @@ import Input from "../../../components/Input";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useCart } from "../../../contexts/CartContext";
 import OrderApi from "../../../api/OrderApi";
-import ApiClient from "../../../ApiClient";
 
 const orderApi = new OrderApi();
-
-const CheckoutContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-`;
 
 const PageContainer = styled.div`
   display: flex;
@@ -359,12 +351,8 @@ const LoginPrompt = styled.div`
 
 const Checkout = () => {
   const { isAuthenticated, currentUser, token } = useAuth();
-  const { cartItems, updateItemQuantity, removeItem, clearCart, getCartTotal, restaurant } = useCart();
+  const { cartItems, restaurant, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
-  const stripe = useStripe();
-  const elements = useElements();
-  const [loading, setLoading] = useState(false);
-  const [paymentError, setPaymentError] = useState(null); // Pour afficher l'erreur de paiement
   
   const [formData, setFormData] = useState({
     firstName: currentUser?.FirstName || "",
@@ -383,6 +371,7 @@ const Checkout = () => {
   
   const [deliveryOption, setDeliveryOption] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState(null);
   
   const subtotal = getCartTotal();
@@ -418,7 +407,7 @@ const Checkout = () => {
       [name]: value
     }));
   };
-
+  
   const validateForm = () => {
     const requiredFields = [
       "firstName", "lastName", "email", "phone", "address", "city", "postalCode"
@@ -453,15 +442,16 @@ const Checkout = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const isValid = validateForm();
-    if (!isValid) return;
-
-    setLoading(true);
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsLoading(true);
     setMessage(null);
-
+    
     try {
-      // 1. Création de la commande d'abord
+      // Préparer les données de commande
       const orderItems = cartItems.map(item => ({
         menu_item_id: item.id,
         quantity: item.quantity,
@@ -469,7 +459,7 @@ const Checkout = () => {
         options: item.options || {},
         name: item.name
       }));
-
+      
       const orderData = {
         user_id: currentUser?.id_user || "guest",
         restaurant_id: restaurant?.id,
@@ -489,104 +479,41 @@ const Checkout = () => {
         },
         additional_info: formData.additionalInfo || ""
       };
-
-      // Création de la commande
-      const orderResponse = await orderApi.rootPost(orderData);
-      if (!orderResponse || !orderResponse.id) {
-        throw new Error("Erreur lors de la création de la commande");
-      }
-
-      // 2. Paiement avec le microservice
-      const amount = total; // Montant en euros
-      const paymentData = {
-        order_id: orderResponse.id,
-        amount: amount
-      };
-
-      console.log("Données de paiement envoyées:", paymentData);
-
-      const apiCall = new ApiClient();
-      const paymentRes = await apiCall.callApi(
-        "http://localhost:8006/payment/", // Utilisation du port 8006 pour le microservice de paiement
-        "POST",
-        JSON.stringify(paymentData),
-        {}, // Query params
-        {}, // Path params
-        {}, // Cookie params
-        null, // Form params
-        ['BearerAuth'],
-        [], // Auth names
-        ['application/json'], // Content types
-        { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-        }, // Headers
-        null, // Body
-        async (data, error) => {
-          if (error) {
-            console.error("Erreur détaillée:", error);
-            if (error.response) {
-              try {
-                const errorText = await error.response.text();
-                console.error("Réponse d'erreur brute:", errorText);
-                throw new Error(errorText || "Erreur lors de la création du paiement");
-              } catch (e) {
-                console.error("Erreur lors de la lecture de la réponse:", e);
-                throw new Error("Erreur lors de la création du paiement");
-              }
-            }
-            throw new Error(error.message || "Erreur lors de la création du paiement");
-          }
+      
+      // Appel à l'API pour créer la commande
+      orderApi.rootPost(orderData, (error, data, response) => {
+        setIsLoading(false);
+        
+        if (error) {
+          console.error("Erreur lors de la création de la commande:", error);
+          setMessage({
+            type: "error",
+            text: "Une erreur est survenue lors de la création de votre commande. Veuillez réessayer."
+          });
+          return;
         }
-      );
-
-      if (!paymentRes.ok) {
-        const errorText = await paymentRes.text();
-        console.error("Erreur serveur:", errorText);
-        throw new Error(errorText || "Erreur lors de la création du paiement");
-      }
-
-      const paymentResult = await paymentRes.json();
-
-      if (!paymentResult.client_secret) {
-        console.error("Données de réponse manquantes:", paymentResult);
-        throw new Error("Clé secrète de paiement manquante dans la réponse");
-      }
-
-      // 3. Confirmation du paiement avec Stripe
-      const result = await stripe.confirmCardPayment(paymentResult.client_secret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: `${formData.firstName} ${formData.lastName}`,
-            email: formData.email
-          }
-        }
+        
+        // Succès
+        setMessage({
+          type: "success",
+          text: "Votre commande a été créée avec succès !"
+        });
+        
+        // Vider le panier
+        clearCart();
+        
+        // Rediriger vers la page de confirmation
+        setTimeout(() => {
+          navigate(`/order/tracking/${data.id}`);
+        }, 2000);
       });
-
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-
-      if (result.paymentIntent.status !== "succeeded") {
-        throw new Error("Le paiement n'a pas été validé.");
-      }
-
-      setMessage({ type: "success", text: "Commande confirmée !" });
-      clearCart();
-
-      setTimeout(() => {
-        navigate(`/order/tracking/${orderResponse.id}`);
-      }, 1500);
-
     } catch (error) {
-      console.error("Erreur lors du paiement:", error.message);
-      setMessage({ type: "error", text: error.message });
-      setLoading(false);
+      console.error("Erreur lors de la soumission de la commande:", error);
+      setIsLoading(false);
+      setMessage({
+        type: "error",
+        text: "Une erreur est survenue lors de la création de votre commande. Veuillez réessayer."
+      });
     }
   };
   
@@ -606,7 +533,7 @@ const Checkout = () => {
       </PageContainer>
     );
   }
-
+  
   return (
     <PageContainer>
       <Header />
@@ -817,10 +744,10 @@ const Checkout = () => {
             
             <Button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               style={{ display: "none" }}
             >
-              {loading ? "Traitement en cours..." : "Passer la commande"}
+              {isLoading ? "Traitement en cours..." : "Passer la commande"}
             </Button>
           </form>
         </CheckoutSection>
@@ -883,9 +810,9 @@ const Checkout = () => {
             
             <PlaceOrderButton
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? "Traitement en cours..." : "Passer la commande"}
+              {isLoading ? "Traitement en cours..." : "Passer la commande"}
             </PlaceOrderButton>
           </OrderSummaryCard>
         </OrderSummarySection>
@@ -894,4 +821,4 @@ const Checkout = () => {
   );
 };
 
-export default Checkout;
+export default Checkout; 
