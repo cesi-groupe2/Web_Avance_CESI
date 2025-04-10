@@ -52,19 +52,31 @@ export const AuthProvider = ({ children }) => {
           // Formater les données utilisateur pour assurer la cohérence en front-end
           const formattedUser = {
             ...userModel,
-            // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
-            // et s'assurer que FirstName et LastName sont correctement définis
+            // Assurons-nous d'avoir firstname et lastname en plus de first_name et last_name
+            first_name: userModel.first_name || "",
+            last_name: userModel.last_name || "",
+            
+            // Versions en camelCase
+            firstName: userModel.first_name || "",
+            lastName: userModel.last_name || "",
+            
+            // Versions en minuscules pour le backend
+            firstname: (userModel.first_name || "").toLowerCase(),
+            lastname: (userModel.last_name || "").toLowerCase(),
+            
+            // Versions en PascalCase pour la rétrocompatibilité
             FirstName: userModel.first_name || "",
             LastName: userModel.last_name || "",
+            
             Email: userModel.email || "",
+            email: userModel.email || "",
             Phone: userModel.phone || "",
+            phone: userModel.phone || "",
             DeliveryAdress: userModel.delivery_adress || "",
+            delivery_adress: userModel.delivery_adress || "",
             FacturationAdress: userModel.facturation_adress || "",
-            role: userModel.id_role?.toString() || "1",
-
-            // S'assurer que first_name et last_name sont définis
-            first_name: userModel.first_name || userModel.FirstName || "",
-            last_name: userModel.last_name || userModel.LastName || ""
+            facturation_adress: userModel.facturation_adress || "",
+            role: userModel.id_role?.toString() || "1"
           };
           
           console.log("Données utilisateur formatées après login:", formattedUser);
@@ -108,8 +120,8 @@ export const AuthProvider = ({ children }) => {
         publicApi.publicRegisterPost(
           userData.email,
           userData.password,
-          userData.firstname || userData.firstName, // Utiliser firstname ou firstName
-          userData.lastname || userData.lastName,   // Utiliser lastname ou lastName
+          userData.firstname,
+          userData.lastname,
           userData.role || "1",
           opts,
           (error, data, response) => {
@@ -170,25 +182,43 @@ export const AuthProvider = ({ children }) => {
         try {
           const user = JSON.parse(storedUser);
           console.log("Utilisateur récupéré du localStorage:", user);
+          console.log("first_name:", user.first_name);
+          console.log("firstName:", user.firstName);
+          console.log("firstname:", user.firstname);
+          console.log("FirstName:", user.FirstName);
           setCurrentUser(user);
         } catch (e) {
           console.error("Erreur lors du parsing de l'utilisateur stocké:", e);
         }
       }
 
-      // Utiliser l'API AuthApi pour vérifier l'authentification
-      console.log("Vérification de l'authentification avec authMeGet");
-      authApi.authMeGet((error, userData, response) => {
-        if (error) {
-          console.error("Erreur d'authentification:", error);
-          
+      // Utiliser fetch directement comme dans updateUser pour éviter les problèmes avec l'API générée
+      console.log("Récupération des informations utilisateur depuis /auth/me");
+      
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        console.log("URL utilisée pour /me:", apiUrl);
+        
+        const response = await fetch(`${apiUrl}/auth/me`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        
+        console.log("Statut de la réponse /me:", response.status);
+        
+        if (!response.ok) {
           // Si l'erreur est une 404, le serveur est peut-être simplement indisponible
           // Ne pas déconnecter l'utilisateur si nous avons des données locales valides
-          if (error.status === 404 && storedUser) {
-            console.log("Serveur /auth/me non disponible, utilisation des données locales");
+          if (response.status === 404 && storedUser) {
+            console.log("Serveur /auth/me non disponible (404), utilisation des données locales");
             setLoading(false);
             return;
           }
+          
+          const errorText = await response.text();
+          console.error("Erreur lors de la récupération du profil:", errorText);
           
           localStorage.removeItem("token");
           localStorage.removeItem("currentUser");
@@ -198,35 +228,68 @@ export const AuthProvider = ({ children }) => {
           return;
         }
         
-        console.log("Données utilisateur récupérées depuis l'API:", userData);
+        // Traiter la réponse
+        const userData = await response.json();
+        console.log("Données brutes utilisateur récupérées depuis l'API:", userData);
         
         // Formater les données utilisateur pour assurer la cohérence en front-end
         const formattedUserData = {
           ...userData,
-          // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
+          // Assurons-nous d'avoir firstname et lastname en plus de first_name et last_name
+          first_name: userData.first_name || "",
+          last_name: userData.last_name || "",
+          
+          // Versions en camelCase
+          firstName: userData.first_name || "",
+          lastName: userData.last_name || "",
+          
+          // Versions en minuscules pour le backend
+          firstname: (userData.first_name || "").toLowerCase(),
+          lastname: (userData.last_name || "").toLowerCase(),
+          
+          // Versions en PascalCase pour la rétrocompatibilité
           FirstName: userData.first_name || "",
           LastName: userData.last_name || "",
+          
           Email: userData.email || "",
+          email: userData.email || "",
           Phone: userData.phone || "",
+          phone: userData.phone || "",
           DeliveryAdress: userData.delivery_adress || "",
+          delivery_adress: userData.delivery_adress || "",
           FacturationAdress: userData.facturation_adress || "",
-          role: userData.id_role?.toString() || "1",
-            
-          // S'assurer que first_name et last_name sont définis
-          first_name: userData.first_name || userData.FirstName || "",
-          last_name: userData.last_name || userData.LastName || ""
+          facturation_adress: userData.facturation_adress || "",
+          role: userData.id_role?.toString() || "1"
         };
         
         console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
+        console.log("first_name:", formattedUserData.first_name);
+        console.log("firstName:", formattedUserData.firstName);
+        console.log("firstname:", formattedUserData.firstname);
+        console.log("FirstName:", formattedUserData.FirstName);
         
         // Mettre à jour le localStorage avec les données fraîches
         localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
         localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
         setCurrentUser(formattedUserData);
-        setLoading(false);
-      });
+      } catch (fetchError) {
+        console.error("Erreur de réseau lors de l'appel à /auth/me:", fetchError);
+        // Ne pas déconnecter l'utilisateur si nous avons des données locales en cas d'erreur réseau
+        if (storedUser) {
+          console.log("Erreur réseau, conservation des données locales");
+          setLoading(false);
+          return;
+        }
+        
+        localStorage.removeItem("token");
+        localStorage.removeItem("currentUser");
+        setToken(null);
+        setCurrentUser(null);
+      }
+
+      setLoading(false);
     } catch (error) {
-      console.error("Erreur d'authentification:", error);
+      console.error("Erreur générale d'authentification:", error);
       localStorage.removeItem("token");
       localStorage.removeItem("currentUser");
       setToken(null);
@@ -247,23 +310,34 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("Mise à jour du profil avec:", userData);
 
-      // Comme l'API ne semble pas avoir de méthode pour mettre à jour le profil,
-      // on utilise fetch directement
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/update-profile`, {
+      // Formater les noms en minuscules comme attendu par le backend
+      const firstname = (userData.firstName || userData.firstname || "").toLowerCase();
+      const lastname = (userData.lastName || userData.lastname || "").toLowerCase();
+      
+      console.log("Firstname et lastname formatés pour updateUser:", firstname, lastname);
+      
+      // Créer un objet avec les données à envoyer
+      const updateData = {
+        firstname: firstname,
+        lastname: lastname,
+        phone: userData.phone || "",
+        deliveryAdress: userData.address || "",
+        facturationAdress: userData.address || "", // Par défaut, même adresse pour la livraison et la facturation
+      };
+      
+      console.log("Données formatées pour l'API:", updateData);
+
+      // Utiliser fetch pour appeler l'API de mise à jour de profil
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      console.log("URL utilisée pour update-profile:", apiUrl);
+      
+      const response = await fetch(`${apiUrl}/auth/update-profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({
-          firstname: userData.firstName,
-          lastname: userData.lastName,
-          phone: userData.phone,
-          address: userData.address,
-          city: userData.city,
-          postalCode: userData.postalCode,
-          additionalInfo: userData.additionalInfo
-        })
+        body: JSON.stringify(updateData)
       });
 
       const responseText = await response.text();
@@ -285,6 +359,45 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Tentative de suppression du compte utilisateur");
+      console.log("URL de l'API:", import.meta.env.VITE_API_URL);
+      
+      // URL absolue pour debug
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      console.log("URL utilisée:", apiUrl);
+
+      // Appel à l'API pour supprimer le compte
+      const response = await fetch(`${apiUrl}/auth/delete-account`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      const responseData = await response.text();
+      console.log("Réponse delete-account:", responseData);
+
+      if (!response.ok) {
+        throw new Error(responseData || "Échec de la suppression du compte");
+      }
+
+      // Déconnexion après suppression réussie
+      logout();
+      return { success: true };
+    } catch (error) {
+      console.error("Erreur lors de la suppression du compte:", error);
+      setError(error.message || "Échec de la suppression du compte");
+      return { success: false, message: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     currentUser,
     token,
@@ -295,6 +408,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     checkAuth,
     updateUser,
+    deleteAccount,
     isAuthenticated,
     userRole
   };

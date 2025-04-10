@@ -176,7 +176,7 @@ const Favorites = () => {
         <FavoritesContainer>
           <FavoritesTitle>Mes Restaurants Favoris</FavoritesTitle>
           <EmptyFavoritesMessage>
-            <EmptyFavoritesText>(à implementer)</EmptyFavoritesText>
+            <EmptyFavoritesText>(à implémenter)</EmptyFavoritesText>
               <EmptyFavoritesImage src={dodoImage} alt="Dodo <3" />
             <Button as={Link} to="/restaurants">
               Découvrir des restaurants

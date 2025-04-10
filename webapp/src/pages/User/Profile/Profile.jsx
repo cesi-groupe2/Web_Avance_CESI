@@ -5,6 +5,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import Header from "../../../components/Header";
 import Button from "../../../components/Button";
 import Input from "../../../components/Input";
+import { FiAlertTriangle } from "react-icons/fi";
 
 const ProfileContainer = styled.div`
   max-width: 1200px;
@@ -72,10 +73,77 @@ const CancelButton = styled(Button)`
   }
 `;
 
+const DeleteAccountButton = styled(Button)`
+  background-color: #f44336;
+  margin-top: 2rem;
+  width: 100%;
+  &:hover {
+    background-color: #d32f2f;
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const Modal = styled.div`
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    color: #f44336;
+    margin-right: 0.5rem;
+    font-size: 1.8rem;
+  }
+`;
+
+const ModalText = styled.p`
+  margin-bottom: 1.5rem;
+  color: #666;
+  line-height: 1.5;
+`;
+
+const ModalButtons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+`;
+
+const DangerCard = styled(ProfileCard)`
+  border: 1px solid #ffebee;
+  margin-top: 2rem;
+`;
+
+const DangerTitle = styled(SectionTitle)`
+  color: #d32f2f;
+`;
+
 const Profile = () => {
-  const { currentUser, updateUser } = useAuth();
+  const { currentUser, updateUser, deleteAccount } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
@@ -125,14 +193,14 @@ const Profile = () => {
     // Reset form data to current user data
     if (currentUser) {
       setFormData({
-        email: currentUser.Email || "",
-        firstName: currentUser.FirstName || "",
-        lastName: currentUser.LastName || "",
-        phone: currentUser.Phone || "",
-        address: currentUser.Address || "",
-        city: currentUser.City || "",
-        postalCode: currentUser.PostalCode || "",
-        additionalInfo: currentUser.AdditionalInfo || ""
+        email: currentUser.email || currentUser.Email || "",
+        firstName: currentUser.firstname || currentUser.first_name || currentUser.FirstName || "",
+        lastName: currentUser.lastname || currentUser.last_name || currentUser.LastName || "",
+        phone: currentUser.phone || currentUser.Phone || "",
+        address: currentUser.address || currentUser.deliveryAdress || currentUser.DeliveryAdress || currentUser.delivery_adress || "",
+        city: currentUser.city || currentUser.City || "",
+        postalCode: currentUser.postalCode || currentUser.PostalCode || currentUser.postal_code || "",
+        additionalInfo: currentUser.additionalInfo || currentUser.AdditionalInfo || currentUser.additional_info || ""
       });
     }
     setIsEditing(false);
@@ -155,6 +223,17 @@ const Profile = () => {
     } catch (error) {
       console.error("Error updating profile:", error);
       // Handle error (show message, etc.)
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const result = await deleteAccount();
+      if (result.success) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du compte:", error);
     }
   };
 
@@ -267,6 +346,35 @@ const Profile = () => {
             )}
           </form>
         </ProfileCard>
+        
+        <DangerCard>
+          <DangerTitle>Zone de danger</DangerTitle>
+          <p>Attention, la suppression de votre compte est irréversible. Toutes vos données seront effacées.</p>
+          <DeleteAccountButton onClick={() => setShowDeleteModal(true)}>
+            Supprimer mon compte
+          </DeleteAccountButton>
+        </DangerCard>
+        
+        {showDeleteModal && (
+          <ModalOverlay>
+            <Modal>
+              <ModalTitle>
+                <FiAlertTriangle /> Confirmation de suppression
+              </ModalTitle>
+              <ModalText>
+                Êtes-vous vraiment sûr de vouloir supprimer votre compte ? Cette action est irréversible et entraînera la perte de toutes vos données, y compris votre historique de commandes et vos favoris.
+              </ModalText>
+              <ModalButtons>
+                <Button onClick={() => setShowDeleteModal(false)}>
+                  Annuler
+                </Button>
+                <CancelButton onClick={handleDeleteAccount}>
+                  Confirmer la suppression
+                </CancelButton>
+              </ModalButtons>
+            </Modal>
+          </ModalOverlay>
+        )}
       </ProfileContainer>
     </>
   );
