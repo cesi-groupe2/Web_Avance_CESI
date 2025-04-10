@@ -287,7 +287,7 @@ const UserMenuDropdown = styled.div`
   border-radius: 8px;
   padding: 8px 0;
   z-index: 1000;
-  display: ${(props) => (props.isOpen ? "block" : "none")};
+  display: ${(props) => (props.$isOpen ? "block" : "none")};
 `;
 
 const UserMenuItem = styled(Link)`
@@ -414,10 +414,21 @@ const Header = () => {
                 <UserMenuButton onClick={toggleUserMenu}>
                   {currentUser?.FirstName || "Mon Profil"}
                 </UserMenuButton>
-                <UserMenuDropdown isOpen={userMenuOpen}>
+                <UserMenuDropdown $isOpen={userMenuOpen}>
                   <UserMenuItem to="/profile" onClick={closeUserMenu}>Mon profil</UserMenuItem>
+                  {currentUser.id_role === 2 && currentUser.restaurantId && (
+                    <UserMenuItem to={`/restaurant/edit`} onClick={closeUserMenu}>
+                      Modifier mon restaurant
+                    </UserMenuItem>
+                  )}
+                  {currentUser.id_role !== 2 && (
+                    <UserMenuItem to="/restaurant/create" onClick={closeUserMenu}>
+                      Créer mon restaurant
+                    </UserMenuItem>
+                  )}
                   <UserMenuItem to="/favorites" onClick={closeUserMenu}>Mes favoris</UserMenuItem>
                   <UserMenuItem to="/orders" onClick={closeUserMenu}>Mes commandes</UserMenuItem>
+                  <UserMenuItem to="/cart" onClick={closeUserMenu}>Mon panier {cartItems.length > 0 && `(${cartItems.length})`}</UserMenuItem>
                   <UserMenuLogout onClick={handleLogout}>Déconnexion</UserMenuLogout>
                 </UserMenuDropdown>
               </UserMenu>
@@ -455,6 +466,22 @@ const Header = () => {
                 <MobileNavLink to="/profile" onClick={closeMenu}>
                   Mon profil
                 </MobileNavLink>
+                {currentUser.id_role === 2 && currentUser.restaurantId && (
+                  <MobileNavLink
+                    to={`/restaurant/edit`}
+                    onClick={closeMenu}
+                  >
+                    Modifier mon restaurant
+                  </MobileNavLink>
+                )}
+                {currentUser.id_role !== 2 && (
+                  <MobileNavLink
+                    to="/restaurant/create"
+                    onClick={closeMenu}
+                  >
+                    Créer mon restaurant
+                  </MobileNavLink>
+                )}
                 <MobileNavLink to="/favorites" onClick={closeMenu}>
                   Mes favoris
                 </MobileNavLink>

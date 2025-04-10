@@ -69,7 +69,7 @@ class ModelRestaurant {
                 obj['phone'] = ApiClient.convertToType(data['phone'], 'String');
             }
             if (data.hasOwnProperty('picture')) {
-                obj['picture'] = ApiClient.convertToType(data['picture'], 'String');
+                obj['picture'] = ApiClient.convertToType(data['picture'], ['Number']);
             }
         }
         return obj;
@@ -97,9 +97,9 @@ class ModelRestaurant {
         if (data['phone'] && !(typeof data['phone'] === 'string' || data['phone'] instanceof String)) {
             throw new Error("Expected the field `phone` to be a primitive type in the JSON string but got " + data['phone']);
         }
-        // ensure the json data is a string
-        if (data['picture'] && !(typeof data['picture'] === 'string' || data['picture'] instanceof String)) {
-            throw new Error("Expected the field `picture` to be a primitive type in the JSON string but got " + data['picture']);
+        // ensure the json data is an array
+        if (!Array.isArray(data['picture'])) {
+            throw new Error("Expected the field `picture` to be an array in the JSON data but got " + data['picture']);
         }
 
         return true;
@@ -146,7 +146,7 @@ ModelRestaurant.prototype['opening_hours'] = undefined;
 ModelRestaurant.prototype['phone'] = undefined;
 
 /**
- * @member {String} picture
+ * @member {Array.<Number>} picture
  */
 ModelRestaurant.prototype['picture'] = undefined;
 

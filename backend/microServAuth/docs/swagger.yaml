@@ -25,7 +25,9 @@ definitions:
       phone:
         type: string
       profil_picture:
-        type: string
+        items:
+          type: integer
+        type: array
       sponsorship_code:
         type: string
     type: object
@@ -263,7 +265,7 @@ paths:
       - description: Picture
         in: formData
         name: picture
-        type: string
+        type: file
       - description: Firstname
         in: formData
         name: firstname

@@ -1,9 +1,14 @@
 package restaurantService
 
 import (
+	"bytes"
 	"fmt"
+	"log"
 	"strconv"
 
+	"encoding/base64"
+
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares/jwtActions"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/columns"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
 	"github.com/gin-gonic/gin"
@@ -25,6 +30,19 @@ func GetMenuItemsByRestaurantId(ctx *gin.Context, db *gorm.DB) {
 	restaurantId := ctx.Param("restaurantId")
 	var menuItems []model.Menuitem
 	db.Where(fmt.Sprintf("%s = ?", columns.MenuitemColumnIDRestaurant), restaurantId).Find(&menuItems)
+
+	// Convertir les images en base64
+	for i := range menuItems {
+		if len(menuItems[i].Image) > 0 {
+			// Vérifier si l'image est déjà en base64 avec préfixe
+			if !bytes.HasPrefix(menuItems[i].Image, []byte("data:image")) {
+				menuItems[i].Image = []byte(base64.StdEncoding.EncodeToString(menuItems[i].Image))
+			}
+		} else {
+			log.Printf("Aucune image trouvée pour l'item %d", menuItems[i].IDMenuItem)
+		}
+	}
+
 	ctx.JSON(200, menuItems)
 }
 
@@ -126,32 +144,38 @@ func DeleteMenuItem(ctx *gin.Context, db *gorm.DB) {
 //	@Router			/restaurant/{restaurantId}/menuitems/{menuItemId} [put]
 func UpdateMenuItem(ctx *gin.Context, db *gorm.DB) {
 	restaurantIdStr := ctx.Param("restaurantId")
-	menuItemIdStr := ctx.Param("menuItemId")
+	userID, err :=  jwtActions.GetUserIdFromToken(ctx)
+	if err != nil {
+		log.Println("Error getting user ID from token:", err)
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
 
+	// check user is owner of restaurant
 	restaurantId, err := strconv.Atoi(restaurantIdStr)
 	if err != nil {
+		log.Println("Error converting restaurantId to int:", err)
 		ctx.JSON(400, gin.H{"error": "Invalid restaurant id"})
 		return
 	}
 
-	menuItemId, err := strconv.Atoi(menuItemIdStr)
-	if err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid menu item id"})
+	var restaurant model.Posseder
+	if err := db.Where(fmt.Sprintf("%s = ? AND %s = ?", columns.PosserderColumnIDRestaurant, columns.PosserderColumnIDPosserder), restaurantId, userID).First(&restaurant).Error; err != nil {
+		log.Println("Error checking restaurant ownership:", err)
+		ctx.JSON(403, gin.H{"error": "You are not the owner of this restaurant"})
 		return
 	}
+
 
 	var menuItem model.Menuitem
-	if err := db.Where(fmt.Sprintf("%s = ? AND %s = ?", columns.MenuitemColumnIDMenuItem, columns.MenuitemColumnIDRestaurant), menuItemId, restaurantId).First(&menuItem).Error; err != nil {
-		ctx.JSON(404, gin.H{"error": "Menu item not found"})
-		return
-	}
-
 	if err := ctx.ShouldBindJSON(&menuItem); err != nil {
+		log.Println("Error binding JSON:", err)
 		ctx.JSON(400, gin.H{"error": "Invalid menu item"})
 		return
 	}
 
 	if err := db.Save(&menuItem).Error; err != nil {
+		log.Println("Error saving menu item:", err)
 		ctx.JSON(500, gin.H{"error": "Failed to update menu item"})
 		return
 	}

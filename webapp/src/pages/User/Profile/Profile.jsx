@@ -210,16 +210,30 @@ const Profile = () => {
     e.preventDefault();
     
     try {
-      // Call API to update user profile
-      // This is a placeholder for the actual API call
-      console.log("Updating user profile with:", formData);
+      // Formatage des données pour correspondre au format attendu par updateUser
+      const formattedData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        postalCode: formData.postalCode,
+        additionalInfo: formData.additionalInfo
+      };
       
-      // If you have an updateUser function in your AuthContext, use it
+      console.log("Updating user profile with:", formattedData);
+      
       if (updateUser) {
-        await updateUser(formData);
+        const result = await updateUser(formattedData);
+        if (result.success) {
+          // Mise à jour réussie
+          setIsEditing(false);
+        } else {
+          // Gérer l'erreur
+          console.error("Échec de la mise à jour:", result.message);
+        }
       }
-      
-      setIsEditing(false);
     } catch (error) {
       console.error("Error updating profile:", error);
       // Handle error (show message, etc.)

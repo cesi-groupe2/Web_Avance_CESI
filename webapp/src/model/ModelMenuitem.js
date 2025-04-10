@@ -60,7 +60,7 @@ class ModelMenuitem {
                 obj['id_restaurant'] = ApiClient.convertToType(data['id_restaurant'], 'Number');
             }
             if (data.hasOwnProperty('image')) {
-                obj['image'] = ApiClient.convertToType(data['image'], 'String');
+                obj['image'] = ApiClient.convertToType(data['image'], ['Number']);
             }
             if (data.hasOwnProperty('name')) {
                 obj['name'] = ApiClient.convertToType(data['name'], 'String');
@@ -86,9 +86,9 @@ class ModelMenuitem {
         if (data['description'] && !(typeof data['description'] === 'string' || data['description'] instanceof String)) {
             throw new Error("Expected the field `description` to be a primitive type in the JSON string but got " + data['description']);
         }
-        // ensure the json data is a string
-        if (data['image'] && !(typeof data['image'] === 'string' || data['image'] instanceof String)) {
-            throw new Error("Expected the field `image` to be a primitive type in the JSON string but got " + data['image']);
+        // ensure the json data is an array
+        if (!Array.isArray(data['image'])) {
+            throw new Error("Expected the field `image` to be an array in the JSON data but got " + data['image']);
         }
         // ensure the json data is a string
         if (data['name'] && !(typeof data['name'] === 'string' || data['name'] instanceof String)) {
@@ -124,7 +124,7 @@ ModelMenuitem.prototype['id_menu_item'] = undefined;
 ModelMenuitem.prototype['id_restaurant'] = undefined;
 
 /**
- * @member {String} image
+ * @member {Array.<Number>} image
  */
 ModelMenuitem.prototype['image'] = undefined;
 

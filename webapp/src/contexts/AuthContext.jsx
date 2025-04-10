@@ -4,6 +4,7 @@ import PublicApi from "../api/PublicApi";
 import AuthApi from "../api/AuthApi";
 import ModelUser from "../model/ModelUser";
 import HandlersLoginRequest from "../model/HandlersLoginRequest";
+import RestaurantApi from "../api/RestaurantApi";
 
 // Initialiser les APIs
 const publicApi = new PublicApi();
@@ -232,62 +233,69 @@ export const AuthProvider = ({ children }) => {
         const userData = await response.json();
         console.log("Données brutes utilisateur récupérées depuis l'API:", userData);
         
-        // Formater les données utilisateur pour assurer la cohérence en front-end
-        const formattedUserData = {
-          ...userData,
-          // Assurons-nous d'avoir firstname et lastname en plus de first_name et last_name
-          first_name: userData.first_name || "",
-          last_name: userData.last_name || "",
+        // Récupérer le restaurant de l'utilisateur si c'est un restaurateur
+        if (userData.id_role === 2) {
+          const restaurantApi = new RestaurantApi();
+          restaurantApi.restaurantMyGet((error, restaurants) => {
+            if (error) {
+              console.error("Erreur lors de la récupération du restaurant:", error);
+            } else if (restaurants && restaurants.length > 0) {
+              userData.restaurantId = restaurants[0].id_restaurant;
+            }
+            
+            // Formater les données utilisateur pour assurer la cohérence en front-end
+            const formattedUserData = {
+              ...userData,
+              // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
+              FirstName: userData.first_name || "",
+              LastName: userData.last_name || "",
+              Email: userData.email || "",
+              Phone: userData.phone || "",
+              DeliveryAdress: userData.delivery_adress || "",
+              FacturationAdress: userData.facturation_adress || "",
+              role: userData.id_role?.toString() || "1",
+              restaurantId: userData.restaurantId,
+                
+              // S'assurer que first_name et last_name sont définis
+              first_name: userData.first_name || userData.FirstName || "",
+              last_name: userData.last_name || userData.LastName || ""
+            };
+            
+            console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
+            
+            // Mettre à jour le localStorage avec les données fraîches
+            localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
+            localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
+            setCurrentUser(formattedUserData);
+            setLoading(false);
+          });
+        } else {
+          // Formater les données utilisateur pour assurer la cohérence en front-end
+          const formattedUserData = {
+            ...userData,
+            // Ajouter des propriétés spécifiques au front-end pour la rétrocompatibilité
+            FirstName: userData.first_name || "",
+            LastName: userData.last_name || "",
+            Email: userData.email || "",
+            Phone: userData.phone || "",
+            DeliveryAdress: userData.delivery_adress || "",
+            FacturationAdress: userData.facturation_adress || "",
+            role: userData.id_role?.toString() || "1",
+              
+            // S'assurer que first_name et last_name sont définis
+            first_name: userData.first_name || userData.FirstName || "",
+            last_name: userData.last_name || userData.LastName || ""
+          };
           
-          // Versions en camelCase
-          firstName: userData.first_name || "",
-          lastName: userData.last_name || "",
+          console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
           
-          // Versions en minuscules pour le backend
-          firstname: (userData.first_name || "").toLowerCase(),
-          lastname: (userData.last_name || "").toLowerCase(),
-          
-          // Versions en PascalCase pour la rétrocompatibilité
-          FirstName: userData.first_name || "",
-          LastName: userData.last_name || "",
-          
-          Email: userData.email || "",
-          email: userData.email || "",
-          Phone: userData.phone || "",
-          phone: userData.phone || "",
-          DeliveryAdress: userData.delivery_adress || "",
-          delivery_adress: userData.delivery_adress || "",
-          FacturationAdress: userData.facturation_adress || "",
-          facturation_adress: userData.facturation_adress || "",
-          role: userData.id_role?.toString() || "1"
-        };
-        
-        console.log("Données utilisateur formatées après checkAuth:", formattedUserData);
-        console.log("first_name:", formattedUserData.first_name);
-        console.log("firstName:", formattedUserData.firstName);
-        console.log("firstname:", formattedUserData.firstname);
-        console.log("FirstName:", formattedUserData.FirstName);
-        
-        // Mettre à jour le localStorage avec les données fraîches
-        localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
-        localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
-        setCurrentUser(formattedUserData);
-      } catch (fetchError) {
-        console.error("Erreur de réseau lors de l'appel à /auth/me:", fetchError);
-        // Ne pas déconnecter l'utilisateur si nous avons des données locales en cas d'erreur réseau
-        if (storedUser) {
-          console.log("Erreur réseau, conservation des données locales");
+          // Mettre à jour le localStorage avec les données fraîches
+          localStorage.setItem("currentUser", JSON.stringify(formattedUserData));
+          localStorage.setItem("token", token); // S'assurer que le token est également sauvegardé
+          setCurrentUser(formattedUserData);
           setLoading(false);
-          return;
         }
-        
-        localStorage.removeItem("token");
-        localStorage.removeItem("currentUser");
-        setToken(null);
-        setCurrentUser(null);
-      }
-
-      setLoading(false);
+      });
     } catch (error) {
       console.error("Erreur générale d'authentification:", error);
       localStorage.removeItem("token");

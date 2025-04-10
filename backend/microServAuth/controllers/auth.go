@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	authservices "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServAuth/services"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares/jwtActions"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB/dao/model"
@@ -25,7 +26,7 @@ import (
 //	@Produce		json
 //	@Param			email				formData	string	true	"Email"
 //	@Param			password			formData	string	true	"Password"
-//	@Param			picture				formData	string	false	"Picture"
+//	@Param			picture				formData	file	false	"Picture"
 //	@Param			firstname			formData	string	true	"Firstname"
 //	@Param			lastname			formData	string	true	"Lastname"
 //	@Param			phone				formData	string	false	"Phone"
@@ -69,6 +70,10 @@ func Register(ctx *gin.Context, db *gorm.DB) {
 	phone := ctx.PostForm("phone")
 	deliveryAdress := ctx.PostForm("deliveryAdress")
 	facturationAdress := ctx.PostForm("facturationAdress")
+	picture, err := utils.PictureFromForm(ctx, "picture")
+	if err != nil {
+		picture = []byte{}
+	}
 	role := ctx.PostForm("role")
 	if role == "" {
 		ctx.JSON(400, "Role is required")

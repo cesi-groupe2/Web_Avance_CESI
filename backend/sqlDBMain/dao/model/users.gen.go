@@ -15,7 +15,7 @@ type User struct {
 	IDUser            int32     `gorm:"column:id_user;primaryKey;autoIncrement:true" json:"id_user"`
 	Email             string    `gorm:"column:email;not null" json:"email"`
 	PasswordHash      string    `gorm:"column:password_hash;not null" json:"password_hash"`
-	ProfilPicture     string    `gorm:"column:profil_picture" json:"profil_picture"`
+	ProfilPicture     []byte    `gorm:"column:profil_picture" json:"profil_picture"`
 	FirstName         string    `gorm:"column:first_name" json:"first_name"`
 	LastName          string    `gorm:"column:last_name" json:"last_name"`
 	Phone             string    `gorm:"column:phone" json:"phone"`
