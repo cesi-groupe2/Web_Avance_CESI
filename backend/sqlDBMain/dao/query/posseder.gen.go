@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"sqlDB/dao/model"
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDBMain/dao/model"
 )
 
 func newPosseder(db *gorm.DB, opts ...gen.DOOption) posseder {
