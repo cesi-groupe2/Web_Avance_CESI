@@ -19,12 +19,63 @@ services:
       replicas: 2
     networks:
       - easeat-net
+    
+  servicedeliveryperson:
+    build: 
+      context:  .
+      dockerfile: ./microServDeliveryPerson/Dockerfile
+    environment:
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
+      - MICRO_SERV_DELIVERY_PERSON_ADDR=${MICRO_SERV_DELIVERY_PERSON_ADDR}
+      - MICRO_SERV_DELIVERY_PERSON_PORT=${MICRO_SERV_DELIVERY_PERSON_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ADDRESS=${MYSQL_ADDRESS}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8006"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
+
+  servicenotifications:
+    build: 
+      context:  .
+      dockerfile: ./microServNotifications/Dockerfile
+    environment:
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
+      - MICRO_SERV_NOTIFICATIONS_ADDR=${MICRO_SERV_NOTIFICATIONS_ADDR}
+      - MICRO_SERV_NOTIFICATIONS_PORT=${MICRO_SERV_NOTIFICATIONS_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ADDRESS=${MYSQL_ADDRESS}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8007"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
 
   serviceorder:
     build:
       context:  .
       dockerfile: ./microServOrder/Dockerfile
     environment:
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
       - MICRO_SERV_ORDER_ADDR=${MICRO_SERV_ORDER_ADDR}
       - MICRO_SERV_ORDER_PORT=${MICRO_SERV_ORDER_PORT}
       - MONGO_HOST=${MONGO_HOST}
@@ -47,6 +98,7 @@ services:
       context:  .
       dockerfile: ./microServOrderPosition/Dockerfile
     environment:
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
       - MICRO_SERV_ORDER_POSITIONS_ADDR=${MICRO_SERV_ORDER_POSITIONS_ADDR}
       - MICRO_SERV_ORDER_POSITIONS_PORT=${MICRO_SERV_ORDER_POSITIONS_PORT}
       - MONGO_HOST=${MONGO_HOST}
@@ -61,11 +113,37 @@ services:
     networks:
       - easeat-net
 
+  servicepayment:
+    build: 
+      context:  .
+      dockerfile: ./microServPayment/Dockerfile
+    environment:
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
+      - MICRO_SERV_PAYMENT_ADDR=${MICRO_SERV_PAYMENT_ADDR}
+      - MICRO_SERV_PAYMENT_PORT=${MICRO_SERV_PAYMENT_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ADDRESS=${MYSQL_ADDRESS}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - ENV_MODE=${ENV_MODE}
+    expose:
+      - "8008"
+    deploy:
+      replicas: 2
+    networks:
+      - easeat-net
+
   servicerestaurant:
     build: 
       context:  .
       dockerfile: ./microServRestaurant/Dockerfile
     environment:
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
       - MICRO_SERV_RESTAURANT_ADDR=${MICRO_SERV_RESTAURANT_ADDR}
       - MICRO_SERV_RESTAURANT_PORT=${MICRO_SERV_RESTAURANT_PORT}
       - MYSQL_USER=${MYSQL_USER}
@@ -86,6 +164,7 @@ services:
       context:  .
       dockerfile: ./microServUsers/Dockerfile
     environment:
+      - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
       - MICRO_SERV_USERS_ADDR=${MICRO_SERV_USERS_ADDR}
       - MICRO_SERV_USERS_PORT=${MICRO_SERV_USERS_PORT}
       - MYSQL_USER=${MYSQL_USER}
@@ -101,17 +180,6 @@ services:
     networks:
       - easeat-net
 
-    servicepayment:
-    build: 
-      context:  .
-      dockerfile: ./microServPayment/Dockerfile
-    environment:
-      - MICRO_SERV_PAYMENT_ADDR=${MICRO_SERV_PAYMENT_ADDR}
-      - MICRO_SERV_PAYMENT_PORT=${MICRO_SERV_PAYMENT_PORT}
-      - MONGO_HOST=${MONGO_HOST}
-      - MONGO_PORT=${MONGO_PORT}
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
   servicenotification:
     build: 
       context:  .
@@ -123,6 +191,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
       - MONGO_HOST=${MONGO_HOST}
       - MONGO_PORT=${MONGO_PORT}
+      - API_GATEWAY_ADDR=${API_GATEWAY_ADDR}
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
       - ENV_MODE=${ENV_MODE}
     expose:
       - "8006"
@@ -143,11 +213,13 @@ services:
       - easeat-net
     depends_on:
       - serviceauth
+      - servicedeliveryperson
+      - servicenotifications
       - serviceorder
       - serviceorderposition
+      - servicepayment
       - servicerestaurant
       - serviceuser
-      - servicenotification
 
 networks:
   easeat-net:
