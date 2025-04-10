@@ -1,4 +1,4 @@
-package services
+package restaurantService
 
 import (
 	"fmt"
@@ -61,4 +61,4 @@ func (ns *NotificationService) SendOrderStatusUpdated(orderID string, userId str
 	}
 
 	return conn.WriteJSON(message)
-} 
+}

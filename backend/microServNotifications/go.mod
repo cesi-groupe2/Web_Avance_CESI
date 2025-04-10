@@ -13,7 +13,7 @@ replace github.com/cesi-groupe2/Web_Avance_CESI/backend/sqlDB => ../sqlDBMain
 require (
 	github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway v0.0.0-20250401104727-d352a7fb2f8d
 	github.com/gin-gonic/gin v1.10.0
-	go.mongodb.org/mongo-driver/v2 v2.1.0
+	go.mongodb.org/mongo-driver v1.17.3
 )
 
 require (
@@ -27,15 +27,13 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
-	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
+	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/swaggo/files v1.0.1 // indirect
 	github.com/swaggo/gin-swagger v1.6.0 // indirect
 	github.com/swaggo/swag v1.16.4 // indirect
+	go.mongodb.org/mongo-driver/v2 v2.1.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
 	gorm.io/gorm v1.25.12 // indirect
 )
