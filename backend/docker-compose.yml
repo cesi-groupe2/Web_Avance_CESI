@@ -119,6 +119,7 @@ services:
       dockerfile: ./microServPayment/Dockerfile
     environment:
       - ACCESS_JWT_KEY=${ACCESS_JWT_KEY}
+      - STRIPE_SECRET_KEY=sk_test_51RAAUmPjM3vsbSp4DfS1GvrHwgrggF5Zbea7m3nVKP1KcDN4mDpzE06QK89BATRs8F8TatHC0Ubm1bB4VG89QWgi00R3CXb2zW
       - MICRO_SERV_PAYMENT_ADDR=${MICRO_SERV_PAYMENT_ADDR}
       - MICRO_SERV_PAYMENT_PORT=${MICRO_SERV_PAYMENT_PORT}
       - MONGO_HOST=${MONGO_HOST}

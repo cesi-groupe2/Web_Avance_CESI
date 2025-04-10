@@ -35,7 +35,7 @@ func main() {
 	// Initialiser Stripe avec la clé secrète
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatal("Erreur: Impossible de charger le fichier .env")
+		log.Println("Erreur: Impossible de charger le fichier .env")
 	}
 	stripeKey := os.Getenv("STRIPE_SECRET_KEY")
 	if stripeKey == "" {
