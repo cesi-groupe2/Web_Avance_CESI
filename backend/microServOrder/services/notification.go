@@ -1,7 +1,6 @@
-package services
+package orderService
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -62,4 +61,4 @@ func (ns *NotificationService) SendOrderStatusUpdated(orderID string, userId str
 	}
 
 	return conn.WriteJSON(message)
-} 
+}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import PropTypes from "prop-types";
-import { FiUser, FiShoppingBag, FiMenu, FiX, FiHeart } from "react-icons/fi";
+import { FiUser, FiShoppingBag, FiMenu, FiX, FiHeart, FiBell } from "react-icons/fi";
 import logo from "../assets/logo.png";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
@@ -337,11 +337,82 @@ const FavoritesButton = styled(Link)`
   }
 `;
 
+const NotificationButton = styled(Link)`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  color: #333;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+`;
+
+const NotificationIcon = styled(FiBell)`
+  font-size: 20px;
+`;
+
+const NotificationBadge = styled.span`
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background-color: #d50000;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+`;
+
+const ProfileButton = styled(Link)`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  color: #333;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+`;
+
+const ProfileIcon = styled(FiUser)`
+  font-size: 20px;
+`;
+
+const RestaurantNotifications = () => {
+  const { notificationCount, setNotificationCount } = useState(0);
+
+  return (
+    <NotificationButton to="/restaurant/dashboard">
+      <NotificationIcon />
+      {notificationCount > 0 && (
+        <NotificationBadge>{notificationCount}</NotificationBadge>
+      )}
+    </NotificationButton>
+  );
+};
+
 const Header = () => {
   const { currentUser, token, isAuthenticated, logout } = useAuth();
   const { cartItems = [] } = useCart() || { cartItems: [] };
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -403,6 +474,14 @@ const Header = () => {
         <Actions>
           {isAuthenticated ? (
             <UserActions>
+              {currentUser?.role === "2" && (
+                <NotificationButton to="/restaurant/dashboard">
+                  <NotificationIcon />
+                  {notificationCount > 0 && (
+                    <NotificationBadge>{notificationCount}</NotificationBadge>
+                  )}
+                </NotificationButton>
+              )}
               <CartButton to="/cart">
                 <CartIcon />
                 {cartItems.length > 0 && <CartBadge>{cartItems.length}</CartBadge>}
