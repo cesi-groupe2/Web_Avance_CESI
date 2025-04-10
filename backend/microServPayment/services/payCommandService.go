@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v78"
@@ -81,14 +82,19 @@ func processPaymentWithStripe(orderID string, amount float64) (*stripe.PaymentIn
 func savePaymentToDB(ctx *gin.Context, database *mongo.Database, orderID string, amount float64, paymentIntentID string) error {
 	collection := database.Collection("payments")
 
+	userID := ctx.GetString("user_id") // Récupéré via ton middleware
+
 	_, err := collection.InsertOne(ctx, map[string]interface{}{
 		"order_id":      orderID,
 		"amount":        amount,
 		"status":        "paid",
 		"paymentIntent": paymentIntentID,
+		"paid_by":       userID,
+		"created_at":    time.Now(),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to save payment: %v", err)
 	}
 	return nil
 }
+
