@@ -182,6 +182,11 @@ const TotalRow = styled(SummaryRow)`
 const CheckoutButton = styled(Button)`
   margin-top: 1.5rem;
   width: 100%;
+  background-color: #00a082;
+  
+  &:hover {
+    background-color: #008a70;
+  }
 `;
 
 const RestaurantInfo = styled.div`
@@ -206,23 +211,23 @@ const Cart = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
-  const handleUpdateQuantity = (itemId, quantity, options = {}) => {
+  const handleUpdateQuantity = (itemId, quantity) => {
     if (quantity < 1) {
-      removeItem(itemId, options);
-    } else {
-      updateItemQuantity(itemId, quantity, options);
+      handleRemoveItem(itemId);
+      return;
     }
+    updateItemQuantity(itemId, quantity);
   };
   
-  const handleRemoveItem = (itemId, options = {}) => {
-    removeItem(itemId, options);
+  const handleRemoveItem = (itemId) => {
+    removeItem(itemId);
   };
   
   const handleCheckout = () => {
     if (isAuthenticated) {
       navigate('/order/checkout');
     } else {
-      navigate('/login');
+      navigate('/login', { state: { from: '/order/checkout' } });
     }
   };
   
@@ -263,8 +268,8 @@ const Cart = () => {
         
         <CartContent>
           <CartItems>
-            {cartItems.map((item, index) => (
-              <CartItem key={`${item.id}-${index}`}>
+            {cartItems.map((item) => (
+              <CartItem key={item.id}>
                 <ItemImage src={item.image || 'https://via.placeholder.com/80'} alt={item.name} />
                 <ItemDetails>
                   <ItemName>{item.name}</ItemName>
@@ -282,19 +287,19 @@ const Cart = () => {
                   
                   <ItemQuantity>
                     <QuantityButton 
-                      onClick={() => handleUpdateQuantity(item.id, item.quantity - 1, item.options)}
+                      onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                     >
                       <FiMinus size={16} />
                     </QuantityButton>
                     <QuantityText>{item.quantity}</QuantityText>
                     <QuantityButton 
-                      onClick={() => handleUpdateQuantity(item.id, item.quantity + 1, item.options)}
+                      onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                     >
                       <FiPlus size={16} />
                     </QuantityButton>
                   </ItemQuantity>
                   
-                  <RemoveButton onClick={() => handleRemoveItem(item.id, item.options)}>
+                  <RemoveButton onClick={() => handleRemoveItem(item.id)}>
                     <FiTrash2 size={16} /> Supprimer
                   </RemoveButton>
                 </ItemDetails>
@@ -322,7 +327,7 @@ const Cart = () => {
             </TotalRow>
             
             <CheckoutButton onClick={handleCheckout}>
-              {isAuthenticated ? "Passer à la commande" : "Se connecter pour commander"}
+              Passer au paiement
             </CheckoutButton>
           </CartSummary>
         </CartContent>

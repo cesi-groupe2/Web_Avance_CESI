@@ -14,10 +14,10 @@ import (
 func GenerateAccessToken(ctx *gin.Context, user model.User) (string, error) {
 	// Generate a token with the user's username (can replace with user's ID) and an expiration time of 2min
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId": user.IDUser,
+		"userId":     user.IDUser,
 		"userRoleId": user.IDRole,
-		"iat":      time.Now().Unix(),
-		"exp":      time.Now().Add(time.Minute * 10).Unix(),
+		"iat":        time.Now().Unix(),
+		"exp":        time.Now().Add(time.Minute * 10).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv(constants.ACCESS_JWT_KEY_ENV)))
