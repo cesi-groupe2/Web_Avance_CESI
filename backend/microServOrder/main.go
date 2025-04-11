@@ -9,7 +9,6 @@ import (
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/utils"
 	microservbase "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServOrder/docs"
-	_ "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServOrder/docs"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServOrder/roads"
 )
 
