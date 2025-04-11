@@ -453,111 +453,131 @@ const Checkout = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("=== Début de handleSubmit ===");
 
     const isValid = validateForm();
-    if (!isValid) return;
+    if (!isValid) {
+      console.log("Validation du formulaire échouée");
+      return;
+    }
+    console.log("Validation du formulaire réussie");
 
     setLoading(true);
     setMessage(null);
 
     try {
-      // 1. Création de la commande d'abord
-      const orderItems = cartItems.map(item => ({
-        menu_item_id: item.id,
-        quantity: item.quantity,
-        price: item.price,
-        options: item.options || {},
-        name: item.name
-      }));
+      // Vérifier le token avant de commencer
+      if (!token) {
+        console.error("Token manquant");
+        throw new Error("Vous devez être connecté pour effectuer un paiement");
+      }
+      console.log("Token présent");
 
+      // 1. Création de la commande
+      console.log("\n=== Tentative de création de la commande ===");
       const orderData = {
-        user_id: currentUser?.id_user || "guest",
+        customer_id: currentUser?.id_user || "guest",
         restaurant_id: restaurant?.id,
-        restaurant_name: restaurant?.name,
-        delivery_address: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
-        delivery_method: deliveryOption,
-        payment_method: paymentMethod,
-        status: "pending",
-        total_price: total,
-        items: orderItems,
-        delivery_fee: deliveryFee,
-        discount: discount,
-        contact_info: {
-          name: `${formData.firstName} ${formData.lastName}`,
-          email: formData.email,
-          phone: formData.phone
-        },
-        additional_info: formData.additionalInfo || ""
+        items: cartItems.map(item => ({
+          item_id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        })),
+        created_at: new Date().toISOString(),
+        delivery_at: new Date(Date.now() + 30 * 60000).toISOString(),
+        status: "PENDING"
       };
 
-      // Création de la commande
-      const orderResponse = await orderApi.rootPost(orderData);
-      if (!orderResponse || !orderResponse.id) {
-        throw new Error("Erreur lors de la création de la commande");
+      console.log("Données de la commande:", JSON.stringify(orderData, null, 2));
+      console.log("URL de la requête:", 'http://localhost:8080/order/');
+      console.log("En-têtes de la requête:", {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      });
+
+      fetch("http://localhost:8080/order/", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ foo: "bar" })
+      }).then(r => r.json()).then(console.log)
+      
+      const orderResponse = await fetch('http://localhost:8080/order/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+        body: JSON.stringify(orderData)
+      });
+
+      console.log("\n=== Réponse de la création de commande ===");
+      console.log("Status:", orderResponse.status);
+      console.log("Status Text:", orderResponse.statusText);
+      console.log("Headers:", Object.fromEntries(orderResponse.headers.entries()));
+
+      if (!orderResponse.ok) {
+        const errorText = await orderResponse.text();
+        console.error("Erreur serveur pour la commande:", errorText);
+        throw new Error(errorText || "Erreur lors de la création de la commande");
       }
 
-      // 2. Paiement avec le microservice
-      const amount = total; // Montant en euros
+      const createdOrder = await orderResponse.json();
+      console.log("Commande créée avec succès:", createdOrder);
+
+      // 2. Initialisation du paiement avec Stripe
+      console.log("\n=== Initialisation du paiement ===");
+      const amount = Math.round(total * 100); // Convertir en cents
       const paymentData = {
-        order_id: orderResponse.id,
+        order_id: createdOrder._id,
         amount: amount
       };
 
-      console.log("Données de paiement envoyées:", paymentData);
+      console.log("Données de paiement:", paymentData);
+      console.log("URL de la requête:", 'http://localhost:8080/payment/');
+      console.log("En-têtes de la requête:", {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      });
 
-      const apiCall = new ApiClient();
-      const paymentRes = await apiCall.callApi(
-        "http://localhost:8006/payment/", // Utilisation du port 8006 pour le microservice de paiement
-        "POST",
-        JSON.stringify(paymentData),
-        {}, // Query params
-        {}, // Path params
-        {}, // Cookie params
-        null, // Form params
-        ['BearerAuth'],
-        [], // Auth names
-        ['application/json'], // Content types
-        { 
-          'Content-Type': 'application/json',
+      const paymentResponse = await fetch('http://localhost:8080/payment/', {
+        method: 'POST',
+        headers: {
           'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-        }, // Headers
-        null, // Body
-        async (data, error) => {
-          if (error) {
-            console.error("Erreur détaillée:", error);
-            if (error.response) {
-              try {
-                const errorText = await error.response.text();
-                console.error("Réponse d'erreur brute:", errorText);
-                throw new Error(errorText || "Erreur lors de la création du paiement");
-              } catch (e) {
-                console.error("Erreur lors de la lecture de la réponse:", e);
-                throw new Error("Erreur lors de la création du paiement");
-              }
-            }
-            throw new Error(error.message || "Erreur lors de la création du paiement");
-          }
-        }
-      );
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+        body: JSON.stringify(paymentData)
+      });
 
-      if (!paymentRes.ok) {
-        const errorText = await paymentRes.text();
-        console.error("Erreur serveur:", errorText);
+      console.log("\n=== Réponse du paiement ===");
+      console.log("Status:", paymentResponse.status);
+      console.log("Status Text:", paymentResponse.statusText);
+      console.log("Headers:", Object.fromEntries(paymentResponse.headers.entries()));
+
+      if (!paymentResponse.ok) {
+        const errorText = await paymentResponse.text();
+        console.error("Erreur serveur de paiement:", errorText);
         throw new Error(errorText || "Erreur lors de la création du paiement");
       }
 
-      const paymentResult = await paymentRes.json();
+      const paymentResult = await paymentResponse.json();
+      console.log("Résultat du paiement:", paymentResult);
 
       if (!paymentResult.client_secret) {
-        console.error("Données de réponse manquantes:", paymentResult);
         throw new Error("Clé secrète de paiement manquante dans la réponse");
       }
 
       // 3. Confirmation du paiement avec Stripe
+      console.log("\n=== Confirmation du paiement avec Stripe ===");
       const result = await stripe.confirmCardPayment(paymentResult.client_secret, {
         payment_method: {
           card: elements.getElement(CardElement),
@@ -568,25 +588,32 @@ const Checkout = () => {
         }
       });
 
+      console.log("Résultat de la confirmation Stripe:", result);
+
       if (result.error) {
         throw new Error(result.error.message);
       }
 
-      if (result.paymentIntent.status !== "succeeded") {
+      if (result.paymentIntent.status === "succeeded") {
+        console.log("Paiement réussi !");
+        setMessage({ type: "success", text: "Paiement réussi !" });
+        clearCart();
+        setTimeout(() => {
+          navigate(`/order/tracking/${createdOrder._id}`);
+        }, 1500);
+      } else {
         throw new Error("Le paiement n'a pas été validé.");
       }
 
-      setMessage({ type: "success", text: "Commande confirmée !" });
-      clearCart();
-
-      setTimeout(() => {
-        navigate(`/order/tracking/${orderResponse.id}`);
-      }, 1500);
-
     } catch (error) {
-      console.error("Erreur lors du paiement:", error.message);
+      console.error("\n=== Erreur lors du processus de paiement ===");
+      console.error("Type d'erreur:", error.name);
+      console.error("Message d'erreur:", error.message);
+      console.error("Stack trace:", error.stack);
       setMessage({ type: "error", text: error.message });
+    } finally {
       setLoading(false);
+      console.log("=== Fin de handleSubmit ===");
     }
   };
   

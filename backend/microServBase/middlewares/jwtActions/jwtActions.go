@@ -27,11 +27,22 @@ func IsExpired(token *jwt.Token) bool {
 }
 
 func HaveGoodSecretKey(token *jwt.Token, secretKey string) bool {
-	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return true
+	// Vérifier si le token a été signé avec la bonne méthode
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		return false
 	}
-	log.Println(secretKey)
-	return false
+
+	// Vérifier si le token est valide avec la clé secrète fournie
+	_, err := jwt.Parse(token.Raw, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	
+	if err != nil {
+		log.Printf("Erreur de vérification de la clé secrète: %v", err)
+		return false
+	}
+
+	return true
 }
 
 func CheckIsRoadDoc(ctx *gin.Context) bool {

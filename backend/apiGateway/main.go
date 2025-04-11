@@ -23,15 +23,14 @@ import (
 // Middleware CORS
 func withCORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Définition des en-têtes CORS de base
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Max-Age", "86400") // 24 heures
 
-		// Gestion de la pré-requête OPTIONS
 		if r.Method == http.MethodOptions {
-			log.Printf("[CORS] Pré-requête OPTIONS sur %s", r.URL.Path)
-			w.WriteHeader(http.StatusOK)
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 		next(w, r)
@@ -63,7 +62,9 @@ func handleProxy(target string) http.HandlerFunc {
 
 		log.Printf("[PROXY] Redirection vers %s", proxyURL)
 
+		// Création d'un client HTTP
 		client := &http.Client{}
+
 		resp, err := client.Do(req)
 		if err != nil {
 			log.Printf("[ERREUR] Erreur de communication avec le microservice %s : %v", proxyURL, err)
@@ -74,19 +75,20 @@ func handleProxy(target string) http.HandlerFunc {
 
 		// Copie des en-têtes de la réponse du microservice vers la réponse finale
 		for key, values := range resp.Header {
-			// Filtrer les en-têtes CORS pour éviter qu'ils soient écrasés
-			if key == "Access-Control-Allow-Origin" || key == "Access-Control-Allow-Methods" || key == "Access-Control-Allow-Headers" {
+			// Ne pas copier les en-têtes CORS du microservice
+			if key == "Access-Control-Allow-Origin" || 
+			   key == "Access-Control-Allow-Methods" || 
+			   key == "Access-Control-Allow-Headers" || 
+			   key == "Access-Control-Allow-Credentials" || 
+			   key == "Access-Control-Max-Age" {
 				continue
 			}
+			// Supprimer l'en-tête existant avant d'ajouter les nouvelles valeurs
+			w.Header().Del(key)
 			for _, value := range values {
 				w.Header().Add(key, value)
 			}
 		}
-
-		// Redéfinir les en-têtes CORS afin d'éviter les problèmes côté front
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		// Réponse finale
 		w.WriteHeader(resp.StatusCode)
@@ -98,11 +100,21 @@ func handleProxy(target string) http.HandlerFunc {
 }
 
 func main() {
+	// Configuration des routes
 	http.HandleFunc("/auth/", handleProxy("http://localhost:8001"))
 	http.HandleFunc("/public/", handleProxy("http://localhost:8001"))
 	http.HandleFunc("/restaurant/", handleProxy("http://localhost:8004"))
 	http.HandleFunc("/payment/", handleProxy("http://localhost:8006"))
 	http.HandleFunc("/order/", handleProxy("http://localhost:8002"))
+
+	// Ajout d'un handler pour la racine qui gère les requêtes OPTIONS
+	http.HandleFunc("/", withCORS(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		http.NotFound(w, r)
+	}))
 
 	log.Println("🚀 API Gateway Easeat en écoute sur :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

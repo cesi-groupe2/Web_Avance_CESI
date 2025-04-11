@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/apiGateway/constants"
 	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares/jwtActions"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -23,47 +23,70 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		// Get the token from the header
-		token := c.Request.Header.Get("Authorization")
-		log.Println("Token:", token)
-		if token == "" {
-			log.Println("impossible to get token")
+		authHeader := c.Request.Header.Get("Authorization")
+		log.Printf("Authorization header reçu: %s", authHeader)
+		if authHeader == "" {
+			log.Println("Authorization header manquant")
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "No token provided"})
 			c.Abort()
 			return
 		}
 
-		// remove the "Bearer " prefix if it exists
-		token = jwtActions.RemoveBearerPrefix(token)
-		secretKey := os.Getenv(constants.ACCESS_JWT_KEY_ENV)
+		// Vérifier le format Bearer
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			log.Printf("Format du token invalide: %s", authHeader)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			c.Abort()
+			return
+		}
 
-		tokenJwt, _ := jwt.Parse(token, func(t *jwt.Token) (any, error) {
+		token := parts[1]
+		log.Printf("Token extrait: %s", token)
+		
+		// Obtenir la clé secrète
+		secretKey := os.Getenv("ACCESS_JWT_KEY")
+		log.Printf("Secret key chargée: %s", secretKey)
+		if secretKey == "" {
+			log.Printf("La clé secrète est vide")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Server configuration error"})
+			c.Abort()
+			return
+		}
+
+		// Parser le token
+		tokenJwt, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+			log.Printf("Méthode de signature: %v", t.Header["alg"])
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 			}
 			return []byte(secretKey), nil
 		})
 
-		// check if the token have good secret key
-		if !jwtActions.HaveGoodSecretKey(tokenJwt, secretKey) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token, wrong secret key"})
-			c.Abort()
-			return
-		}
-
-		// check if the token is valid
-		if err := tokenJwt.Claims.Valid(); err != nil {
+		if err != nil {
+			log.Printf("Erreur lors du parsing du token: %v", err)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return
 		}
 
-		// check the time validity of the token
-		if jwtActions.IsExpired(tokenJwt) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
+		// Vérifier la validité du token
+		if claims, ok := tokenJwt.Claims.(jwt.MapClaims); ok && tokenJwt.Valid {
+			log.Printf("Token valide avec claims: %+v", claims)
+			// Vérifier l'expiration
+			if jwtActions.IsExpired(tokenJwt) {
+				log.Printf("Token expiré")
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
+				c.Abort()
+				return
+			}
+			c.Next()
+		} else {
+			log.Printf("Token invalide")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return
 		}
-		c.Next()
 	}
 }
 

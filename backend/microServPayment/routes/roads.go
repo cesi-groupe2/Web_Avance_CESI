@@ -1,10 +1,10 @@
 package roads
 
 import (
+	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares"
 	payCommandService "github.com/cesi-groupe2/Web_Avance_CESI/backend/microServPayment/services"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
-	"github.com/cesi-groupe2/Web_Avance_CESI/backend/microServBase/middlewares"
 )
 
 // HandlerMicroServPaymentRoads configure les routes pour le microservice de paiement.
@@ -21,7 +21,6 @@ func HandlerMicroServPaymentRoads(server *gin.Engine, database *mongo.Database) 
 	payCommand.POST("/", func(ctx *gin.Context) {
 		payCommandService.CreatePayment(ctx, database)
 	})
-
 
 	return payCommand
 }
