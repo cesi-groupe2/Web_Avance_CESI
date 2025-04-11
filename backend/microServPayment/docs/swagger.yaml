@@ -1,0 +1,65 @@
+basePath: /payment
+definitions:
+  services.PaymentRequest:
+    properties:
+      amount:
+        type: number
+      order_id:
+        type: string
+    required:
+    - amount
+    - order_id
+    type: object
+host: localhost:8020
+info:
+  contact:
+    email: benjamin.guerre@viacesi.fr
+    name: Groupe 2 FISA INFO A4 CESI (2025)
+    url: https://contact.easeat.fr
+  description: This is a microservice for managing payments
+  title: Swagger Easeat Payment API
+  version: "2.0"
+paths:
+  /payment/:
+    post:
+      consumes:
+      - application/json
+      description: Enregistre un paiement dans la base MongoDB.
+      parameters:
+      - description: Données du paiement
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/services.PaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment successful
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request format
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to save payment
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Créer un paiement pour une commande
+      tags:
+      - Payment
+securityDefinitions:
+  BearerAuth:
+    description: Use /login to get your token and use it here
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
