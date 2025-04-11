@@ -19,9 +19,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/payment/": {
+        "/payment": {
             "post": {
-                "description": "Enregistre un paiement dans la base MongoDB.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Crée un PaymentIntent avec Stripe et enregistre la transaction dans MongoDB",
                 "consumes": [
                     "application/json"
                 ],
@@ -31,10 +36,10 @@ const docTemplate = `{
                 "tags": [
                     "Payment"
                 ],
-                "summary": "Créer un paiement pour une commande",
+                "summary": "Effectue un paiement avec Stripe",
                 "parameters": [
                     {
-                        "description": "Données du paiement",
+                        "description": "Payment request body",
                         "name": "payment",
                         "in": "body",
                         "required": true,
@@ -45,16 +50,14 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Payment successful",
+                        "description": "OK",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Invalid request format",
+                        "description": "Invalid request format or missing fields",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -63,7 +66,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to save payment",
+                        "description": "Failed to create payment or save transaction",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -72,6 +75,16 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/payment/": {
+            "post": {
+                "description": "Définit les endpoints accessibles sous \"/payment\".",
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Configure les routes du service de paiement",
+                "responses": {}
             }
         }
     },

@@ -20,13 +20,14 @@ info:
   title: Swagger Easeat Payment API
   version: "2.0"
 paths:
-  /payment/:
+  /payment:
     post:
       consumes:
       - application/json
-      description: Enregistre un paiement dans la base MongoDB.
+      description: Crée un PaymentIntent avec Stripe et enregistre la transaction
+        dans MongoDB
       parameters:
-      - description: Données du paiement
+      - description: Payment request body
         in: body
         name: payment
         required: true
@@ -36,24 +37,32 @@ paths:
       - application/json
       responses:
         "200":
-          description: Payment successful
+          description: OK
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "400":
-          description: Invalid request format
+          description: Invalid request format or missing fields
           schema:
             additionalProperties:
               type: string
             type: object
         "500":
-          description: Failed to save payment
+          description: Failed to create payment or save transaction
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Créer un paiement pour une commande
+      security:
+      - ApiKeyAuth: []
+      summary: Effectue un paiement avec Stripe
+      tags:
+      - Payment
+  /payment/:
+    post:
+      description: Définit les endpoints accessibles sous "/payment".
+      responses: {}
+      summary: Configure les routes du service de paiement
       tags:
       - Payment
 securityDefinitions:

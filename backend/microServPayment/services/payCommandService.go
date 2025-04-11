@@ -27,7 +27,17 @@ func InitStripe() {
 
 // CreatePayment gère la requête HTTP pour effectuer un paiement avec Stripe
 // CreatePayment godoc
-// @
+//	@Summary		Effectue un paiement avec Stripe
+//	@Description	Crée un PaymentIntent avec Stripe et enregistre la transaction dans MongoDB
+//	@Tags			Payment
+//	@Accept			json
+//	@Produce		json
+//	@Param			payment	body		PaymentRequest	true	"Payment request body"
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		400		{object}	map[string]string	"Invalid request format or missing fields"
+//	@Failure		500		{object}	map[string]string	"Failed to create payment or save transaction"
+//	@Router			/payment [post]
+//	@Security		ApiKeyAuth
 func CreatePayment(ctx *gin.Context, database *mongo.Database) {
 	var request PaymentRequest
 
